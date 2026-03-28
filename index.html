@@ -297,41 +297,44 @@ function getMarketContext(itemName, price, view) {
         }
 
 function getStationMarket(type) {
-    const config = stationTypes[type];
-    const market = { selling: [], buying: [] };
+            const config = stationTypes[type];
+            const market = { selling: [], buying: [] };
 
-    if (!config) return market;
+            if (!config) return market;
 
-    // Items the station SELLS to the player (What it produces)
-    // Supply is abundant, so the price drops BELOW the baseline.
-    if (config.produces) {
-        config.produces.forEach(itemName => {
-            const base = currentMarketPrices[itemName] || commodities[itemName].basePrice;
-            // 10% discount because the station manufactures it
-            market.selling.push({ item: itemName, price: Math.floor(base * 0.9) });
-        });
-    }
+            // Items the station SELLS to the player (What it produces)
+            if (config.produces) {
+                config.produces.forEach(itemName => {
+                    const base = currentMarketPrices[itemName] || commodities[itemName].basePrice;
+                    
+                    // Normal stations sell at a 20% discount. 
+                    // Trade Hubs act as middlemen, only offering a 5% discount.
+                    let discountMultiplier = 0.8; 
+                    if (type === "Trade Hub") discountMultiplier = 0.95; 
+                    
+                    market.selling.push({ item: itemName, price: Math.floor(base * discountMultiplier) });
+                });
+            }
 
-    // Items the station BUYS from the player (What it consumes)
-    // Supply is needed, so the price rises ABOVE the baseline based on demand.
-    if (config.consumes) {
-        Object.keys(config.consumes).forEach(itemName => {
-            const base = currentMarketPrices[itemName] || commodities[itemName].basePrice;
-            const demand = config.consumes[itemName];
-            
-            // Apply price multipliers based on how badly the station needs the item
-            let multiplier = 1.0; 
-            if (demand === "High") multiplier = 1.3;      // markup for high demand
-            else if (demand === "Average") multiplier = 1.2; // mmarkup for average demand
-            else if (demand === "TradeHub") multiplier = 1.1; // mmarkup (Hubs buy everything, but at a modest premium)
-            else if (demand === "Low") multiplier = 1.05;  // +5% markup for low demand
+            // Items the station BUYS from the player (What it consumes)
+            if (config.consumes) {
+                Object.keys(config.consumes).forEach(itemName => {
+                    const base = currentMarketPrices[itemName] || commodities[itemName].basePrice;
+                    const demand = config.consumes[itemName];
+                    
+                    // Apply price multipliers based on how badly the station needs the item
+                    let multiplier = 1.0; 
+                    if (demand === "High") multiplier = 1.4;      
+                    else if (demand === "Average") multiplier = 1.2; 
+                    else if (demand === "TradeHub") multiplier = 1.05; // 5% markup
+                    else if (demand === "Low") multiplier = 1.05;  
 
-            market.buying.push({ item: itemName, price: Math.ceil(base * multiplier) });
-        });
-    }
+                    market.buying.push({ item: itemName, price: Math.ceil(base * multiplier) });
+                });
+            }
 
-    return market;
-}
+            return market;
+        }
 
         function buyGood(itemName, price) {
             const total = Object.values(player.cargo).reduce((a, b) => a + b, 0);
