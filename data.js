@@ -1,23 +1,26 @@
 // ==========================================
 // COMMODITIES & BASELINE PRICES
 // ==========================================
+// ==========================================
+// COMMODITIES & BASELINE PRICES
+// ==========================================
 const commodities = {
-    "Water": { basePrice: 10 },
-    "Wheat": { basePrice: 20 },
-    "Meat": { basePrice: 40 },
-    "Packaged Food": { basePrice: 50 },
-    "Copper Ore": { basePrice: 30 },
-    "Iron Ore": { basePrice: 35 },
-    "Silicon Ore": { basePrice: 40 },
-    "Gold Ore": { basePrice: 80 },
-    "Platinum Ore": { basePrice: 100 },
-    "Copper Bars": { basePrice: 70 },
-    "Iron Bars": { basePrice: 80 },
-    "Silicon Wafers": { basePrice: 90 },
-    "Gold Bars": { basePrice: 200 },
-    "Platinum Bars": { basePrice: 250 },
-    "Machine Parts": { basePrice: 150 },
-    "Microchips": { basePrice: 300 }
+    "Water": { basePrice: 10, min: 6, max: 15 },
+    "Wheat": { basePrice: 20, min: 12, max: 30 },
+    "Meat": { basePrice: 40, min: 24, max: 60 },
+    "Packaged Food": { basePrice: 50, min: 30, max: 75 },
+    "Copper Ore": { basePrice: 30, min: 18, max: 45 },
+    "Iron Ore": { basePrice: 35, min: 21, max: 53 },
+    "Silicon Ore": { basePrice: 40, min: 24, max: 60 },
+    "Gold Ore": { basePrice: 80, min: 48, max: 120 },
+    "Platinum Ore": { basePrice: 100, min: 60, max: 150 },
+    "Copper Bars": { basePrice: 70, min: 42, max: 105 },
+    "Iron Bars": { basePrice: 80, min: 48, max: 120 },
+    "Silicon Wafers": { basePrice: 90, min: 54, max: 135 },
+    "Gold Bars": { basePrice: 200, min: 120, max: 300 },
+    "Platinum Bars": { basePrice: 250, min: 150, max: 375 },
+    "Machine Parts": { basePrice: 150, min: 90, max: 225 },
+    "Microchips": { basePrice: 300, min: 180, max: 450 }
 };
 
 // ==========================================
