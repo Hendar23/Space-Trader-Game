@@ -366,21 +366,49 @@ function loadGame() {
             updateUI();
         }
 
-        function renderMap() {
+function renderMap() {
             if (activeTab !== 'map') return;
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            ctx.beginPath();
-            ctx.arc((currentSystem.x * drawScale) - camera.x, (currentSystem.y * drawScale) - camera.y, jumpRange * drawScale, 0, Math.PI * 2);
-            ctx.strokeStyle = "#888888";
-            ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+            // Current system screen coordinates
+            const cx = (currentSystem.x * drawScale) - camera.x;
+            const cy = (currentSystem.y * drawScale) - camera.y;
             
+            // 1. Draw Jump Range Radar Fill & Border
+            ctx.beginPath();
+            ctx.arc(cx, cy, jumpRange * drawScale, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.03)"; // Very subtle background fill
+            ctx.fill();
+            ctx.strokeStyle = "#888888";
+            ctx.setLineDash([5, 5]); 
+            ctx.stroke(); 
+            ctx.setLineDash([]);
+            
+            // 2. Draw Connection Lines to reachable systems
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.15)"; // Light gray connection lines
+            ctx.lineWidth = 2;
+            galaxy.forEach(star => {
+                if (star.id !== currentSystem.id) {
+                    const dist = Math.sqrt((currentSystem.x - star.x)**2 + (currentSystem.y - star.y)**2);
+                    if (dist <= jumpRange) {
+                        const sx = (star.x * drawScale) - camera.x;
+                        const sy = (star.y * drawScale) - camera.y;
+                        ctx.beginPath();
+                        ctx.moveTo(cx, cy);
+                        ctx.lineTo(sx, sy);
+                        ctx.stroke();
+                    }
+                }
+            });
+            
+            // 3. Draw the Star Nodes and Names over the top of the lines
             galaxy.forEach(star => {
                 const sx = (star.x * drawScale) - camera.x; 
                 const sy = (star.y * drawScale) - camera.y;
                 
+                // Culling: Don't draw if completely off-screen
                 if (sx < -100 || sx > canvas.width + 100 || sy < -100 || sy > canvas.height + 100) return;
                 
                 const dist = Math.sqrt((currentSystem.x - star.x)**2 + (currentSystem.y - star.y)**2);
@@ -389,7 +417,10 @@ function loadGame() {
                 ctx.fillStyle = (star.id === currentSystem.id) ? "#000000" : "#ffffff";
                 ctx.strokeStyle = inRange ? "#000000" : "#777777";
                 ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.arc(sx, sy, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                ctx.beginPath(); 
+                ctx.arc(sx, sy, 8, 0, Math.PI * 2); 
+                ctx.fill(); 
+                ctx.stroke();
                 
                 ctx.fillStyle = inRange ? "#000000" : "#777777"; 
                 ctx.font = "bold 18px Courier New";
