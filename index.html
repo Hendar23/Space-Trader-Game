@@ -7,112 +7,50 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
-            background: #ffffff; 
-            color: #000000; 
-            font-family: 'Courier New', Courier, monospace;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            overflow: hidden;
+            background: #ffffff; color: #000000; font-family: 'Courier New', Courier, monospace;
+            user-select: none; -webkit-tap-highlight-color: transparent; overflow: hidden;
         }
         .border-main { border: 2px solid #000000; }
         .btn { 
-            border: 2px solid #000000; 
-            padding: 16px; 
-            background: #ffffff;
-            color: #000000;
-            font-weight: bold;
-            text-align: center;
-            width: 100%;
-            display: block;
-            margin-bottom: 8px;
-            font-size: 24px;
-            cursor: pointer;
+            border: 2px solid #000000; padding: 16px; background: #ffffff; color: #000000;
+            font-weight: bold; text-align: center; width: 100%; display: block;
+            margin-bottom: 8px; font-size: 24px; cursor: pointer;
         }
         .btn:active:not(:disabled) { background: #000000; color: #ffffff; }
         .btn:disabled { opacity: 0.3; border-style: dotted; cursor: not-allowed; }
         
         .tab-btn {
-            flex: 1;
-            padding: 14px 0;
-            font-weight: bold;
-            text-align: center;
-            border-bottom: 2px solid #000;
-            border-right: 2px solid #000;
-            text-transform: uppercase;
-            font-size: 20px;
-            cursor: pointer;
+            flex: 1; padding: 14px 0; font-weight: bold; text-align: center;
+            border-bottom: 2px solid #000; border-right: 2px solid #000;
+            text-transform: uppercase; font-size: 20px; cursor: pointer;
         }
         .tab-btn:last-child { border-right: none; }
         .tab-active { background: #000000; color: #ffffff; }
         
-        #btn-save { background: #f0f0f0; }
-        #btn-save:active { background: #000000; color: #ffffff; }
-
-        #star-map {
-            width: 100%;
-            height: 100%;
-            background: #ffffff;
-            touch-action: none;
-            cursor: grab;
-        }
-        #star-map:active { cursor: grabbing; }
-        
-        .progress-container {
-            width: 80%;
-            height: 32px;
-            border: 2px solid #000000;
-            margin-top: 16px;
-        }
+        #star-map { width: 100%; height: 100%; background: #ffffff; touch-action: none; cursor: grab; }
+        .progress-container { width: 80%; height: 32px; border: 2px solid #000000; margin-top: 16px; }
         #progress-bar { height: 100%; background: #000000; width: 0%; }
 
         .market-list-header {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr 1.5fr 1fr;
-            gap: 4px;
-            font-size: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            border-bottom: 2px solid #000;
-            padding-bottom: 4px;
-            margin-bottom: 8px;
-            opacity: 0.6;
+            display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr 1fr; gap: 4px;
+            font-size: 18px; font-weight: bold; text-transform: uppercase;
+            border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 8px; opacity: 0.6;
         }
-
         .market-item {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr 1.5fr 1fr;
-            gap: 4px;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 12px;
+            display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr 1fr; gap: 4px;
+            align-items: center; font-size: 22px; font-weight: bold; text-transform: uppercase; margin-bottom: 12px;
         }
-
-        .trade-btn { border: 2px solid black; padding: 10px 4px; font-weight: bold; font-size: 20px; text-align: center;}
+        .trade-btn { border: 2px solid black; padding: 10px 4px; font-weight: bold; font-size: 18px; text-align: center;}
         .trade-btn:active:not(:disabled) { background: black; color: white; }
-        .trade-btn:disabled { opacity: 0.3; border-style: dotted; cursor: not-allowed; }
         
         #travel-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            z-index: 50;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95); z-index: 50;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
         }
-
         #start-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #ffffff;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #ffffff; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
     </style>
     <script src="data.js"></script>
@@ -120,7 +58,7 @@
 <body class="flex flex-col h-screen max-h-screen">
 
     <div id="start-screen" class="p-4">
-        <h1 class="text-6xl font-bold uppercase mb-12 tracking-widest text-center border-b-4 border-black pb-4">Space<br>Trader</h1>
+        <h1 class="text-6xl font-bold uppercase mb-12 tracking-widest text-center border-b-4 border-black pb-4">Working<br>Title</h1>
         <div class="w-full max-w-sm space-y-4">
             <button class="btn !text-2xl !py-6" onclick="startNewGame()">NEW GAME</button>
             <button id="btn-load-game" class="btn !text-2xl !py-6" onclick="loadGame()" disabled>LOAD GAME</button>
@@ -141,19 +79,14 @@
     </div>
 
     <div id="main-content" class="flex-grow relative overflow-hidden flex flex-col p-4">
-        
         <div id="tab-map" class="absolute inset-0 p-4 flex flex-col hidden">
             <div class="flex justify-between items-end mb-2 shrink-0">
                 <p class="text-xl font-bold uppercase">Galaxy Map</p>
                 <p class="text-xl font-bold uppercase">Range: <span id="map-range-val">---</span>ly</p>
             </div>
-            <div class="border-main flex-grow overflow-hidden relative">
-                <canvas id="star-map"></canvas>
-            </div>
+            <div class="border-main flex-grow overflow-hidden relative"><canvas id="star-map"></canvas></div>
         </div>
-
         <div id="tab-local" class="hidden absolute inset-0 p-4 flex flex-col overflow-y-auto"></div>
-
         <div id="tab-ship" class="hidden absolute inset-0 p-4 overflow-y-auto">
             <div class="mb-6 text-2xl font-bold uppercase space-y-2">
                 <p>Class: Light Freighter</p>
@@ -163,40 +96,29 @@
             <h3 class="text-3xl font-bold mb-4 uppercase border-b border-black">Cargo Bay</h3>
             <div id="cargo-list" class="uppercase font-bold text-xl space-y-2"></div>
         </div>
-
         <div id="tab-player" class="hidden absolute inset-0 p-4 overflow-y-auto">
             <div class="uppercase font-bold text-2xl space-y-3">
                 <p>Name: Unknown Pilot</p>
                 <p>Rank: Harmless</p>
                 <p>Net Worth: <span id="player-credits">1000</span> Credits</p>
-                <p>Factions: Neutral</p>
             </div>
         </div>
-
     </div>
 
     <div id="travel-overlay">
         <h2 id="travel-text" class="animate-pulse text-5xl font-bold uppercase text-center px-4">WARP ACTIVE</h2>
-        <div class="progress-container">
-            <div id="progress-bar"></div>
-        </div>
+        <div class="progress-container"><div id="progress-bar"></div></div>
     </div>
 
     <script>
         const goods = [
-            { id: 'iron', name: 'Iron', avg: 50 },
-            { id: 'copper', name: 'Copper', avg: 70 },
-            { id: 'steel', name: 'Steel', avg: 150 },
-            { id: 'wire', name: 'Wire', avg: 180 },
-            { id: 'grain', name: 'Grain', avg: 30 },
-            { id: 'synth', name: 'Synth', avg: 90 },
-            { id: 'circuits', name: 'Chips', avg: 400 },
-            { id: 'tools', name: 'Tools', avg: 600 },
-            { id: 'meds', name: 'Meds', avg: 850 },
-            { id: 'cell', name: 'Cells', avg: 1200 }
+            { id: 'iron', name: 'Iron', avg: 50 }, { id: 'copper', name: 'Copper', avg: 70 },
+            { id: 'steel', name: 'Steel', avg: 150 }, { id: 'wire', name: 'Wire', avg: 180 },
+            { id: 'grain', name: 'Grain', avg: 30 }, { id: 'synth', name: 'Synth', avg: 90 },
+            { id: 'circuits', name: 'Chips', avg: 400 }, { id: 'tools', name: 'Tools', avg: 600 },
+            { id: 'meds', name: 'Meds', avg: 850 }, { id: 'cell', name: 'Cells', avg: 1200 }
         ];
 
-        // Core View Settings
         const drawScale = 4;
         let camera = { x: 0, y: 0, zoom: 1 };
         let isDragging = false;
@@ -204,7 +126,6 @@
         let dragThreshold = false;
         let initialPinchDistance = null;
 
-        // Player/System State
         let player = { credits: 1000, cargo: {}, cargoMax: 20 };
         let currentSystem = null;
         let currentPoi = null; 
@@ -217,16 +138,15 @@
         const ctx = canvas.getContext('2d');
 
         function getPoiDescription(poi) {
-            if (poi.description) return poi.description; 
             const descs = {
-                "Agricultural": `Hydroponic bays provide life for the sector.`,
-                "Industrial": `Smelting arrays roar in the dark.`,
-                "Mining": `Asteroid dust coats every bulkhead.`,
-                "Tech": `Sterile corridors hum with data.`,
-                "Medical": `Antiseptic scents greet your arrival.`,
-                "Energy": `Plasma conduits thrum with raw power.`
+                "Agricultural": `Vast hydroponic bays provide life for the sector.`,
+                "Industrial": `The deafening roar of smelting arrays echoes in the dark.`,
+                "Mining": `Coated in asteroid dust, miners bring their haul here.`,
+                "Tech": `Sterile corridors hum with precision server banks.`,
+                "Medical": `Pristine bulkheads and the scent of antiseptics greet you.`,
+                "Energy": `Massive plasma conduits thrum with raw power.`
             };
-            return descs[poi.type] || `A standard outpost.`;
+            return poi.description || descs[poi.type] || `A standard trade outpost.`;
         }
 
         function checkExistingSave() {
@@ -264,7 +184,7 @@
 
         function startNewGame() {
             if (typeof galaxy === 'undefined') return alert("data.js missing!");
-            player = { credits: 1000, cargo: {}, cargoMax: 20 };
+            player = { credits: 100, cargo: {}, cargoMax: 20 };
             currentSystem = galaxy[0];
             initializeEconomy();
             document.getElementById('start-screen').style.display = 'none';
@@ -305,10 +225,17 @@
             activeTab = tabId;
             localView = 'menu';
             ['map', 'local', 'ship', 'player'].forEach(id => {
-                document.getElementById(`tab-${id}`).style.display = (id === tabId) ? 'flex' : 'none';
-                document.getElementById(`btn-${id}`).classList.toggle('tab-active', id === tabId);
+                const el = document.getElementById(`tab-${id}`);
+                const btn = document.getElementById(`btn-${id}`);
+                if (el) el.style.display = (id === tabId) ? 'flex' : 'none';
+                if (btn) btn.classList.toggle('tab-active', id === tabId);
             });
             if (tabId === 'map') renderMap();
+            updateUI();
+        }
+
+        function setLocalView(view) {
+            localView = view;
             updateUI();
         }
 
@@ -317,55 +244,33 @@
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
             ctx.save();
             ctx.translate(-camera.x, -camera.y);
             ctx.scale(camera.zoom, camera.zoom);
-            
             const cx = currentSystem.x * drawScale;
             const cy = currentSystem.y * drawScale;
-            
-            // Range Radar
             ctx.beginPath();
             ctx.arc(cx, cy, jumpRange * drawScale, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(0, 0, 0, 0.03)"; 
-            ctx.fill();
-            ctx.strokeStyle = "#888888";
-            ctx.lineWidth = 2 / camera.zoom;
-            ctx.setLineDash([5 / camera.zoom, 5 / camera.zoom]); 
-            ctx.stroke(); 
-            ctx.setLineDash([]);
-            
-            // Connections
+            ctx.fillStyle = "rgba(0, 0, 0, 0.03)"; ctx.fill();
+            ctx.strokeStyle = "#888888"; ctx.lineWidth = 2 / camera.zoom;
+            ctx.setLineDash([5 / camera.zoom, 5 / camera.zoom]); ctx.stroke(); ctx.setLineDash([]);
             ctx.strokeStyle = "rgba(0, 0, 0, 0.15)";
-            ctx.lineWidth = 2 / camera.zoom;
             galaxy.forEach(star => {
                 if (star.id !== currentSystem.id) {
                     const dist = Math.sqrt((currentSystem.x - star.x)**2 + (currentSystem.y - star.y)**2);
                     if (dist <= jumpRange) {
-                        ctx.beginPath();
-                        ctx.moveTo(cx, cy);
-                        ctx.lineTo(star.x * drawScale, star.y * drawScale);
-                        ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(star.x * drawScale, star.y * drawScale); ctx.stroke();
                     }
                 }
             });
-            
-            // Star Nodes
             galaxy.forEach(star => {
-                const sx = star.x * drawScale; 
-                const sy = star.y * drawScale;
+                const sx = star.x * drawScale; const sy = star.y * drawScale;
                 const dist = Math.sqrt((currentSystem.x - star.x)**2 + (currentSystem.y - star.y)**2);
                 const inRange = dist <= jumpRange;
-                
                 ctx.fillStyle = (star.id === currentSystem.id) ? "#000000" : "#ffffff";
                 ctx.strokeStyle = inRange ? "#000000" : "#777777";
                 ctx.lineWidth = 2 / camera.zoom;
-                ctx.beginPath(); 
-                ctx.arc(sx, sy, 8 / camera.zoom, 0, Math.PI * 2); 
-                ctx.fill(); 
-                ctx.stroke();
-                
+                ctx.beginPath(); ctx.arc(sx, sy, 8 / camera.zoom, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                 ctx.fillStyle = inRange ? "#000000" : "#777777"; 
                 ctx.font = `bold ${18 / camera.zoom}px Courier New`;
                 ctx.fillText(star.name.toUpperCase(), sx + (18 / camera.zoom), sy + (6 / camera.zoom));
@@ -373,116 +278,156 @@
             ctx.restore();
         }
 
+        function getMarketContext(price, avg, view) {
+            const diff = (price - avg) / avg;
+            let arrow = "■", color = "text-gray-400";
+            if (diff >= 0.15) { arrow = "▲▲▲"; color = view === 'buy' ? "text-red-600" : "text-green-600"; }
+            else if (diff >= 0.05) { arrow = "▲"; color = view === 'buy' ? "text-red-600" : "text-green-600"; }
+            else if (diff <= -0.15) { arrow = "▼▼▼"; color = view === 'buy' ? "text-green-600" : "text-red-600"; }
+            else if (diff <= -0.05) { arrow = "▼"; color = view === 'buy' ? "text-green-600" : "text-red-600"; }
+            return `<div class="flex items-center justify-center gap-1"><span class="text-sm opacity-50">${avg}</span><span class="${color} font-bold text-xl">${arrow}</span></div>`;
+        }
+
+        function buyGood(id, price) {
+            const total = Object.values(player.cargo).reduce((a, b) => a + b, 0);
+            if (player.credits >= price && total < player.cargoMax) {
+                player.credits -= price;
+                player.cargo[id] = (player.cargo[id] || 0) + 1;
+                updateUI();
+            }
+        }
+
+        function sellGood(id, price) {
+            if (player.cargo[id] > 0) {
+                player.credits += price;
+                player.cargo[id] -= 1;
+                updateUI();
+            }
+        }
+
         function updateUI() {
-            const currentTotal = Object.values(player.cargo).reduce((a, b) => a + b, 0);
+            const total = Object.values(player.cargo).reduce((a, b) => a + b, 0);
             document.getElementById('status-credits').innerText = player.credits;
-            document.getElementById('status-cargo').innerText = currentTotal;
+            document.getElementById('status-cargo').innerText = total;
             document.getElementById('status-cargo-max').innerText = player.cargoMax;
             document.getElementById('map-range-val').innerText = jumpRange;
 
             const localTab = document.getElementById('tab-local');
+            if (!currentSystem) return;
+
             if (!currentPoi) {
                 let html = `<h2 class="text-4xl font-bold uppercase">${currentSystem.name}</h2><p class="text-2xl font-bold uppercase text-gray-600 mb-6 border-b-2 border-black">Deep Space</p>`;
-                currentSystem.pois.forEach((p, i) => html += `<button class="btn" onclick="triggerLocalTravel(${i})">${p.name.toUpperCase()}</button>`);
+                currentSystem.pois.forEach((p, i) => html += `<button class="btn" onclick="triggerLocalTravel(${i})">${p.name.toUpperCase()} <br><span class="text-lg text-gray-600">(${p.type})</span></button>`);
                 localTab.innerHTML = html;
             } else {
-                // Simplified Market Logic for space constraints
-                localTab.innerHTML = `<h2 class="text-4xl uppercase font-bold">${currentPoi.name}</h2><button class="btn" onclick="setLocalView('menu')">BACK</button>`;
-                // ... Market logic continues as per your original UI ...
+                let html = `<h2 class="text-4xl font-bold uppercase">${currentPoi.name}</h2><p class="text-xl font-bold uppercase text-gray-600 mb-4 border-b-2 border-black">Facility: ${currentPoi.type}</p>`;
+                if (localView === 'menu') {
+                    html += `<p class="text-xl mb-8 italic border-l-4 border-black pl-4 py-2 bg-gray-50">${getPoiDescription(currentPoi)}</p>`;
+                    html += `<div class="space-y-4 max-w-md mx-auto">
+                        <button class="btn" onclick="setLocalView('buy')">MARKET (BUY)</button>
+                        <button class="btn" onclick="setLocalView('sell')">MARKET (SELL)</button>
+                        <button class="btn !mt-12 bg-gray-200" onclick="triggerLocalTravel(-1)">UNDOCK</button>
+                    </div>`;
+                } else {
+                    html += `<div class="flex justify-between items-center mb-6 border-b-2 border-black pb-2">
+                        <h3 class="text-3xl font-bold uppercase">${localView}ING</h3>
+                        <button class="btn !w-auto !mb-0 !py-2 !px-4 !text-xl" onclick="setLocalView('menu')">◀ BACK</button>
+                    </div><div class="overflow-y-auto">`;
+                    const key = `${currentSystem.id}_${currentSystem.pois.indexOf(currentPoi)}`;
+                    html += `<div class="market-list-header"><span>Item</span><span class="text-center">Price</span><span class="text-center">Hold</span><span class="text-center">Avg</span><span class="text-center">Action</span></div>`;
+                    goods.forEach(g => {
+                        const price = localView === 'buy' ? globalMarkets[key][g.id].buy : globalMarkets[key][g.id].sell;
+                        const qty = player.cargo[g.id] || 0;
+                        const can = localView === 'buy' ? (player.credits >= price && total < player.cargoMax) : (qty > 0);
+                        html += `<div class="market-item">
+                            <span>${g.name}</span><span class="text-center">${price}</span><span class="text-center">${qty}</span>
+                            ${getMarketContext(price, g.avg, localView)}
+                            <button class="trade-btn" onclick="${localView}Good('${g.id}', ${price})" ${can ? '' : 'disabled'}>${localView.toUpperCase()}</button>
+                        </div>`;
+                    });
+                    html += `</div>`;
+                }
+                localTab.innerHTML = html;
             }
+            
+            let cl = '';
+            for (const [id, q] of Object.entries(player.cargo)) {
+                if (q > 0) cl += `<div class="flex justify-between border-b border-gray-300 py-1"><span>${goods.find(g=>g.id===id).name}</span><span>${q} SCU</span></div>`;
+            }
+            document.getElementById('cargo-list').innerHTML = cl || '<p class="text-gray-500 italic">Empty.</p>';
+            document.getElementById('ship-cargo-current').innerText = total;
+            document.getElementById('player-credits').innerText = player.credits;
         }
 
         function triggerLocalTravel(i) {
             const dest = i === -1 ? null : currentSystem.pois[i];
-            triggerTravel(dest, dest ? `TRANSIT TO ${dest.name}` : "DEPARTING", 1000);
+            triggerTravel(dest, dest ? `APPROACHING ${dest.name}` : "DEPARTING STATION", 1000);
         }
 
         function triggerTravel(dest, msg, dur) {
-            const overlay = document.getElementById('travel-overlay');
+            const ov = document.getElementById('travel-overlay');
             const bar = document.getElementById('progress-bar');
             document.getElementById('travel-text').innerText = msg;
-            overlay.style.display = 'flex';
+            ov.style.display = 'flex';
             let start = Date.now();
             let t = setInterval(() => {
                 let pc = ((Date.now() - start) / dur) * 100;
                 bar.style.width = pc + "%";
                 if (pc >= 100) { 
-                    clearInterval(t); 
-                    currentPoi = dest;
-                    simulateEconomyTick();
-                    overlay.style.display = 'none';
-                    updateUI(); 
-                    if (activeTab === 'map') renderMap();
+                    clearInterval(t); currentPoi = dest; simulateEconomyTick(); ov.style.display = 'none'; updateUI(); if (activeTab === 'map') renderMap();
                 }
             }, 30);
         }
 
-        // --- IMPROVED INPUT HANDLERS ---
         function handleDown(x, y) { isDragging = true; dragThreshold = false; lastMouse = { x, y }; }
         function handleMove(x, y) {
             if (!isDragging || activeTab !== 'map') return;
-            let dx = x - lastMouse.x; let dy = y - lastMouse.y;
+            let dx = x - lastMouse.x, dy = y - lastMouse.y;
             if (Math.abs(dx) > 5 || Math.abs(dy) > 5) dragThreshold = true;
-            camera.x -= dx; camera.y -= dy; 
-            lastMouse = { x, y }; 
-            renderMap();
+            camera.x -= dx; camera.y -= dy; lastMouse = { x, y }; renderMap();
         }
-
         function handleUp(x, y) {
             if (!isDragging || activeTab !== 'map') return;
             isDragging = false;
             if (!dragThreshold) {
                 const r = canvas.getBoundingClientRect();
-                const wx = ((x - r.left) + camera.x) / camera.zoom;
-                const wy = ((y - r.top) + camera.y) / camera.zoom;
+                const wx = ((x - r.left) + camera.x) / camera.zoom, wy = ((y - r.top) + camera.y) / camera.zoom;
                 galaxy.forEach(s => {
                     const d = Math.sqrt((wx - s.x * drawScale)**2 + (wy - s.y * drawScale)**2);
                     if (d < 20 / camera.zoom && s.id !== currentSystem.id) {
                         if (Math.sqrt((currentSystem.x - s.x)**2 + (currentSystem.y - s.y)**2) <= jumpRange) {
-                            currentSystem = s;
-                            centerOnSystem(s);
-                            triggerTravel(null, `WARPING TO ${s.name.toUpperCase()}`, 2500);
+                            currentSystem = s; centerOnSystem(s); triggerTravel(null, `WARPING TO ${s.name}`, 2500);
                         }
                     }
                 });
             }
         }
-
         canvas.addEventListener('wheel', e => {
-            if (activeTab !== 'map') return;
-            e.preventDefault();
+            if (activeTab !== 'map') return; e.preventDefault();
             const r = canvas.getBoundingClientRect();
-            const mx = e.clientX - r.left; const my = e.clientY - r.top;
-            const wx = (mx + camera.x) / camera.zoom; const wy = (my + camera.y) / camera.zoom;
-            camera.zoom *= (e.deltaY > 0 ? 0.9 : 1.1);
-            camera.zoom = Math.min(Math.max(camera.zoom, 0.2), 3);
-            camera.x = (wx * camera.zoom) - mx; camera.y = (wy * camera.zoom) - my;
-            renderMap();
+            const mx = e.clientX - r.left, my = e.clientY - r.top;
+            const wx = (mx + camera.x) / camera.zoom, wy = (my + camera.y) / camera.zoom;
+            camera.zoom *= (e.deltaY > 0 ? 0.9 : 1.1); camera.zoom = Math.min(Math.max(camera.zoom, 0.2), 3);
+            camera.x = (wx * camera.zoom) - mx; camera.y = (wy * camera.zoom) - my; renderMap();
         }, { passive: false });
-
         canvas.addEventListener('mousedown', e => handleDown(e.clientX, e.clientY));
         window.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
         window.addEventListener('mouseup', e => handleUp(e.clientX, e.clientY));
-
         canvas.addEventListener('touchstart', e => {
             if (e.touches.length === 2) initialPinchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
             else handleDown(e.touches[0].clientX, e.touches[0].clientY);
         });
-
         canvas.addEventListener('touchmove', e => {
             if (activeTab !== 'map') return; e.preventDefault();
             if (e.touches.length === 2 && initialPinchDistance) {
                 const cur = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                const wx = (midX + camera.x) / camera.zoom; const wy = (midY + camera.y) / camera.zoom;
-                camera.zoom *= (cur / initialPinchDistance);
-                camera.zoom = Math.min(Math.max(camera.zoom, 0.2), 3);
+                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2, midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                const wx = (midX + camera.x) / camera.zoom, wy = (midY + camera.y) / camera.zoom;
+                camera.zoom *= (cur / initialPinchDistance); camera.zoom = Math.min(Math.max(camera.zoom, 0.2), 3);
                 camera.x = (wx * camera.zoom) - midX; camera.y = (wy * camera.zoom) - midY;
                 initialPinchDistance = cur; renderMap();
             } else handleMove(e.touches[0].clientX, e.touches[0].clientY);
         }, { passive: false });
-
         canvas.addEventListener('touchend', e => { initialPinchDistance = null; if (e.changedTouches.length) handleUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY); });
         window.addEventListener('resize', renderMap);
         checkExistingSave();
