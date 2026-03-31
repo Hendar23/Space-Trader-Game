@@ -611,9 +611,11 @@ function handleUp(x, y) {
         window.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
         window.addEventListener('mouseup', e => handleUp(e.clientX, e.clientY));
         canvas.addEventListener('touchstart', e => {
+            e.preventDefault(); // Cancels the ghost click
             if (e.touches.length === 2) initialPinchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
             else handleDown(e.touches[0].clientX, e.touches[0].clientY);
-        });
+        }, { passive: false });
+
         canvas.addEventListener('touchmove', e => {
             if (activeTab !== 'map') return; e.preventDefault();
             if (e.touches.length === 2 && initialPinchDistance) {
@@ -624,6 +626,12 @@ function handleUp(x, y) {
                 camera.x = (wx * camera.zoom) - midX; camera.y = (wy * camera.zoom) - midY;
                 initialPinchDistance = cur; renderMap();
             } else handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', e => { 
+            e.preventDefault(); // Cancels the ghost click
+            initialPinchDistance = null; 
+            if (e.changedTouches.length) handleUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY); 
         }, { passive: false });
         canvas.addEventListener('touchend', e => { initialPinchDistance = null; if (e.changedTouches.length) handleUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY); });
         window.addEventListener('resize', renderMap);
