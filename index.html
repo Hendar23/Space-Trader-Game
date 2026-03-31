@@ -365,11 +365,47 @@ function getStationMarket(type) {
 
             if (!currentPoi) {
                 let html = `<h2 class="text-4xl font-bold uppercase">${currentSystem.name}</h2><p class="text-2xl font-bold uppercase text-gray-600 mb-6 border-b-2 border-black">Deep Space</p>`;
-                currentSystem.pois.forEach((p, i) => html += `<button class="btn" onclick="triggerLocalTravel(${i})">${p.name.toUpperCase()} <br><span class="text-lg text-gray-600">(${p.type})</span></button>`);
+                
+                currentSystem.pois.forEach((p, i) => {
+                    // Re-use the image resolution logic for the menu buttons
+                    const stationConfig = stationTypes[p.type] || {};
+                    const imageFile = p.image || stationConfig.defaultImage || 'default.png';
+                    const imagePath = `assets/${imageFile}`;
+
+                    html += `
+                    <button class="btn !p-2" onclick="triggerLocalTravel(${i})">
+                        <div class="flex items-center gap-4 text-left">
+                            <div class="w-16 h-16 shrink-0 border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
+                                <img src="${imagePath}" alt="${p.type}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">
+                            </div>
+                            <div>
+                                <div class="text-2xl leading-none mb-1">${p.name.toUpperCase()}</div>
+                                <div class="text-lg text-gray-600">(${p.type})</div>
+                            </div>
+                        </div>
+                    </button>`;
+                });
+                
                 localTab.innerHTML = html;
             } else {
-                let html = `<h2 class="text-4xl font-bold uppercase">${currentPoi.name}</h2><p class="text-xl font-bold uppercase text-gray-600 mb-4 border-b-2 border-black">Facility: ${currentPoi.type}</p>`;
-                if (localView === 'menu') {
+                // --- IMAGE LOGIC ---
+                // 1. Check for specific override. 2. Check station type default. 3. Fallback to default.png
+                const stationConfig = stationTypes[currentPoi.type] || {};
+                const imageFile = currentPoi.image || stationConfig.defaultImage || 'default.png';
+                const imagePath = `assets/${imageFile}`;
+
+                // Render the header with the image to the left
+                let html = `
+                    <div class="flex items-center gap-4 mb-4 border-b-2 border-black pb-4">
+                        <div class="w-24 h-24 shrink-0 border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
+                            <img src="${imagePath}" alt="${currentPoi.type}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">
+                        </div>
+                        <div>
+                            <h2 class="text-4xl font-bold uppercase">${currentPoi.name}</h2>
+                            <p class="text-xl font-bold uppercase text-gray-600">Facility: ${currentPoi.type}</p>
+                        </div>
+                    </div>
+                `;                if (localView === 'menu') {
                     html += `<p class="text-xl mb-8 italic border-l-4 border-black pl-4 py-2 bg-gray-50">${getPoiDescription(currentPoi)}</p>`;
                     html += `<div class="space-y-4 max-w-md mx-auto">
                         <button class="btn" onclick="setLocalView('buy')">BUY COMMODITIES</button>

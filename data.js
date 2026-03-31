@@ -28,6 +28,7 @@ const commodities = {
 // ==========================================
 const stationTypes = {
     "Trade Hub": {
+	defaultImage: "tradehub.png",
         produces: ["Water", "Wheat", "Meat", "Packaged Food", "Copper Ore", "Iron Ore", "Silicon Ore", "Gold Ore", "Platinum Ore", "Copper Bars", "Iron Bars", "Silicon Wafers", "Gold Bars", "Platinum Bars", "Machine Parts", "Microchips"],
         consumes: { "Water": "TradeHub", "Wheat": "TradeHub", "Meat": "TradeHub", "Packaged Food": "TradeHub", "Copper Ore": "TradeHub", "Iron Ore": "TradeHub", "Silicon Ore": "TradeHub", "Gold Ore": "TradeHub", "Platinum Ore": "TradeHub", "Copper Bars": "TradeHub", "Iron Bars": "TradeHub", "Silicon Wafers": "TradeHub", "Gold Bars": "TradeHub", "Platinum Bars": "TradeHub", "Machine Parts": "TradeHub", "Microchips": "TradeHub" }
     },
@@ -93,7 +94,7 @@ const stationTypes = {
 // GALAXY MAP (10 Systems)
 // ==========================================
 const galaxy = [
-    { id: 0, name: "Sol", x: 483, y: 516, pois: [{ name: "Earth Spacedock", type: "Trade Hub", description: "A massive central trading hub. Everything is available, but convenience comes at a high price." }, { name: "Lunar Ice Extractors", type: "Ice Mine", description: "Vast machines evaporate ice into water" }, { name: "Martian Wheat Farm", type: "Wheat Farm" }] },
+    { id: 0, name: "Sol", x: 483, y: 516, pois: [{ name: "Earth Spacedock", type: "Trade Hub", description: "A massive central trading hub. Everything is available, but convenience comes at a high price." }, { name: "Lunar Ice Extractors", type: "Ice Mine", image: "tradehub.png", description: "Vast machines evaporate ice into water" }, { name: "Martian Wheat Farm", type: "Wheat Farm" }] },
     { id: 1, name: "Alpha Centauri", x: 520, y: 480, pois: [{ name: "Centauri Pastures", type: "Livestock Farm" }, { name: "Alpha Meats", type: "Meat Processing Plant" }] },
     { id: 2, name: "Sirius", x: 580, y: 550, pois: [{ name: "Sirius Iron Works", type: "Iron Mine" }, { name: "Dog Star Copper", type: "Copper Mine" }] },
     { id: 3, name: "Vega", x: 420, y: 410, pois: [{ name: "Vega Smelting", type: "Metal Ore Refinery" }, { name: "Lyra Machine Co.", type: "Machine Parts Factory" }] },
