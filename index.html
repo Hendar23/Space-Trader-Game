@@ -123,7 +123,9 @@
         let currentPoi = null; 
         let jumpRange = 100;
         let activeTab = 'map';
-        let localView = 'menu'; 
+        let localView = 'menu';
+	let currentEncounterName = null;
+        let currentDialogueNode = null; 
         let currentMarketPrices = {}; // Tracks volatile system prices
 
         const canvas = document.getElementById('star-map');
@@ -353,6 +355,23 @@ function getStationMarket(type) {
             }
         }
 
+	function startEncounter(name) {
+            currentEncounterName = name;
+            currentDialogueNode = 'start'; // Always begin at the "start" node
+            setLocalView('encounter');
+        }
+
+        function selectDialogue(nextNode) {
+            if (nextNode === 'leave') {
+                currentEncounterName = null;
+                currentDialogueNode = null;
+                setLocalView('menu'); // Return to the POI menu
+            } else {
+                currentDialogueNode = nextNode; // Move to the next text block
+                updateUI();
+            }
+        }
+
         function updateUI() {
             const total = Object.values(player.cargo).reduce((a, b) => a + b, 0);
             document.getElementById('status-credits').innerText = player.credits;
@@ -407,12 +426,53 @@ function getStationMarket(type) {
                     </div>
                 `;                if (localView === 'menu') {
                     html += `<p class="text-xl mb-8 italic border-l-4 border-black pl-4 py-2 bg-gray-50">${getPoiDescription(currentPoi)}</p>`;
+                    
+                    // Standard Market Buttons
                     html += `<div class="space-y-4 max-w-md mx-auto">
                         <button class="btn" onclick="setLocalView('buy')">BUY COMMODITIES</button>
                         <button class="btn" onclick="setLocalView('sell')">SELL COMMODITIES</button>
-                        <button class="btn !mt-12 bg-gray-200" onclick="triggerLocalTravel(-1)">UNDOCK</button>
                     </div>`;
+
+                    // --- NEW ENCOUNTER BUTTONS LOGIC ---
+                    if (currentPoi.encounters && currentPoi.encounters.length > 0) {
+                        html += `<h3 class="text-2xl font-bold uppercase mt-12 mb-4 border-b-2 border-black">Local Amenities</h3>
+                                 <div class="space-y-4 max-w-md mx-auto">`;
+                        currentPoi.encounters.forEach(encName => {
+                            html += `<button class="btn bg-gray-100" onclick="startEncounter('${encName}')">APPROACH ${encName.toUpperCase()}</button>`;
+                        });
+                        html += `</div>`;
+                    }
+
+                    // Undock Button
+                    html += `<div class="space-y-4 max-w-md mx-auto mt-12"><button class="btn bg-gray-200" onclick="triggerLocalTravel(-1)">UNDOCK</button></div>`;
+
+                } else if (localView === 'encounter') {
+                    // --- NEW DIALOGUE RENDERING LOGIC ---
+                    const encData = interactions[currentEncounterName];
+                    const node = encData.dialogue[currentDialogueNode];
+                    const encImagePath = `assets/${encData.image || 'default.png'}`;
+
+                    html += `
+                        <div class="flex flex-col h-full min-h-[50vh]">
+                            <div class="flex-grow bg-gray-50 p-6 border-2 border-black mb-6 flex gap-6 shadow-inner">
+                                <div class="w-32 h-32 shrink-0 border-2 border-black bg-white flex items-center justify-center overflow-hidden">
+                                    <img src="${encImagePath}" alt="${currentEncounterName}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">
+                                </div>
+                                <div class="text-2xl font-bold italic text-gray-800 self-center">
+                                    ${node.text}
+                                </div>
+                            </div>
+                            <div class="space-y-4 shrink-0 mt-auto max-w-2xl mx-auto w-full">
+                    `;
+
+                    node.options.forEach(opt => {
+                        html += `<button class="btn" onclick="selectDialogue('${opt.nextNode}')">${opt.text}</button>`;
+                    });
+
+                    html += `</div></div>`;
+
                 } else {
+                    // ... the rest of the existing BUY / SELL market rendering logic stays exactly the same ...
                     html += `<div class="flex justify-between items-center mb-6 border-b-2 border-black pb-2">
                         <h3 class="text-3xl font-bold uppercase">${localView}ING</h3>
                         <button class="btn !w-auto !mb-0 !py-2 !px-4 !text-xl" onclick="setLocalView('menu')">◀ BACK</button>

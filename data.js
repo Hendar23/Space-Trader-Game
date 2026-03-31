@@ -1,6 +1,34 @@
 // ==========================================
-// COMMODITIES & BASELINE PRICES
+// INTERACTIONS & ENCOUNTERS
 // ==========================================
+const interactions = {
+    "Shady Bartender": {
+        image: "portrait001.png", // Will fallback to default.png if missing
+        dialogue: {
+            "start": {
+                text: "\"What're you drinking, spacer?\"",
+                options: [
+                    { text: "Just information today.", nextNode: "info" },
+                    { text: "Whatever is on tap.", nextNode: "drink" },
+                    { text: "[Leave]", nextNode: "leave" } // 'leave' is a special keyword we'll use in the code
+                ]
+            },
+            "info": {
+                text: "\"Information costs credits. Try the Trade Hub notice board if you're broke. I just pour drinks.\"",
+                options: [
+                    { text: "I'll keep that in mind. [Leave]", nextNode: "leave" }
+                ]
+            },
+            "drink": {
+                text: "He pours you a glowing blue liquid. It tastes like battery acid and regret.",
+                options: [
+                    { text: "Ugh. Thanks. [Leave]", nextNode: "leave" }
+                ]
+            }
+        }
+    }
+};
+
 // ==========================================
 // COMMODITIES & BASELINE PRICES
 // ==========================================
@@ -91,10 +119,10 @@ const stationTypes = {
 };
 
 // ==========================================
-// GALAXY MAP (10 Systems)
+// GALAXY MAP
 // ==========================================
 const galaxy = [
-    { id: 0, name: "Sol", x: 483, y: 516, pois: [{ name: "Earth Spacedock", type: "Trade Hub", description: "A massive central trading hub. Everything is available, but convenience comes at a high price." }, { name: "Lunar Ice Extractors", type: "Ice Mine", image: "tradehub.png", description: "Vast machines evaporate ice into water" }, { name: "Martian Wheat Farm", type: "Wheat Farm" }] },
+    { id: 0, name: "Sol", x: 483, y: 516, pois: [{ name: "Earth Spacedock", type: "Trade Hub", image: "earth_tradehub.png", encounters: ["Shady Bartender"], description: "A massive central trading hub. Everything is available, but convenience comes at a high price." }, { name: "Lunar Ice Extractors", type: "Ice Mine", image: "tradehub.png", description: "Vast machines evaporate ice into water" }, { name: "Martian Wheat Farm", type: "Wheat Farm" }] },
     { id: 1, name: "Alpha Centauri", x: 520, y: 480, pois: [{ name: "Centauri Pastures", type: "Livestock Farm" }, { name: "Alpha Meats", type: "Meat Processing Plant" }] },
     { id: 2, name: "Sirius", x: 580, y: 550, pois: [{ name: "Sirius Iron Works", type: "Iron Mine" }, { name: "Dog Star Copper", type: "Copper Mine" }] },
     { id: 3, name: "Vega", x: 420, y: 410, pois: [{ name: "Vega Smelting", type: "Metal Ore Refinery" }, { name: "Lyra Machine Co.", type: "Machine Parts Factory" }] },
