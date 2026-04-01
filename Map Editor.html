@@ -433,63 +433,83 @@
             }
         }
 
-        async function saveToFile() {
-            if (!fileHandle) return;
+async function saveToFile() {
+    if (!fileHandle) return;
 
-            const btn = document.getElementById("btn-save");
-            const originalText = btn.innerText;
-            btn.innerText = "SAVING...";
+    const btn = document.getElementById("btn-save");
+    const originalText = btn.innerText;
+    btn.innerText = "SAVING...";
 
-            try {
-                // Recombine prefix, updated galaxy array, and the suffix
-                let out = filePrefix + "const galaxy = [\n";
+    try {
+        // Recombine prefix, updated galaxy array, and the suffix
+        let out = filePrefix + "const galaxy = [\n";
+        
+        galaxy.forEach((sys, i) => {
+            let poisStr = (sys.pois || []).map(p => {
+                let pStr = `{ name: "${p.name}", type: "${p.type}"`;
                 
-                galaxy.forEach((sys, i) => {
-                    let poisStr = (sys.pois || []).map(p => {
-                        let pStr = `{ name: "${p.name}", type: "${p.type}"`;
-                        
-                        if (p.image && p.image.trim() !== "") {
-                            pStr += `, image: "${p.image.trim()}"`;
-                        }
-                        
-                        if (p.encounters && p.encounters.length > 0) {
-                            pStr += `, encounters: [${p.encounters.map(e => `"${e}"`).join(", ")}]`;
-                        }
-
-                        if (p.description && p.description.trim() !== "") {
-                            pStr += `, description: "${p.description.replace(/"/g, '\\"')}"`;
-                        }
-                        
-                        pStr += ` }`;
-                        return pStr;
-                    }).join(", ");
-                    
-                    out += `    { id: ${sys.id}, name: "${sys.name}", x: ${sys.x}, y: ${sys.y}, pois: [${poisStr}] }`;
-                    if (i < galaxy.length - 1) out += ",";
-                    out += "\n";
-                });
+                // Allow empty strings to be saved so the game knows to override the default image
+                if (p.image !== undefined) {
+                    pStr += `, image: "${p.image.trim()}"`;
+                }
                 
-                // Add the suffix back safely
-                out += "];" + (fileSuffix.startsWith('\n') ? '' : '\n') + fileSuffix;
+                if (p.encounters && p.encounters.length > 0) {
+                    pStr += `, encounters: [${p.encounters.map(e => `"${e}"`).join(", ")}]`;
+                }
 
-                const writable = await fileHandle.createWritable();
-                await writable.write(out);
-                await writable.close();
-
-                btn.innerText = "SAVED SUCCESSFULLY!";
-                btn.classList.add("bg-black", "text-white");
+                if (p.description !== undefined) {
+                    pStr += `, description: "${p.description.replace(/"/g, '\\"')}"`;
+                }
                 
-            } catch (err) {
-                console.error(err);
-                btn.innerText = "SAVE FAILED!";
-                btn.classList.add("bg-red-500", "text-white");
-            }
+                pStr += ` }`;
+                return pStr;
+            }).join(", ");
+            
+            out += `    { id: ${sys.id}, name: "${sys.name}", x: ${sys.x}, y: ${sys.y}, pois: [${poisStr}] }`;
+            if (i < galaxy.length - 1) out += ",";
+            out += "\n";
+        });
+        
+        // Add the suffix back safely
+        out += "];" + (fileSuffix.startsWith('\n') ? '' : '\n') + fileSuffix;
 
-            setTimeout(() => {
-                btn.innerText = originalText;
-                btn.classList.remove("bg-black", "text-white", "bg-red-500");
-            }, 2000);
+        try {
+            // Attempt direct file overwrite
+            const writable = await fileHandle.createWritable();
+            await writable.write(out);
+            await writable.close();
+
+            btn.innerText = "SAVED SUCCESSFULLY!";
+            btn.classList.add("bg-black", "text-white");
+        } catch (writeErr) {
+            console.warn("Direct write failed, falling back to download:", writeErr);
+            
+            // Fallback: Trigger a download of the modified data.js
+            const blob = new Blob([out], { type: "text/javascript" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "data.js";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            btn.innerText = "DOWNLOADED FILE!";
+            btn.classList.add("bg-yellow-500", "text-black");
         }
+        
+    } catch (err) {
+        console.error("Critical string generation error:", err);
+        btn.innerText = "SAVE FAILED!";
+        btn.classList.add("bg-red-500", "text-white");
+    }
+
+    setTimeout(() => {
+        btn.innerText = originalText;
+        btn.classList.remove("bg-black", "text-white", "bg-red-500", "bg-yellow-500", "text-black");
+    }, 2500);
+}
 
         setTimeout(resize, 100);
 
