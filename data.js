@@ -1,4 +1,15 @@
 // ==========================================
+// QUESTS & TASKS
+// ==========================================
+const quests = {
+    "meet_frank": {
+        title: "Speak to Frank",
+        description: "Find Frank at Sol Taxis in the Sol system and speak to him about work.",
+        targetSystemId: 0 // Sol's ID is 0
+    }
+};
+
+// ==========================================
 // INTERACTIONS & ENCOUNTERS
 // ==========================================
 const interactions = {
@@ -27,14 +38,14 @@ const interactions = {
                     { text: "Ugh. Thanks. [Leave]", nextNode: "leave" }
                 ]
             },
-            "work": {
-                text: "<i>\"Speak to Frank at Sol taxis, they are always looking for pilots.\"</i>",
+	    "work": {
+                text: "\"Speak to Frank at Sol taxis, they are always looking for drivers.\"</i>",
                 options: [
-                    { text: "Thanks. [Leave]", nextNode: "leave", setFlag: "knows_frank" }
+                    { text: "Thanks. [Leave]", nextNode: "leave", setFlag: "knows_frank", startTask: "meet_frank" }
                 ]
             },
             "work2": {
-                text: "He sighs, looking annoyed that you asked again.<br><br><i>\"Like I said, speak to Frank at Sol taxis.\"</i>",
+                text: "\"Like I said, speak to Frank at Sol taxis.\"</i>",
                 options: [
                     { text: "Thanks. [Leave]", nextNode: "leave"}
                 ]
@@ -48,7 +59,8 @@ const interactions = {
             "start": {
                 text: "The dispatchers office is cluttered and dirty. Smoke hangs in the air.<br><br><i>\"Yeah?\"</i>",
                 options: [
-                    { text: "Nothing. [Leave]", nextNode: "leave" } 
+                    // Added completeTask!
+                    { text: "The bartender sent me.", nextNode: "leave", completeTask: "meet_frank" } 
                 ]
             }
         }
