@@ -469,7 +469,7 @@ function getStationMarket(type) {
 function renderStationMenu() {
             let html = `<p class="text-xl mb-8 italic border-l-4 border-black pl-4 py-2 bg-gray-50">${getPoiDescription(currentPoi)}</p>`;
 
-            // --- NEW: Check if the station actually has a market ---
+            // Check if the station actually has a market
             const config = stationTypes[currentPoi.type] || {};
             const hasMarket = (config.produces && config.produces.length > 0) || (config.consumes && Object.keys(config.consumes).length > 0);
 
@@ -480,13 +480,32 @@ function renderStationMenu() {
                 </div>`;
             }
 
-            // --- Encounters Rendering ---
             if (currentPoi.encounters && currentPoi.encounters.length > 0) {
                 const mtClass = hasMarket ? "mt-8" : ""; // Only add top margin if buttons are above it
                 html += `<div class="space-y-4 max-w-md mx-auto ${mtClass}">`;
+                
                 currentPoi.encounters.forEach(encName => {
-                    html += `<button class="btn bg-gray-100" onclick="startEncounter('${encName}')">${encName.toUpperCase()}</button>`;
+                    // 1. Get the encounter data from data.js
+                    const encData = interactions[encName] || {};
+                    // 2. Set the image path or fallback to default
+                    const encImageFile = encData.image || 'default.png';
+                    const encImagePath = `assets/${encImageFile}`;
+
+                    // 3. Render the button using the flex/image layout (matching station buttons)
+                    // I've used w-16 h-16 (smaller) and bg-white (for the image container)
+                    html += `
+                    <button class="btn bg-gray-100 !p-2" onclick="startEncounter('${encName}')">
+                        <div class="flex items-center gap-4 text-left">
+                            <div class="w-16 h-16 shrink-0 border-2 border-black bg-white flex items-center justify-center overflow-hidden">
+                                <img src="${encImagePath}" alt="${encName}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">
+                            </div>
+                            <div>
+                                <div class="text-2xl leading-none mb-1">${encName.toUpperCase()}</div>
+                            </div>
+                        </div>
+                    </button>`;
                 });
+                
                 html += `</div>`;
             }
 
