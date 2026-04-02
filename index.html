@@ -31,13 +31,13 @@
         .progress-container { width: 80%; height: 32px; border: 2px solid #000000; margin-top: 16px; }
         #progress-bar { height: 100%; background: #000000; width: 0%; }
 
-        .market-list-header {
-            display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr 1fr; gap: 4px;
+	.market-list-header {
+            display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr; gap: 4px;
             font-size: 18px; font-weight: bold; text-transform: uppercase;
             border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 8px; opacity: 0.6;
         }
         .market-item {
-            display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr 1fr; gap: 4px;
+            display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr; gap: 4px;
             align-items: center; font-size: 18px; font-weight: bold; text-transform: uppercase; margin-bottom: 12px;
         }
         .trade-btn { border: 2px solid black; padding: 10px 4px; font-weight: bold; font-size: 16px; text-align: center;}
@@ -60,8 +60,8 @@
     <div id="start-screen" class="p-4">
         <h1 class="text-6xl font-bold uppercase mb-12 tracking-widest text-center border-b-4 border-black pb-4">ACTINIC<br>LIGHT</h1>
         <div class="w-full max-w-sm space-y-4">
-            <button class="btn !text-2xl !py-6" onclick="startNewGame()">NEW GAME</button>
-            <button id="btn-load-game" class="btn !text-2xl !py-6" onclick="loadGame()" disabled>LOAD GAME</button>
+            <button class="btn !text-2xl !py-6" onclick="startNewGame()">NEW</button>
+            <button id="btn-load-game" class="btn !text-2xl !py-6" onclick="loadGame()" disabled>CONTINUE</button>
         </div>
     </div>
 
@@ -75,7 +75,6 @@
         <div class="tab-btn" onclick="switchTab('local')" id="btn-local">Local</div>
         <div class="tab-btn" onclick="switchTab('ship')" id="btn-ship">Ship</div>
         <div class="tab-btn" onclick="switchTab('player')" id="btn-player">Player</div>
-        <div class="tab-btn" onclick="saveGame()" id="btn-save">Save</div>
     </div>
 
     <div id="main-content" class="flex-grow relative overflow-hidden flex flex-col p-4">
@@ -180,13 +179,10 @@
             renderMap();
         }
 
-        function saveGame() {
+	function saveGame() {
             localStorage.setItem('spaceTraderSaveV4', JSON.stringify({
                 player, systemId: currentSystem.id, poiName: currentPoi?.name, jumpRange, currentMarketPrices
             }));
-            const btn = document.getElementById('btn-save');
-            btn.innerText = "SAVED!";
-            setTimeout(() => btn.innerText = "SAVE", 1500);
         }
 
 	function loadGame() {
@@ -300,7 +296,7 @@ function getMarketContext(itemName, price, view) {
                 else if (ratio > 0.05) { arrow = "▼"; color = view === 'buy' ? "text-green-600" : "text-red-600"; }
             }
 
-            return `<div class="flex items-center justify-center gap-1"><span class="text-sm opacity-50">${base}</span><span class="${color} font-bold text-xl">${arrow}</span></div>`;
+            return `<span class="${color} font-bold text-xl ml-1">${arrow}</span>`;
         }
 
 function getStationMarket(type) {
@@ -331,7 +327,6 @@ function getStationMarket(type) {
             if (config.consumes) {
                 Object.keys(config.consumes).forEach(itemName => {
                     
-                    // --- THE FIX: If we already priced this item for selling, match it EXACTLY ---
                     if (resolvedPrices[itemName]) {
                         market.buying.push({ item: itemName, price: resolvedPrices[itemName] });
                     } else {
@@ -352,12 +347,13 @@ function getStationMarket(type) {
             return market;
         }
 
-        function buyGood(itemName, price) {
+	function buyGood(itemName, price) {
             const total = Object.values(player.cargo).reduce((a, b) => a + b, 0);
             if (player.credits >= price && total < player.cargoMax) {
                 player.credits -= price;
                 player.cargo[itemName] = (player.cargo[itemName] || 0) + 1;
                 updateUI();
+                saveGame(); // <--- AUTOSAVE
             }
         }
 
@@ -366,6 +362,7 @@ function getStationMarket(type) {
                 player.credits += price;
                 player.cargo[itemName] -= 1;
                 updateUI();
+                saveGame(); // <--- AUTOSAVE
             }
         }
 
@@ -375,28 +372,24 @@ function getStationMarket(type) {
             setLocalView('encounter');
         }
 
-function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = '') {
-            // Apply the credit transaction
+	function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = '') {
             player.credits += creditChange;
-
-            // --- NEW: Apply state changes ---
             if (setFlag) player.flags[setFlag] = true;
             if (clearFlag) player.flags[clearFlag] = false;
 
             if (nextNode === 'leave') {
                 currentEncounterName = null;
                 currentDialogueNode = null;
-                
                 if (currentPoi && currentPoi.type === 'Encounter') {
                     triggerLocalTravel(-1); 
                 } else {
                     setLocalView('menu'); 
                 }
-                
             } else {
                 currentDialogueNode = nextNode; 
                 updateUI();
             }
+            saveGame(); // <--- AUTOSAVE
         }
 
 	// ==========================================
@@ -591,7 +584,7 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
             return html;
         }
 
-        function renderMarket(totalCargo) {
+	function renderMarket(totalCargo) {
             let html = `<div class="flex justify-between items-center mb-6 border-b-2 border-black pb-2">
                 <h3 class="text-3xl font-bold uppercase">${localView}ING</h3>
                 <button class="btn !w-auto !mb-0 !py-2 !px-4 !text-xl" onclick="setLocalView('menu')">◀ BACK</button>
@@ -600,7 +593,8 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
             const marketData = getStationMarket(currentPoi.type);
             const activeMarket = localView === 'buy' ? marketData.selling : marketData.buying;
             
-            html += `<div class="market-list-header"><span>Item</span><span class="text-center">Price</span><span class="text-center">Hold</span><span class="text-center">Avg</span><span class="text-center">Action</span></div>`;
+            // --- UPDATED: Removed the "Avg" header ---
+            html += `<div class="market-list-header"><span>Item</span><span class="text-center">Price</span><span class="text-center">Hold</span><span class="text-center">Action</span></div>`;
             
             if (activeMarket.length === 0) {
                 html += `<p class="text-gray-500 italic mt-4">No goods available for ${localView}.</p>`;
@@ -611,10 +605,11 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
                     const qty = player.cargo[itemName] || 0;
                     const can = localView === 'buy' ? (player.credits >= price && totalCargo < player.cargoMax) : (qty > 0);
                     
+                    // --- UPDATED: Placed the arrow directly next to the price ---
                     html += `<div class="market-item">
                         <span class="text-sm sm:text-lg leading-tight pr-1" title="${itemName}">${itemName}</span>
-                        <span class="text-center">${price}</span><span class="text-center">${qty}</span>
-                        ${getMarketContext(itemName, price, localView)}
+                        <span class="text-center flex items-center justify-center">${price} ${getMarketContext(itemName, price, localView)}</span>
+                        <span class="text-center">${qty}</span>
                         <button class="trade-btn" onclick="${localView}Good('${itemName}', ${price})" ${can ? '' : 'disabled'}>${localView.toUpperCase()}</button>
                     </div>`;
                 });
@@ -664,6 +659,7 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
                     }
                     
                     if (activeTab === 'map') renderMap();
+		    saveGame(); // <--- AUTOSAVE
                 }
             }, 30);
         }
