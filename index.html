@@ -58,7 +58,7 @@
 <body class="flex flex-col h-[100dvh] max-h-[100dvh]">
 
     <div id="start-screen" class="p-4">
-        <h1 class="text-6xl font-bold uppercase mb-12 tracking-widest text-center border-b-4 border-black pb-4">Working<br>Title</h1>
+        <h1 class="text-6xl font-bold uppercase mb-12 tracking-widest text-center border-b-4 border-black pb-4">ACTINIC<br>LIGHT</h1>
         <div class="w-full max-w-sm space-y-4">
             <button class="btn !text-2xl !py-6" onclick="startNewGame()">NEW GAME</button>
             <button id="btn-load-game" class="btn !text-2xl !py-6" onclick="loadGame()" disabled>LOAD GAME</button>
@@ -165,7 +165,6 @@
 	function startNewGame() {
             if (typeof galaxy === 'undefined') return alert("data.js missing!");
             
-            // --- FIXED: Added flags: {} to the new player object ---
             player = { credits: 100, cargo: {}, cargoMax: 20, flags: {} }; 
             
             currentSystem = galaxy[0];
@@ -195,7 +194,6 @@
             if (data && typeof galaxy !== 'undefined') {
                 player = data.player;
                 
-                // --- FIXED: Safely inject flags into older save files ---
                 player.flags = player.flags || {};
                 
                 currentSystem = galaxy.find(s => s.id === data.systemId) || galaxy[0];
@@ -215,7 +213,6 @@
 	function switchTab(tabId) {
             activeTab = tabId;
             
-            // --- NEW: Don't break the UI if checking ship cargo during an encounter ---
             if (currentPoi && currentPoi.type === 'Encounter') {
                 localView = 'encounter';
             } else {
@@ -312,34 +309,43 @@ function getStationMarket(type) {
 
             if (!config) return market;
 
-            // Items the station SELLS to the player (What it produces)
+            // --- A localized price memory bank ---
+            const resolvedPrices = {};
+
+            // 1. Calculate prices for items the station SELLS to the player
             if (config.produces) {
                 config.produces.forEach(itemName => {
                     const base = currentMarketPrices[itemName] || commodities[itemName].basePrice;
                     
                     // Normal stations sell at a 20% discount. 
-                    // Trade Hubs act as middlemen, only offering a 5% discount.
-                    let discountMultiplier = 0.8; 
-                    if (type === "Trade Hub") discountMultiplier = 0.95; 
+                    // Trade Hubs trade at flat market value (1.0 multiplier) to prevent exploits.
+                    let discountMultiplier = type === "Trade Hub" ? 1.0 : 0.8; 
                     
-                    market.selling.push({ item: itemName, price: Math.floor(base * discountMultiplier) });
+                    // Calculate and store the final price so we can reference it later
+                    resolvedPrices[itemName] = Math.floor(base * discountMultiplier);
+                    market.selling.push({ item: itemName, price: resolvedPrices[itemName] });
                 });
             }
 
-            // Items the station BUYS from the player (What it consumes)
+            // 2. Calculate prices for items the station BUYS from the player
             if (config.consumes) {
                 Object.keys(config.consumes).forEach(itemName => {
-                    const base = currentMarketPrices[itemName] || commodities[itemName].basePrice;
-                    const demand = config.consumes[itemName];
                     
-                    // Apply price multipliers based on how badly the station needs the item
-                    let multiplier = 1.0; 
-                    if (demand === "High") multiplier = 1.4;      
-                    else if (demand === "Average") multiplier = 1.2; 
-                    else if (demand === "TradeHub") multiplier = 1.05; // 5% markup
-                    else if (demand === "Low") multiplier = 1.05;  
+                    // --- THE FIX: If we already priced this item for selling, match it EXACTLY ---
+                    if (resolvedPrices[itemName]) {
+                        market.buying.push({ item: itemName, price: resolvedPrices[itemName] });
+                    } else {
+                        // Otherwise, it's an item the station only buys, so calculate demand normally
+                        const base = currentMarketPrices[itemName] || commodities[itemName].basePrice;
+                        const demand = config.consumes[itemName];
+                        
+                        let multiplier = 1.0; 
+                        if (demand === "High") multiplier = 1.4;      
+                        else if (demand === "Average") multiplier = 1.2; 
+                        else if (demand === "Low") multiplier = 1.05;  
 
-                    market.buying.push({ item: itemName, price: Math.ceil(base * multiplier) });
+                        market.buying.push({ item: itemName, price: Math.ceil(base * multiplier) });
+                    }
                 });
             }
 
@@ -393,7 +399,7 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
             }
         }
 
-// ==========================================
+	// ==========================================
         // UI RENDERING ENGINE
         // ==========================================
 
@@ -475,7 +481,7 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
             `;
         }
 
-function renderStationMenu() {
+	function renderStationMenu() {
             let html = `<p class="text-xl mb-8 italic border-l-4 border-black pl-4 py-2 bg-gray-50">${getPoiDescription(currentPoi)}</p>`;
 
             // Check if the station actually has a market
@@ -526,7 +532,7 @@ function renderStationMenu() {
             return html;
         }
 
-function renderEncounter() {
+	function renderEncounter() {
             let html = '';
             if (currentPoi && currentPoi.type === 'Encounter') {
                 html += `<p class="text-xl mb-8 italic border-l-4 border-black pl-4 py-2 bg-gray-50">${getPoiDescription(currentPoi)}</p>`;
@@ -670,7 +676,7 @@ function renderEncounter() {
             camera.x -= dx; camera.y -= dy; lastMouse = { x, y }; renderMap();
         }
 
-function handleUp(x, y) {
+	function handleUp(x, y) {
             if (!isDragging || activeTab !== 'map') return;
             isDragging = false;
             
@@ -684,8 +690,7 @@ function handleUp(x, y) {
                     
                     // If we clicked on a star node
                     if (d < 20 / camera.zoom) {
-                        if (s.id === currentSystem.id) {
-                            // --- NEW: If it's the current system, just open the local menu ---
+                        if (s.id === currentSystem.id) {-
                             switchTab('local');
                         } else {
                             // Existing logic: If it's a different system, try to warp there
