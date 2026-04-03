@@ -14,22 +14,21 @@ const quests = {
 // ==========================================
 const interactions = {
     "Bartender Milo": {
-        image: "portrait001.png", // Will fallback to default.png if missing
+        image: "portrait001.png",
         dialogue: {
             "start": {
                 text: "\"What're you drinking, spacer?\"</i>",
                 options: [
-                    //{ text: "Can you just give me some money?", nextNode: "cash" },
                     { text: "Got any work?", nextNode: "work", hidesOnFlag: "knows_frank" },
                     { text: "About that job...", nextNode: "work2", requiresFlag: "knows_frank" },
                     { text: "Whatever is on tap.", nextNode: "drink", credits: -1 },
-                    { text: "[Leave]", nextNode: "leave" } // 'leave' is a special keyword
+                    { text: "[Leave]", nextNode: "leave" }
                 ]
             },
             "cash": {
                 text: "He rolls his eyes and tosses a cred-chip onto the bar.<br><br><i>\"I guess you are just testing the game, so why not? Here you go.\"</i>",
                 options: [
-                    { text: "Thanks! [Leave]", nextNode: "leave", credits: +1000 }
+                    { text: "Thanks! [Leave]", nextNode: "leave", credits: 1000 }
                 ]
             },
             "drink": {
@@ -38,7 +37,7 @@ const interactions = {
                     { text: "Ugh. Thanks. [Leave]", nextNode: "leave" }
                 ]
             },
-	    "work": {
+            "work": {
                 text: "\"Speak to Frank at Sol taxis, they are always looking for pilots.\"</i>",
                 options: [
                     { text: "Thanks. [Leave]", nextNode: "leave", setFlag: "knows_frank", startTask: "meet_frank" }
@@ -47,37 +46,42 @@ const interactions = {
             "work2": {
                 text: "\"Like I said, speak to Frank at Sol taxis.\"</i>",
                 options: [
-                    { text: "Thanks. [Leave]", nextNode: "leave"}
+                    { text: "Thanks. [Leave]", nextNode: "leave" }
                 ]
             }
         }
     },
-
-"Dispatcher Frank": {
-        image: "portrait002.png", 
+    "Dispatcher Frank": {
+        image: "portrait002.png",
         dialogue: {
             "start": {
                 text: "The dispatchers office is cluttered and dirty. Smoke hangs in the air.<br><br><i>\"Yeah?\"</i>",
                 options: [
-                    // Added completeTask!
-                    { text: "The bartender sent me.", nextNode: "leave", completeTask: "meet_frank" } 
+                    { text: "The bartender sent me.", nextNode: "leave", completeTask: "meet_frank" }
                 ]
             }
         }
     },
-
-"Brother Moo": {
-	requiresFlag: "knows_frank",
-        image: "brother_moo.png", 
+    "Brother Moo": {
+        requiresFlag: "knows_frank",
+        image: "brother_moo.png",
         dialogue: {
             "start": {
                 text: "<i>\"Greetings.\"</i>",
                 options: [
-                    { text: "Nothing. [Leave]", nextNode: "leave" } 
+                    { text: "Nothing. [Leave]", nextNode: "leave" },
+                    { text: "Teach me The Way", nextNode: "teach_me_the_way" }
+                ]
+            },
+            "teach_me_the_way": {
+                text: "Yes, let us begin....",
+                options: [
+                    { text: "Thank you", nextNode: "leave" }
                 ]
             }
         }
     }
+
 };
 
 // ==========================================
