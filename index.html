@@ -241,7 +241,8 @@
             quests['taxi_mission'] = {
                 title: `Taxi: Pick up ${job.client.name}`,
                 description: `Pick up ${job.client.name} from ${job.pickupPoiName} in the ${job.pickupSysName} system, then deliver them to ${job.dropoffPoiName} in the ${job.dropoffSysName} system.`,
-                targetSystemId: job.pickupSysId 
+                targetSystemId: job.pickupSysId,
+                targetPoiName: job.pickupPoiName // NEW
             };
 
             showTaskPopup("NEW TASK ALERTS", quests['taxi_mission']);
@@ -269,6 +270,7 @@
             player.activeTaxi.status = 'dropoff';
             quests['taxi_mission'].title = `Taxi: Deliver ${player.activeTaxi.client.name}`;
             quests['taxi_mission'].targetSystemId = player.activeTaxi.dropoffSysId;
+            quests['taxi_mission'].targetPoiName = player.activeTaxi.dropoffPoiName; // NEW
             showTaskPopup("NEW TASK ALERTS", quests['taxi_mission']);
         }
 
@@ -344,13 +346,15 @@
                             quests['taxi_mission'] = {
                                 title: `Taxi: Pick up ${player.activeTaxi.client.name}`,
                                 description: `Pick up ${player.activeTaxi.client.name} from ${player.activeTaxi.pickupPoiName} in the ${player.activeTaxi.pickupSysName} system, then deliver them to ${player.activeTaxi.dropoffPoiName} in the ${player.activeTaxi.dropoffSysName} system.`,
-                                targetSystemId: player.activeTaxi.pickupSysId
+                                targetSystemId: player.activeTaxi.pickupSysId,
+                                targetPoiName: player.activeTaxi.pickupPoiName // NEW
                             };
                         } else {
                             quests['taxi_mission'] = {
                                 title: `Taxi: Deliver ${player.activeTaxi.client.name}`,
                                 description: `Pick up ${player.activeTaxi.client.name} from ${player.activeTaxi.pickupPoiName} in the ${player.activeTaxi.pickupSysName} system, then deliver them to ${player.activeTaxi.dropoffPoiName} in the ${player.activeTaxi.dropoffSysName} system.`,
-                                targetSystemId: player.activeTaxi.dropoffSysId
+                                targetSystemId: player.activeTaxi.dropoffSysId,
+                                targetPoiName: player.activeTaxi.dropoffPoiName // NEW
                             };
                         }
                     }
@@ -498,7 +502,7 @@
                             const ty = targetSys.y * drawScale;
                             ctx.beginPath();
                             ctx.arc(tx, ty, 16 / camera.zoom, 0, Math.PI * 2);
-                            ctx.strokeStyle = "red";
+                            ctx.strokeStyle = "#2563eb"; // Changed to bright blue!
                             ctx.lineWidth = 4 / camera.zoom;
                             ctx.stroke();
                         }
@@ -682,22 +686,38 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
             let html = `<h2 class="text-4xl font-bold uppercase">${currentSystem.name}</h2>`;
             currentSystem.pois.forEach((p, i) => {
                 
-                // --- NEW: Check flags before rendering the POI ---
+                // Check flags before rendering the POI
                 if (p.requiresFlag && !player.flags[p.requiresFlag]) return;
                 if (p.hidesOnFlag && player.flags[p.hidesOnFlag]) return;
+
+                // --- NEW: Check if this POI is a quest target ---
+                let isTarget = false;
+                Object.keys(player.tasks).forEach(taskId => {
+                    if (player.tasks[taskId] === "active") {
+                        const q = quests[taskId];
+                        // If the active quest points to this exact System and POI
+                        if (q && q.targetSystemId === currentSystem.id && q.targetPoiName === p.name) {
+                            isTarget = true;
+                        }
+                    }
+                });
 
                 const stationConfig = stationTypes[p.type] || {};
                 const imageFile = p.image || stationConfig.defaultImage || 'default.png';
                 const imagePath = `assets/${imageFile}`;
 
+                // --- NEW: Apply red border and background glow if it is a target ---
+                const targetClasses = isTarget ? "!border-blue-600 !bg-blue-50 shadow-[0_0_15px_rgba(37,99,235,0.3)]" : "";
+                const textHighlight = isTarget ? "text-blue-700" : "";
+
                 html += `
-                <button class="btn !p-2" onclick="triggerLocalTravel(${i})">
+                <button class="btn !p-2 ${targetClasses}" onclick="triggerLocalTravel(${i})">
                     <div class="flex items-center gap-4 text-left">
                         <div class="w-16 h-16 shrink-0 border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
                             <img src="${imagePath}" alt="${p.type}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">
                         </div>
                         <div>
-                            <div class="text-2xl leading-none mb-1">${p.name.toUpperCase()}</div>
+                            <div class="text-2xl leading-none mb-1 ${textHighlight}">${p.name.toUpperCase()}</div>
                             ${p.type === 'Encounter' || p.type === 'Outpost' ? '' : `<div class="text-lg text-gray-600">${p.type}</div>`}
                         </div>
                     </div>
@@ -856,8 +876,8 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
                     html += `<div class="space-y-3 mb-6">`;
                     window.currentTaxiOffers.forEach((job, idx) => {
                         html += `<button class="btn !bg-blue-50 text-left !p-3" onclick="acceptTaxiJob(${idx})">
-                            <div class="text-[10px] text-gray-500 font-bold mb-1 uppercase">FROM: ${job.pickupPoiName} (${job.pickupSysName})</div>
-                            <div class="text-[10px] text-gray-500 font-bold mb-1 uppercase">TO: ${job.dropoffPoiName} (${job.dropoffSysName})</div>
+                            <div class="text-lg text-gray-500 font-bold mb-1 uppercase">FROM: ${job.pickupPoiName} (${job.pickupSysName})</div>
+                            <div class="text-lg text-gray-500 font-bold mb-1 uppercase">TO: ${job.dropoffPoiName} (${job.dropoffSysName})</div>
                             <div class="text-lg">Take ${job.client.name} [+${job.reward} CR]</div>
                         </button>`;
                     });
