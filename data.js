@@ -16,6 +16,14 @@ const lastNames = [
     "Kross", "Lenn", "Marn", "Nass", "Ordo", "Pryce", "Qel", "Rath", "Sato", "Tarn"
 ];
 
+const taxiPickupLines = [
+    "I'm late, let's go!",
+    "You the pilot? Hurry up, time is credits.",
+    "Finally. Get me out of this dump.",
+    "Let's get moving, spacer.",
+    "Dude the gig starts soon! Lets hussle!"
+];
+
 const taxiDropoffLines = [
     "Hey man, let's hurry. I got an important meeting to get to... oh, we're here? Thanks!",
     "Thanks for the ride, spacer! Kept the hull in one piece.",

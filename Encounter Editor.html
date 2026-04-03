@@ -163,6 +163,10 @@
                     out += `            "${dk}": {\n`;
                     
                     out += `                text: "${escapeJS(node.text)}",\n`;
+                    
+                    // --- UPDATED: Saves the generateTaxiJobs flag! ---
+                    if (node.generateTaxiJobs) out += `                generateTaxiJobs: true,\n`;
+                    
                     out += `                options: [\n`;
                     
                     (node.options || []).forEach((opt, oIdx) => {
@@ -174,6 +178,11 @@
                         if (opt.hidesOnFlag) optStr += `, hidesOnFlag: "${escapeJS(opt.hidesOnFlag).trim()}"`;
                         if (opt.startTask) optStr += `, startTask: "${escapeJS(opt.startTask).trim()}"`;
                         if (opt.completeTask) optStr += `, completeTask: "${escapeJS(opt.completeTask).trim()}"`;
+                        
+                        // --- UPDATED: Saves the Taxi Pickup and Dropoff flags! ---
+                        if (opt.completePickup) optStr += `, completePickup: true`;
+                        if (opt.completeTaxi) optStr += `, completeTaxi: true`;
+                        
                         optStr += ` }`;
                         
                         if (oIdx < node.options.length - 1) optStr += `,`;
@@ -256,14 +265,18 @@
 
             const node = interactions[selEnc].dialogue[selNode];
             
-            // Added shrink-0 to the textarea and space-y container so they never collapse!
             let html = `
                 <div class="flex justify-between items-end border-b-2 border-black pb-2 mb-4">
                     <h2 class="font-bold text-2xl uppercase">Node: ${selNode}</h2>
                 </div>
 
+                <div class="flex items-center gap-2 mb-2">
+                    <input type="checkbox" id="node-taxi" ${node.generateTaxiJobs ? 'checked' : ''} onchange="updateNodeProp('generateTaxiJobs', this.checked)">
+                    <label for="node-taxi" class="text-xs font-bold uppercase text-blue-800">Generate Taxi Job Board Here</label>
+                </div>
+
                 <label class="block text-xs font-bold uppercase mb-1">NPC Dialogue (HTML allowed, e.g., &lt;br&gt; or &lt;i&gt;)</label>
-                <textarea class="w-full h-32 mb-6 shrink-0" oninput="updateNodeText(this.value)">${node.text || ''}</textarea>
+                <textarea class="w-full h-32 mb-6 shrink-0" oninput="updateNodeProp('text', this.value)">${node.text || ''}</textarea>
 
                 <div class="flex justify-between items-center border-b-2 border-black pb-2 mb-4 shrink-0">
                     <h3 class="font-bold text-xl uppercase">Player Options</h3>
@@ -323,6 +336,17 @@
                             <input type="text" class="text-xs" value="${escapeHTML(opt.completeTask)}" oninput="updateOpt(${i}, 'completeTask', this.value)">
                         </div>
                     </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 bg-blue-50 p-2 border border-blue-300 mt-3">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" ${opt.completePickup ? 'checked' : ''} onchange="updateOpt(${i}, 'completePickup', this.checked)">
+                            <label class="text-[10px] font-bold uppercase mb-0">Completes Taxi Pickup</label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" ${opt.completeTaxi ? 'checked' : ''} onchange="updateOpt(${i}, 'completeTaxi', this.checked)">
+                            <label class="text-[10px] font-bold uppercase mb-0">Completes Taxi Dropoff</label>
+                        </div>
+                    </div>
                 </div>`;
             });
 
@@ -370,8 +394,10 @@
             renderNodes();
         }
 
-        function updateNodeText(val) {
-            interactions[selEnc].dialogue[selNode].text = val;
+        // --- UPDATED: New universal node property updater ---
+        function updateNodeProp(key, val) {
+            if (val === false || val === '') delete interactions[selEnc].dialogue[selNode][key];
+            else interactions[selEnc].dialogue[selNode][key] = val;
         }
 
         function addOption() {
@@ -384,9 +410,10 @@
             renderEditor();
         }
 
+        // --- UPDATED: Handles boolean (checkbox) values properly ---
         function updateOpt(idx, key, val) {
             if (key === 'credits') val = parseInt(val) || 0;
-            if (val === '' || val === 0) delete interactions[selEnc].dialogue[selNode].options[idx][key];
+            if (val === '' || val === 0 || val === false) delete interactions[selEnc].dialogue[selNode].options[idx][key];
             else interactions[selEnc].dialogue[selNode].options[idx][key] = val;
         }
     </script>

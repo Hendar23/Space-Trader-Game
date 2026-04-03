@@ -193,46 +193,47 @@
         }
 
 	function generateTaxiJob() {
-            let destSys, destPoi;
-            let dist = 0;
-            let attempts = 0;
+            let pickupSys, pickupPoi, dropoffSys, dropoffPoi;
+            let dist = 0; let attempts = 0;
             
+            // 1. Pick a random pickup location
             do {
-                // Pick a random system
-                destSys = galaxy[Math.floor(Math.random() * galaxy.length)];
-                if (destSys.pois.length > 0) {
-                    // Pick a random POI in that system
-                    destPoi = destSys.pois[Math.floor(Math.random() * destSys.pois.length)];
-                }
-                dist = Math.sqrt((currentSystem.x - destSys.x)**2 + (currentSystem.y - destSys.y)**2);
-                attempts++;
-            // Try to find a valid dropoff within 400 range. Failsafe breakout after 100 tries
-            } while ((!destPoi || (destSys.id === currentSystem.id && destPoi.name === currentPoi.name) || dist > 400) && attempts < 100);
+                pickupSys = galaxy[Math.floor(Math.random() * galaxy.length)];
+                if (pickupSys.pois.length > 0) pickupPoi = pickupSys.pois[Math.floor(Math.random() * pickupSys.pois.length)];
+            } while (!pickupPoi);
 
-            // Reward: base 100 + 5 per distance unit (rounded to nearest 10)
-            const reward = Math.round((100 + (dist * 5)) / 10) * 10;
+            // 2. Pick a dropoff location (Make sure it's not the exact same station)
+            do {
+                dropoffSys = galaxy[Math.floor(Math.random() * galaxy.length)];
+                if (dropoffSys.pois.length > 0) dropoffPoi = dropoffSys.pois[Math.floor(Math.random() * dropoffSys.pois.length)];
+                dist = Math.sqrt((pickupSys.x - dropoffSys.x)**2 + (pickupSys.y - dropoffSys.y)**2);
+                attempts++;
+            } while ((!dropoffPoi || (dropoffSys.id === pickupSys.id && dropoffPoi.name === pickupPoi.name) || dist > 400) && attempts < 100);
+
+            const reward = Math.round((100 + (dist * 5)) / 10) * 1;
             const client = generateRandomCharacter();
             
-            // Fetch dropoff lines from data.js
-            const linesToUse = (typeof taxiDropoffLines !== 'undefined') ? taxiDropoffLines : ["Thanks for the ride, spacer!"];
-            const dropoffText = linesToUse[Math.floor(Math.random() * linesToUse.length)];
+            const pickLines = (typeof taxiPickupLines !== 'undefined') ? taxiPickupLines : ["Let's go!"];
+            const dropLines = (typeof taxiDropoffLines !== 'undefined') ? taxiDropoffLines : ["Thanks for the ride!"];
 
             return {
-                systemId: destSys.id, systemName: destSys.name, poiName: destPoi.name,
-                client: client, reward: reward, dropoffText: dropoffText
+                status: 'pickup', // The mission starts in the 'pickup' phase
+                pickupSysId: pickupSys.id, pickupSysName: pickupSys.name, pickupPoiName: pickupPoi.name,
+                dropoffSysId: dropoffSys.id, dropoffSysName: dropoffSys.name, dropoffPoiName: dropoffPoi.name,
+                client: client, reward: reward, pickupText: pickLines[Math.floor(Math.random() * pickLines.length)], dropoffText: dropLines[Math.floor(Math.random() * dropLines.length)]
             };
         }
 
         function acceptTaxiJob(index) {
             const job = window.currentTaxiOffers[index];
-            player.activeTaxi = job; // Attach passenger to the player
+            player.activeTaxi = job; 
             player.tasks['taxi_mission'] = 'active';
 
-            // Create the quest map data dynamically
+            // Point the mission tracker to the PICKUP location
             quests['taxi_mission'] = {
-                title: `Taxi: ${job.client.name}`,
-                description: `Deliver ${job.client.name} to ${job.poiName} in the ${job.systemName} system.`,
-                targetSystemId: job.systemId
+                title: `Taxi: Pick up ${job.client.name}`,
+                description: `Pick up ${job.client.name} from ${job.pickupPoiName} in the ${job.pickupSysName} system, then deliver them to ${job.dropoffPoiName} in the ${job.dropoffSysName} system.`,
+                targetSystemId: job.pickupSysId 
             };
 
             showTaskPopup("NEW TASK ALERTS", quests['taxi_mission']);
@@ -240,18 +241,37 @@
             selectDialogue('leave'); 
         }
 
+        function startTaxiPickup() {
+            currentEncounterName = "Passenger Pickup"; 
+            interactions[currentEncounterName] = {
+                image: player.activeTaxi.client.image,
+                dialogue: {
+                    "start": {
+                        text: `<i>"${player.activeTaxi.pickupText}"</i><br><br><span class="text-blue-600 font-bold">${player.activeTaxi.client.name} boards your ship.</span>`,
+                        options: [{ text: "Strap in. [Leave]", nextNode: "leave", completePickup: true }]
+                    }
+                }
+            };
+            currentDialogueNode = 'start';
+            setLocalView('encounter');
+        }
+
+        function completeTaxiPickup() {
+            // Shift the phase to dropoff and redirect the map marker!
+            player.activeTaxi.status = 'dropoff';
+            quests['taxi_mission'].title = `Taxi: Deliver ${player.activeTaxi.client.name}`;
+            quests['taxi_mission'].targetSystemId = player.activeTaxi.dropoffSysId;
+            showTaskPopup("NEW TASK ALERTS", quests['taxi_mission']);
+        }
+
         function startTaxiDropoff() {
             currentEncounterName = "Passenger Dropoff"; 
-            
-            // Build a temporary encounter out of thin air
             interactions[currentEncounterName] = {
                 image: player.activeTaxi.client.image,
                 dialogue: {
                     "start": {
                         text: `<i>"${player.activeTaxi.dropoffText}"</i><br><br><span class="text-green-600 font-bold">They transfer ${player.activeTaxi.reward} credits to your account.</span>`,
-                        options: [
-                            { text: "Safe travels. [Leave]", nextNode: "leave", completeTaxi: true }
-                        ]
+                        options: [{ text: "Safe travels. [Leave]", nextNode: "leave", completeTaxi: true }]
                     }
                 }
             };
@@ -295,34 +315,57 @@
         }
 
 	function loadGame() {
-            const data = JSON.parse(localStorage.getItem('spaceTraderSaveV4'));
-            if (data && typeof galaxy !== 'undefined') {
-                player = data.player;
-                
-                player.flags = player.flags || {};
+            try {
+                const data = JSON.parse(localStorage.getItem('spaceTraderSaveV4'));
+                if (data && typeof galaxy !== 'undefined') {
+                    player = data.player;
+                    
+                    // Safety checks to ensure core player objects exist
+                    player.flags = player.flags || {};
+                    player.tasks = player.tasks || {};
 
-		// Reconstruct active taxi mission quest data
-                if (player.activeTaxi) {
-                    quests['taxi_mission'] = {
-                        title: `Taxi: ${player.activeTaxi.client.name}`,
-                        description: `Deliver ${player.activeTaxi.client.name} to ${player.activeTaxi.poiName} in the ${player.activeTaxi.systemName} system.`,
-                        targetSystemId: player.activeTaxi.systemId
-                    };
+                    // Reconstruct active taxi mission quest data
+                    if (player.activeTaxi) {
+                        // Failsafe: If it's an old or broken save format, wipe the passenger to prevent crashes
+                        if (!player.activeTaxi.client || !player.activeTaxi.client.name || !player.activeTaxi.status) {
+                            player.activeTaxi = null;
+                            delete player.tasks['taxi_mission'];
+                        } 
+                        // Otherwise, load the new two-phase mission properly
+                        else if (player.activeTaxi.status === 'pickup') {
+                            quests['taxi_mission'] = {
+                                title: `Taxi: Pick up ${player.activeTaxi.client.name}`,
+                                description: `Pick up ${player.activeTaxi.client.name} from ${player.activeTaxi.pickupPoiName} in the ${player.activeTaxi.pickupSysName} system, then deliver them to ${player.activeTaxi.dropoffPoiName} in the ${player.activeTaxi.dropoffSysName} system.`,
+                                targetSystemId: player.activeTaxi.pickupSysId
+                            };
+                        } else {
+                            quests['taxi_mission'] = {
+                                title: `Taxi: Deliver ${player.activeTaxi.client.name}`,
+                                description: `Pick up ${player.activeTaxi.client.name} from ${player.activeTaxi.pickupPoiName} in the ${player.activeTaxi.pickupSysName} system, then deliver them to ${player.activeTaxi.dropoffPoiName} in the ${player.activeTaxi.dropoffSysName} system.`,
+                                targetSystemId: player.activeTaxi.dropoffSysId
+                            };
+                        }
+                    }
+                    
+                    currentSystem = galaxy.find(s => s.id === data.systemId) || galaxy[0];
+                    currentPoi = currentSystem.pois.find(p => p.name === data.poiName) || null;
+                    jumpRange = data.jumpRange || 100;
+                    currentMarketPrices = data.currentMarketPrices || {};
+                    
+                    if(Object.keys(currentMarketPrices).length === 0) randomizeMarket(); 
+
+                    document.getElementById('start-screen').style.display = 'none';
+                    switchTab('map');
+                    setTimeout(() => {
+                        centerOnSystem(currentSystem);
+                    }, 50);
                 }
-                
-                currentSystem = galaxy.find(s => s.id === data.systemId) || galaxy[0];
-                currentPoi = currentSystem.pois.find(p => p.name === data.poiName) || null;
-                jumpRange = data.jumpRange || 100;
-                currentMarketPrices = data.currentMarketPrices || {};
-                
-                // Fallback in case loading an older save without market prices
-                if(Object.keys(currentMarketPrices).length === 0) randomizeMarket(); 
-
-                document.getElementById('start-screen').style.display = 'none';
-                switchTab('map');
-                setTimeout(() => {
-                    centerOnSystem(currentSystem);
-                }, 50);
+            } catch (err) {
+                // If anything goes wrong, catch the error, wipe the broken save, and warn the player
+                console.error("Save file corrupted, resetting...", err);
+                localStorage.removeItem('spaceTraderSaveV4');
+                alert("Old save file was incompatible and has been cleared. Please start a New Game.");
+                document.getElementById('btn-load-game').disabled = true;
             }
         }
 
@@ -718,26 +761,47 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
                     const mtClass = hasMarket ? "mt-8" : ""; 
                     html += `<div class="space-y-4 max-w-md mx-auto ${mtClass}">${encounterHtml}</div>`;
                 }
-            } // <--- The encounters block is now safely closed here!
+            } 
 
-            // --- MOVED OUTSIDE: The game will now always check for a passenger! ---
-            if (player.activeTaxi && currentSystem.id === player.activeTaxi.systemId && currentPoi.name === player.activeTaxi.poiName) {
+	// --- TAXI ENCOUNTERS ---
+            if (player.activeTaxi) {
                 const passenger = player.activeTaxi.client;
                 
-                html += `
-                <div class="space-y-4 max-w-md mx-auto mt-4">
-                    <button class="btn bg-green-100 !p-2 border-green-600" onclick="startTaxiDropoff()">
-                        <div class="flex items-center gap-4 text-left">
-                            <div class="w-16 h-16 shrink-0 border-2 border-black bg-white flex items-center justify-center overflow-hidden">
-                                <img src="assets/${passenger.image}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">
+                // PHASE 1: PICKUP
+                if (player.activeTaxi.status === 'pickup' && currentSystem.id === player.activeTaxi.pickupSysId && currentPoi.name === player.activeTaxi.pickupPoiName) {
+                    html += `
+                    <div class="space-y-4 max-w-md mx-auto mt-4">
+                        <button class="btn bg-blue-100 !p-2 border-blue-600" onclick="startTaxiPickup()">
+                            <div class="flex items-center gap-4 text-left">
+                                <div class="w-16 h-16 shrink-0 border-2 border-black bg-white flex items-center justify-center overflow-hidden">
+                                    <img src="assets/${passenger.image}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">
+                                </div>
+                                <div>
+                                    <div class="text-2xl leading-none mb-1 text-blue-800">${passenger.name.toUpperCase()}</div>
+                                    <div class="text-sm font-bold text-blue-700">PASSENGER PICKUP</div>
+                                </div>
                             </div>
-                            <div>
-                                <div class="text-2xl leading-none mb-1 text-green-800">${passenger.name.toUpperCase()}</div>
-                                <div class="text-sm font-bold text-green-700">PASSENGER DROPOFF</div>
+                        </button>
+                    </div>`;
+                }
+
+                // PHASE 2: DROPOFF
+                if (player.activeTaxi.status === 'dropoff' && currentSystem.id === player.activeTaxi.dropoffSysId && currentPoi.name === player.activeTaxi.dropoffPoiName) {
+                    html += `
+                    <div class="space-y-4 max-w-md mx-auto mt-4">
+                        <button class="btn bg-green-100 !p-2 border-green-600" onclick="startTaxiDropoff()">
+                            <div class="flex items-center gap-4 text-left">
+                                <div class="w-16 h-16 shrink-0 border-2 border-black bg-white flex items-center justify-center overflow-hidden">
+                                    <img src="assets/${passenger.image}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">
+                                </div>
+                                <div>
+                                    <div class="text-2xl leading-none mb-1 text-green-800">${passenger.name.toUpperCase()}</div>
+                                    <div class="text-sm font-bold text-green-700">PASSENGER DROPOFF</div>
+                                </div>
                             </div>
-                        </div>
-                    </button>
-                </div>`;
+                        </button>
+                    </div>`;
+                }
             }
 
             html += `<div class="space-y-4 max-w-md mx-auto mt-12 pb-8"><button class="btn bg-gray-200" onclick="triggerLocalTravel(-1)">UNDOCK</button></div>`;
@@ -785,7 +849,8 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
                     html += `<div class="space-y-3 mb-6">`;
                     window.currentTaxiOffers.forEach((job, idx) => {
                         html += `<button class="btn !bg-blue-50 text-left !p-3" onclick="acceptTaxiJob(${idx})">
-                            <div class="text-sm text-gray-500 font-bold mb-1">DESTINATION: ${job.poiName} (${job.systemName})</div>
+                            <div class="text-[10px] text-gray-500 font-bold mb-1 uppercase">FROM: ${job.pickupPoiName} (${job.pickupSysName})</div>
+                            <div class="text-[10px] text-gray-500 font-bold mb-1 uppercase">TO: ${job.dropoffPoiName} (${job.dropoffSysName})</div>
                             <div class="text-lg">Take ${job.client.name} [+${job.reward} CR]</div>
                         </button>`;
                     });
@@ -809,10 +874,11 @@ function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = ''
                     }
                 }
 
-                // --- NEW: Wrap the button in completeTaxiDropoff() if the flag exists ---
+                // Wrap the button in the correct actions if the flags exist
+                const pickupAction = opt.completePickup ? "completeTaxiPickup();" : "";
                 const taxiAction = opt.completeTaxi ? "completeTaxiDropoff();" : "";
 
-                html += `<button class="btn" onclick="${taxiAction} selectDialogue('${opt.nextNode}', ${opt.credits || 0}, '${opt.setFlag || ''}', '${opt.clearFlag || ''}', '${opt.startTask || ''}', '${opt.completeTask || ''}')" ${disabledAttr}>
+                html += `<button class="btn" onclick="${pickupAction} ${taxiAction} selectDialogue('${opt.nextNode}', ${opt.credits || 0}, '${opt.setFlag || ''}', '${opt.clearFlag || ''}', '${opt.startTask || ''}', '${opt.completeTask || ''}')" ${disabledAttr}>
                     <span>${opt.text}${creditTag}</span>
                 </button>`;
             });
