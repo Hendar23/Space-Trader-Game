@@ -293,10 +293,6 @@
                             <label class="block text-[10px] font-bold uppercase mt-1">Encounters (Comma Separated)</label>
                             <input type="text" class="text-xs" placeholder="Shady Bartender, Bouncer" value="${(poi.encounters || []).join(', ')}" oninput="updatePoiData(${index}, 'encounters', this.value)">
                         </div>
-<div>
-                            <label class="block text-[10px] font-bold uppercase mt-1">Encounters (Comma Separated)</label>
-                            <input type="text" class="text-xs" placeholder="Shady Bartender, Bouncer" value="${(poi.encounters || []).join(', ')}" oninput="updatePoiData(${index}, 'encounters', this.value)">
-                        </div>
                         
                         <div class="flex gap-2">
                             <div class="flex-1">
@@ -309,11 +305,6 @@
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase mt-1">Description (Optional)</label>
-                            <textarea class="text-xs h-12 resize-none" oninput="updatePoiData(${index}, 'description', this.value)">${poi.description || ''}</textarea>
-                        </div>
-                        
                         <div>
                             <label class="block text-[10px] font-bold uppercase mt-1">Description (Optional)</label>
                             <textarea class="text-xs h-12 resize-none" oninput="updatePoiData(${index}, 'description', this.value)">${poi.description || ''}</textarea>

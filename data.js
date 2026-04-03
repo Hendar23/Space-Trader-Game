@@ -87,30 +87,26 @@ const interactions = {
             }
         }
     },
-
     "Dispatcher Frank": {
         image: "portrait002.png",
         dialogue: {
             "start": {
                 text: "<i>\"Yeah what?\"</i>",
                 options: [
-                    // For the very first time they meet him (completes the quest)
                     { text: "I heard you got work?", nextNode: "jobs", setFlag: "met_frank", hidesOnFlag: "met_frank", completeTask: "meet_frank" },
-                    // For every time after that
                     { text: "Got any taxi fares?", nextNode: "jobs", requiresFlag: "met_frank" },
                     { text: "Nevermind", nextNode: "leave" }
                 ]
             },
             "jobs": {
                 text: "\"Sure. Here is what we have on the board right now.\"",
-                generateTaxiJobs: true, // The engine will intercept this and generate the board!
+                generateTaxiJobs: true,
                 options: [
                     { text: "Maybe later. [Leave]", nextNode: "leave" }
                 ]
             }
         }
     },
-
     "Brother Moo": {
         requiresFlag: "knows_frank",
         image: "brother_moo.png",
@@ -126,6 +122,25 @@ const interactions = {
                 text: "Yes, let us begin....",
                 options: [
                     { text: "Thank you", nextNode: "leave" }
+                ]
+            }
+        }
+    },
+    "Dispatcher Varlo": {
+        image: "default.png",
+        dialogue: {
+            "start": {
+                text: "Greetings. May I be of assistance?",
+                options: [
+                    { text: "Any fares?", nextNode: "work" },
+                    { text: "No thanks. [Leave]", nextNode: "leave" }
+                ]
+            },
+            "work": {
+                text: "Of course.",
+                generateTaxiJobs: true,
+                options: [
+                    { text: "Maybe another time. [Leave]", nextNode: "leave" }
                 ]
             }
         }
@@ -323,10 +338,11 @@ const galaxy = [
         ]
     },
     {
-        id: 11, name: "Obvious Test 002", x: 427, y: 506,
+        id: 11, name: "Obvious Test", x: 427, y: 506,
         pois: [
-            { name: "This is a Test", type: "Trade Hub" },
-            { name: "This is also a test", type: "Ice Mine", encounters: ["Brother Moo"], description: "Testing the ICE!" }
+            { name: "Testhub", type: "Trade Hub" },
+            { name: "This is also a test", type: "Ice Mine", encounters: ["Brother Moo"], description: "Testing the ICE!" },
+            { name: "Obvious Taxis", type: "Outpost", encounters: ["Dispatcher Varlo"], description: "" }
         ]
     }
 ];
