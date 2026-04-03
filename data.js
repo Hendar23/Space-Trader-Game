@@ -1,4 +1,22 @@
 // ==========================================
+// PROCEDURAL GENERATION DATA
+// ==========================================
+
+const TOTAL_ALIEN_PORTRAITS = 0; // Total number of random_alien_XXX.png images
+
+const firstNames = [
+    "Frank", "Bobby", "Aaron", "Jason", "Aria", "Jaxon", "Kael", "Lyra", "Zane", "Nova", "Orion", "Pax", "Ren", "Sera",
+    "Talon", "Vex", "Wren", "Xyler", "Yara", "Zephyr", "Cassian", "Elara", "Finn", "Gael",
+    "Kira", "Loki", "Mace", "Nyx", "Olin", "Poe", "Quin", "Roa", "Silas", "Tia"
+];
+
+const lastNames = [
+    "Vance", "Korne", "Drex", "Farr", "Voss", "Graves", "Tark", "Zell", "Renn", "Vane",
+    "Stark", "Vale", "Quinn", "Dax", "Kaelen", "Sol", "Nyx", "Cort", "Bane", "Jinn",
+    "Kross", "Lenn", "Marn", "Nass", "Ordo", "Pryce", "Qel", "Rath", "Sato", "Tarn"
+];
+
+// ==========================================
 // QUESTS & TASKS
 // ==========================================
 const quests = {
@@ -57,7 +75,14 @@ const interactions = {
             "start": {
                 text: "The dispatchers office is cluttered and dirty. Smoke hangs in the air.<br><br><i>\"Yeah?\"</i>",
                 options: [
-                    { text: "The bartender sent me.", nextNode: "leave", completeTask: "meet_frank" }
+                    { text: "I'm looking for work", nextNode: "jobs", completeTask: "meet_frank" },
+                    { text: "Nevermind", nextNode: "leave" }
+                ]
+            },
+            "jobs": {
+                text: "Yeah we have a few fares you could help with.",
+                options: [
+                    { text: "Awesome", nextNode: "leave" }
                 ]
             }
         }

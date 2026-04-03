@@ -165,6 +165,32 @@
                 document.getElementById('btn-load-game').disabled = false;
             }
         }
+	
+	function generateRandomCharacter() {
+            if (typeof firstNames === 'undefined' || typeof lastNames === 'undefined') {
+                return { name: "Unknown Client", image: "default.png" };
+            }
+            
+            const first = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const last = lastNames[Math.floor(Math.random() * lastNames.length)];
+            
+            // It defaults to 0 if you haven't set the variable yet
+            const maxImages = typeof TOTAL_ALIEN_PORTRAITS !== 'undefined' ? TOTAL_ALIEN_PORTRAITS : 0; 
+            
+            let generatedImage = "default.png";
+            
+            // Only try to generate an alien image if the count is greater than 0
+            if (maxImages > 0) {
+                const randomNum = Math.floor(Math.random() * maxImages) + 1;
+                const paddedNum = String(randomNum).padStart(3, '0'); 
+                generatedImage = `random_alien_${paddedNum}.png`;
+            }
+
+            return {
+                name: `${first} ${last}`,
+                image: generatedImage
+            };
+        }
 
 	function startNewGame() {
             if (typeof galaxy === 'undefined') return alert("data.js missing!");
