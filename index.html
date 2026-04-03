@@ -21,7 +21,7 @@
         
         .tab-btn {
             flex: 1; padding: 14px 0; font-weight: bold; text-align: center;
-            border-bottom: 2px solid #000; border-right: 2px solid #000;
+            border-top: 2px solid #000; border-right: 2px solid #000;
             text-transform: uppercase; font-size: 20px; cursor: pointer;
         }
         .tab-btn:last-child { border-right: none; }
@@ -70,14 +70,6 @@
         <div>Cargo: <span id="status-cargo">0</span>/<span id="status-cargo-max">20</span></div>
     </div>
 
-	<div class="flex shrink-0 border-main border-t-0 border-l-0 border-r-0">
-        <div class="tab-btn tab-active" onclick="switchTab('map')" id="btn-map">Map</div>
-        <div class="tab-btn" onclick="switchTab('local')" id="btn-local">Local</div>
-        <div class="tab-btn" onclick="switchTab('ship')" id="btn-ship">Ship</div>
-        <div class="tab-btn" onclick="switchTab('player')" id="btn-player">Player</div>
-        <div class="tab-btn" onclick="switchTab('tasks')" id="btn-tasks">Tasks</div>
-    </div>
-
     <div id="main-content" class="flex-grow relative overflow-hidden flex flex-col p-4">
         <div id="tab-map" class="absolute inset-0 p-4 flex flex-col hidden">
             <div class="flex justify-between items-end mb-2 shrink-0">
@@ -106,6 +98,14 @@
 	<div id="tab-tasks" class="hidden absolute inset-0 p-4 overflow-y-auto">
             <div id="tasks-list" class="space-y-4"></div>
         </div>
+    </div>
+
+	<div class="flex shrink-0 border-main border-b-0 border-l-0 border-r-0">
+        <div class="tab-btn tab-active" onclick="switchTab('map')" id="btn-map">Map</div>
+        <div class="tab-btn" onclick="switchTab('local')" id="btn-local">Local</div>
+        <div class="tab-btn" onclick="switchTab('ship')" id="btn-ship">Ship</div>
+        <div class="tab-btn" onclick="switchTab('player')" id="btn-player">Player</div>
+        <div class="tab-btn" onclick="switchTab('tasks')" id="btn-tasks">Tasks</div>
     </div>
 
     <div id="travel-overlay">
@@ -283,7 +283,7 @@
                 html += `
                 <div class="border-2 border-black p-4 bg-gray-50 shadow-md">
                     <h3 class="text-2xl font-bold uppercase mb-2 text-black">
-                        ${q.title} [ACTIVE]
+                        ${q.title}
                     </h3>
                     <p class="text-lg italic">${q.description}</p>
                 </div>`;
