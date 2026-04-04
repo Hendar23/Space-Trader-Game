@@ -136,20 +136,83 @@ const lastNames = [
 ];
 
 const taxiPickupLines = [
+    // Original / Standard
     "I'm late, let's go!",
     "You the pilot? Hurry up, time is credits.",
     "Finally. Get me out of this dump.",
     "Let's get moving, spacer.",
-    "Dude the gig starts soon! Lets hussle!"
+    "Dude the gig starts soon! Lets hussle!",
+
+    // The Nervous/Paranoid
+    "Don't look back. Just fly. Are they following? ...Wait, don't answer that.",
+    "Is this ship scanned for tracking beacons? Nevermind, just go!",
+    "Keep it under the speed limit leaving the dock, we don't want to draw attention.",
+
+    // The High-Maintenance / Elite
+    "I hope your inertial dampeners are functional. My species has a very delicate digestive system.",
+    "This upholstery is... adequate. Try not to rattle the hull.",
+    "Exalted One, the destination is logged. Ensure the flight is smooth.",
+
+    // The Bizarre / Alien
+    "The stars told me you would arrive. They didn't mention the smell of the cabin, though.",
+    "My second stomach is feeling adventurous. Let's see what these thrusters can do!",
+    "Warning: I may vibrate during transit. It is a sign of excitement, not a malfunction.",
+    "Take me to the coordinates where the air tastes like copper.",
+
+    // The Grumpy / Veteran
+    "This bucket still holds air? Impressive. Just get me there in one piece.",
+    "I've flown through supernova remnants more stable than this old crate. Move it, kid.",
+    "Less talk, more thrust. My credits are burning a hole in my environmental suit."
+
+	//The Metaphorist (Poetic / Abstract)
+    "The silver needle seeks the fabric of the far reaches. Thread me through, pilot.",
+    "The great exhale begins; carry my essence to the lungs of the next station.",
+    "Time is a glass desert, and my sand is running low. Move like the storm.",
+    "The void is a hungry mouth; let your metal wings be the song that lulls it to sleep.",
+    "A leaf caught in the solar wind, I seek the branch where the shadows grow long.",
+    "The river of stars flows toward the dawn. Carry my vessel upon its current.",
+    "The clock of the cosmos ticks toward the eclipse. We must outrun the shadow.",
+    "My path is a tangled knot. Be the blade that cuts through the distance."
 ];
 
 const taxiDropoffLines = [
+    // Original / Standard
     "Hey man, let's hurry. I got an important meeting to get to... oh, we're here? Thanks!",
     "Thanks for the ride, spacer! Kept the hull in one piece.",
     "Finally! I thought I'd never get out of that bucket.",
     "Smooth flying dude.",
     "Not the worst flight I've had. Here are your credits.",
-    "Praise the stars we made it. Transferring your funds now."
+    "Praise the stars we made it. Transferring your funds now.",
+
+    // The Enthusiastic
+    "Wooo! That was better than the Grav-Coaster on Sector 7! Five stars!",
+    "Exhilarating! I haven't felt that many G-forces since the Great Maharvian Dustup!",
+    "You've got talent, pilot. If you ever need a wingman, look me up.",
+
+    // The Shady / Mysterious
+    "Drop me here. Don't watch which airlock I enter. Here’s your money.",
+    "We were never here. You never saw me. Delete the flight logs.",
+    "The transaction is encrypted. Forget my face, and I'll forget yours.",
+
+    // The Quirky / Non-Humanoid
+    "I have left a small gift of pheromones in the backseat as a tip. You are welcome.",
+    "My scales are still mostly attached. A successful journey by any metric.",
+    "The vibrations were... rhythmic. I shall recommend your vessel to the Hive.",
+
+    // The Hard-to-Please
+    "My internal compass confirms we are at the correct co-ordinates. Acceptable work.",
+    "You missed the shortcut through the asteroid belt, but I suppose this will do.",
+    "I've had smoother rides in a cargo crate, but at least I'm not dead. Credits sent."
+
+	// The Metaphorist (Poetic / Abstract)
+    "The anchor finds the silt. The storm has passed into a quiet harbor.",
+    "The blossom of our crossing has withered, leaving only the seed of payment.",
+    "The stars have aligned their gaze upon this spot. Our dance of orbits ends here.",
+    "A drop of water finds the ocean. My path and yours now diverge.",
+    "The weaver pulls the thread tight. We have arrived at the knot.",
+    "The sun sets on this journey, but the echoes of your engines linger in the silence.",
+    "The circle is complete. The coin of my journey is spent. Take your tribute.",
+    "The song of the thrusters fades into the hum of the world. Peace be upon your hull."
 ];
 
 // ==========================================
