@@ -206,22 +206,22 @@ const interactions = {
 // COMMODITIES & BASELINE PRICES
 // ==========================================
 const commodities = {
-    "Water": { basePrice: 10, min: 6, max: 15 },
-    "Wheat": { basePrice: 20, min: 12, max: 30 },
-    "Meat": { basePrice: 40, min: 24, max: 60 },
-    "Packaged Food": { basePrice: 50, min: 30, max: 75 },
-    "Copper Ore": { basePrice: 30, min: 18, max: 45 },
-    "Iron Ore": { basePrice: 35, min: 21, max: 53 },
-    "Silicon Ore": { basePrice: 40, min: 24, max: 60 },
-    "Gold Ore": { basePrice: 80, min: 48, max: 120 },
-    "Platinum Ore": { basePrice: 100, min: 60, max: 150 },
-    "Copper Bars": { basePrice: 70, min: 42, max: 105 },
-    "Iron Bars": { basePrice: 80, min: 48, max: 120 },
-    "Silicon Wafers": { basePrice: 90, min: 54, max: 135 },
-    "Gold Bars": { basePrice: 200, min: 120, max: 300 },
-    "Platinum Bars": { basePrice: 250, min: 150, max: 375 },
-    "Machine Parts": { basePrice: 150, min: 90, max: 225 },
-    "Microchips": { basePrice: 300, min: 180, max: 450 }
+    "Water": { basePrice: 10, min: 8, max: 12 },
+    "Plants": { basePrice: 20, min: 16, max: 24 },
+    "Meat": { basePrice: 40, min: 32, max: 48 },
+    "Packaged Food": { basePrice: 50, min: 40, max: 60 },
+    "Copper Ore": { basePrice: 30, min: 24, max: 36 },
+    "Iron Ore": { basePrice: 35, min: 28, max: 42 },
+    "Silicon Ore": { basePrice: 40, min: 32, max: 48 },
+    "Gold Ore": { basePrice: 80, min: 64, max: 96 },
+    "Platinum Ore": { basePrice: 100, min: 80, max: 120 },
+    "Copper Bars": { basePrice: 70, min: 56, max: 84 },
+    "Iron Bars": { basePrice: 80, min: 64, max: 96 },
+    "Silicon Wafers": { basePrice: 90, min: 72, max: 108 },
+    "Gold Bars": { basePrice: 200, min: 160, max: 240 },
+    "Platinum Bars": { basePrice: 250, min: 200, max: 300 },
+    "Machine Parts": { basePrice: 150, min: 120, max: 180 },
+    "Microchips": { basePrice: 300, min: 240, max: 360 }
 };
 
 // ==========================================
@@ -234,13 +234,13 @@ const stationTypes = {
     "Trade Hub": {
         defaultImage: "station003.png",
         description: "A massive central trading hub.",
-        produces: ["Water", "Wheat", "Meat", "Packaged Food", "Copper Ore", "Iron Ore", "Silicon Ore", "Gold Ore", "Platinum Ore", "Copper Bars", "Iron Bars", "Silicon Wafers", "Gold Bars", "Platinum Bars", "Machine Parts", "Microchips"],
-        consumes: { "Water": "TradeHub", "Wheat": "TradeHub", "Meat": "TradeHub", "Packaged Food": "TradeHub", "Copper Ore": "TradeHub", "Iron Ore": "TradeHub", "Silicon Ore": "TradeHub", "Gold Ore": "TradeHub", "Platinum Ore": "TradeHub", "Copper Bars": "TradeHub", "Iron Bars": "TradeHub", "Silicon Wafers": "TradeHub", "Gold Bars": "TradeHub", "Platinum Bars": "TradeHub", "Machine Parts": "TradeHub", "Microchips": "TradeHub" }
+        produces: ["Water", "Plants", "Meat", "Packaged Food", "Copper Ore", "Iron Ore", "Silicon Ore", "Gold Ore", "Platinum Ore", "Copper Bars", "Iron Bars", "Silicon Wafers", "Gold Bars", "Platinum Bars", "Machine Parts", "Microchips"],
+        consumes: { "Water": "TradeHub", "Plants": "TradeHub", "Meat": "TradeHub", "Packaged Food": "TradeHub", "Copper Ore": "TradeHub", "Iron Ore": "TradeHub", "Silicon Ore": "TradeHub", "Gold Ore": "TradeHub", "Platinum Ore": "TradeHub", "Copper Bars": "TradeHub", "Iron Bars": "TradeHub", "Silicon Wafers": "TradeHub", "Gold Bars": "TradeHub", "Platinum Bars": "TradeHub", "Machine Parts": "TradeHub", "Microchips": "TradeHub" }
     },
-    "Wheat Farm": {
+    "Plant Farm": {
 	defaultImage: "station002.png",
-        description: "Vast hydroponic bays stretch into the distance.",
-        produces: ["Wheat"],
+        description: "Vast hydroponic bays grow all manner of crops",
+        produces: ["Plants"],
         consumes: {"Packaged Food": "Low", "Water": "High", "Machine Parts": "Low" }
     },
     "Ice Mine": {
@@ -249,15 +249,15 @@ const stationTypes = {
         produces: ["Water"],
         consumes: {"Packaged Food": "Low", "Machine Parts": "Low" }
     },
-    "Wheat Processing Plant": {
+    "Plant Processing Facility": {
         description: "Sterile corridors hum with food packaging machinery.",
         produces: ["Packaged Food"],
-        consumes: { "Wheat": "High", "Machine Parts": "Low" }
+        consumes: { "Plants": "High", "Machine Parts": "Low" }
     },
     "Livestock Farm": {
         description: "Large biological containment bays. Smells terrible.",
         produces: ["Meat"],
-        consumes: { "Packaged Food": "Low", "Water": "High", "Wheat": "High", "Machine Parts": "Low" }
+        consumes: { "Packaged Food": "Low", "Water": "High", "Plants": "High", "Machine Parts": "Low" }
     },
     "Meat Processing Plant": {
         description: "You don't want to know how the sausage is made.",
@@ -265,7 +265,7 @@ const stationTypes = {
         consumes: { "Meat": "High", "Machine Parts": "Low" }
     },
     "Copper Mine": {
-        description: "A dusty excavation site extracting raw copper veins.",
+        description: "Vast machinery grinds at raw copper veins.",
         produces: ["Copper Ore"],
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
     },
@@ -276,7 +276,7 @@ const stationTypes = {
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
     },
     "Platinum Mine": {
-        description: "High-security automated drills mine precious platinum.",
+        description: "Automated drills mine precious platinum.",
         produces: ["Platinum Ore"],
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
     },
@@ -286,12 +286,12 @@ const stationTypes = {
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
     },
     "Gold Mine": {
-        description: "An asteroid facility mining raw gold.",
+        description: "An asteroid facility mining gold.",
         produces: ["Gold Ore"],
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
     },
     "Metal Ore Refinery": {
-        description: "The deafening roar of smelting arrays echoes in the dark.",
+        description: "The deafening roar of smelting arrays reverberates in the decking.",
         produces: ["Copper Bars", "Iron Bars", "Platinum Bars", "Gold Bars"],
         consumes: { "Copper Ore": "High", "Iron Ore": "High", "Platinum Ore": "High", "Gold Ore": "High", "Packaged Food": "Low", "Machine Parts": "Low" }
     },
@@ -301,7 +301,7 @@ const stationTypes = {
         consumes: { "Silicon Ore": "High", "Packaged Food": "Low", "Machine Parts": "Low" }
     },
     "Machine Parts Factory": {
-        description: "Automated arms assemble components with precise rhythm.",
+        description: "Automated arms assemble components at blinding speed.",
         produces: ["Machine Parts"],
         consumes: { "Copper Bars": "Average", "Iron Bars": "High", "Platinum Bars": "Average", "Packaged Food": "Low" }
     },
@@ -321,7 +321,7 @@ const galaxy = [
         pois: [
             { name: "Earth Spaceport 01", type: "Trade Hub", image: "port001.png", encounters: ["Bartender Milo", "Brother Moo"], description: "A massive central trading hub for the planet Earth" },
             { name: "Lunar Ice Extractors", type: "Ice Mine", description: "Vast machines evaporate ice into water" },
-            { name: "Martian Wheat Farm", type: "Wheat Farm" },
+            { name: "Martian Wheat Farm", type: "Plant Farm" },
             { name: "Sol Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Frank"], requiresFlag: "knows_frank", description: "Cheap but not cheerful." }
         ]
     },
@@ -364,7 +364,7 @@ const galaxy = [
         id: 6, name: "Arcturus", x: 604, y: 458,
         pois: [
             { name: "Arcturan Micro", type: "Chip Fab" },
-            { name: "Bootes Food Corp", type: "Wheat Processing Plant" }
+            { name: "Bootes Food Corp", type: "Plant Processing Facility" }
         ]
     },
     {
