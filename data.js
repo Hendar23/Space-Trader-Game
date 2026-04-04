@@ -321,7 +321,7 @@ const galaxy = [
         pois: [
             { name: "Earth Spaceport 01", type: "Trade Hub", image: "port001.png", encounters: ["Bartender Milo", "Brother Moo"], description: "A massive central trading hub for the planet Earth" },
             { name: "Lunar Ice Extractors", type: "Ice Mine", description: "Vast machines evaporate ice into water" },
-            { name: "Martian Wheat Farm", type: "Plant Farm" },
+            { name: "Martian Farm Hub", type: "Plant Farm" },
             { name: "Sol Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Frank"], requiresFlag: "knows_frank", description: "Cheap but not cheerful." }
         ]
     },
