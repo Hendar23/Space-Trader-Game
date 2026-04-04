@@ -9,9 +9,30 @@ const shipHulls = {
         description: "A tiny two-seater runabout",
         multipliers: {
             jumpRange: 1.0,
-            hull: 1.0,
-            cargo: 1.0,
-            handling: 1.0,
+            hull: 0.8,
+            cargo: 0.8,
+            handling: 1.2,
+            offensive: 0.8
+        },
+        coreSlots: {
+            warpDrive: 1,
+            hullArmour: 1,
+            cargoBay: 1,
+            thrusters: 1,
+            weapons: 1
+        },
+        modularSlots: 1
+    }
+
+	"Keiship": {
+        name: "Keiship",
+        size: "Tiny",
+        description: "A tiny delivery ship",
+        multipliers: {
+            jumpRange: 1.0,
+            hull: 0.8,
+            cargo: 1.2,
+            handling: 0.9,
             offensive: 0.8
         },
         coreSlots: {
