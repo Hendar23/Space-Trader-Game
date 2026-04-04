@@ -97,15 +97,49 @@ const equipment = {
 const TOTAL_ALIEN_PORTRAITS = 3; // Total number of random_alien_XXX.png images
 
 const firstNames = [
-    "Frank", "Bobby", "Aaron", "Jason", "Aria", "Jaxon", "Kael", "Lyra", "Zane", "Nova", "Orion", "Pax", "Ren", "Sera", "Talon", "Vex", "Wren", "Xyler", "Yara", "Zephyr", 
-	"Elara", "Finn", "Gael", "Kira", "Loki", "Mace", "Nyx", "Olin", "Poe", "Quin", "Roa", "Silas", "Tia", "John", "Jeremy", "Jimmy", "Tyla", "Susan", "Suz-anne", "Kaylee",
-	"Xorbo", "Brance", "Skinny", "Fat", "Sneaky", "Serious", "Faith", "Popo", "Lampf", "Queeto"
+    "Frank", "Bobby", "Aaron", "Jason", "Aria", "Jaxon", "Kael", "Lyra", "Zane", "Nova", 
+    "Orion", "Pax", "Ren", "Sera", "Talon", "Vex", "Wren", "Xyler", "Yara", "Zephyr", 
+    "Elara", "Finn", "Gael", "Kira", "Loki", "Mace", "Nyx", "Olin", "Poe", "Quin", 
+    "Roa", "Silas", "Tia", "John", "Jeremy", "Jimmy", "Tyla", "Susan", "Suz-anne", "Kaylee",
+    "Xorbo", "Brance", "Skinny", "Fat", "Sneaky", "Serious", "Faith", "Popo", "Lampf", "Queeto", 
+    "Miss", "Mr", "Mrs", "Lord", "Lady", "Doctor", "Captain", "Exarch", "Zora", "Kaelith", 
+    "Nex", "Vayda", "Riff", "Jett", "Echo", "Mars", "Plu", "Grix", "Vor", "Thrak", 
+    "Zin", "Kel", "Ryker", "Dax", "Bly", "Moss", "Vahn", "Kiri", "Neo", "Solis", 
+    "Vesper", "Nox", "Astra", "Helix", "Quark", "Zen", "Titan", "Atlas", "Rogue", "Storm", 
+    "Blaze", "Flint", "Onyx", "Slate", "Iron", "Copper", "Silver", "Gold", "Bronze", "Neon",
+    "X'thlx", "Qzh-rr", "Mmm'rra", "Tkhu-Phel", "G’ldoo", "Bhhh’zt", "Pneuma-X", "J’klypt", "Sss’th", "Oooo-Aaa",
+    "Kkhh’rn", "V’v’v’v", "Z’g’g’z", "Q’ll’l’o", "Zh’nn-G’rth", "B’kk’t’t", "Cth-Ryk", "Ggggh’r", "Hhhh-Lnn", "K’t’kh’ll",
+    "P’t’k", "S’sh’sh’sh", "T’l’x-P’n", "X’r’t’z", "Y’l’p’p", "Nkh’mr", "W’p-W’p", "Ff’thn", "D’dd’r", "Gl’mpf",
+    "R’lyeh", "Ny’thl", "K’vlt", "X’p’c", "J’hnn", "B’l’v", "M’r’ph", "V’k’n", "L’n’x", "Q’w’r",
+    "T’t’t’k", "H’p’s", "C’n’d", "G’r’z", "Z’f’r", "X’v’l", "N’m’s", "Y’d’r", "B’x’t", "S’l’p",
+    "Tali", "Garrus", "Solas", "Vax", "Koth", "Jace", "Vora", "Zedd", "Kaelen", "Mira", 
+    "Aris", "Sora", "Rhane", "Bosh", "Jora", "Veen", "Lorn", "Prys", "Vahl", "Kyre", 
+    "Sian", "Toth", "Gorn", "Kryn", "Valen", "Myra", "Ryl", "Brey", "Vexis", "Cyra", 
+    "Eris", "Fael", "Gynn", "Isis", "Kora", "Lyre", "Nero", "Oz", "Quon", "Ryz", 
+    "Tey", "Ura", "Vyk", "Wray", "Xal", "Yana", "Zeth", "Bel", "Corso", "Drue"
 ];
 
 const lastNames = [
-    "Vance", "Korne", "Drex", "Farr", "Voss", "Graves", "Tark", "Zell", "Renn", "Vane",
+    "Vance", "Korne", "Drex", "Farr", "Voss", "Graves", "Tark", "Zell", "Renn", "Vane", 
     "Stark", "Vale", "Quinn", "Dax", "Kaelen", "Sol", "Nyx", "Cort", "Bane", "Jinn",
-    "Kross", "Lenn", "Marn", "Nass", "Ordo", "Pryce", "Qel", "Rath", "Sato", "Tarn"
+    "Kross", "Lenn", "Marn", "Nass", "Ordo", "Pryce", "Qel", "Rath", "Sato", "Tarn", 
+    "Bobo", "Dziert", "Droox", "Drax", "Vex", "Krux", "Zorn", "Phox", "Glynt", "Syth", 
+    "Veldt", "Kron", "Skar", "Jolt", "Vyce", "Brax", "Droon", "Ghal", "Hext", "Jory", 
+    "Klyne", "Lurk", "Myrx", "Nym", "Phane", "Qorr", "Ryze", "Styxx", "Tuv", "Ulix", 
+    "Vry", "Wisp", "Xon", "Yul", "Zark", "Breen", "Crake", "Dyne", "Flit", "Grin", 
+    "Haze", "Inx", "Jape", "Knell", "Lox", "Mump", "Nook", "Ooze", "Pox", "Quip", 
+    "Rasp", "Slit", "Tweak", "Urk", "Vexx", "Whir", "Xyl", "Yap", "Zest", "Blip", 
+    "Clonk", "Drip", "Eek", "Fizz", "Glug", "Honk", "Itch", "Klonk", "Murk", "Zorg",
+    "Xx-Phor’tth", "Qk’lll", "Zzz-Zzz", "G’v-Nok", "Ph’nglui", "Mglw’nafh", "W’gah-nagl", "Fhtagn", "Cth’lk", "T’p’o",
+    "X’p’l’v", "Q’r’x’t", "Z’v’n", "K’t’l’p", "M’m’n", "N’x’s", "P’l’r", "R’v’n", "S’t’n", "T’r’x",
+    "V’l’p", "W’x’y", "X’z’r", "Y’y’y", "Z’p’r", "B’b’b", "D’d’d", "F’f’f", "G’g’g", "H’h’h",
+    "J’j’j", "K’k’k", "L’l’l", "M’m’m", "N’n’n", "P’p’p", "Q’q’q", "R’r’r", "S’s’s", "T’t’t",
+    "V’v’v", "W’w’w", "X’x’x", "Y’y’y", "Z’z’z", "Gl’ph", "Cr’ck", "Sn’rt", "Bl’rk", "Wh’ff",
+    "Thorne", "Vexis", "Krell", "Draven", "Halloway", "Vesper", "Valerius", "Kyron", "Malan", "Solari", 
+    "Lunaris", "Kaizen", "Mordax", "Valos", "Grixis", "Phage", "Aetheris", "Voidan", "Stellis", "Lucian", 
+    "Shadowen", "Ignis", "Cryos", "Volanis", "Maris", "Terran", "Lithos", "Pulver", "Ashen", "Ossis", 
+    "Haem", "Ferrum", "Aurum", "Plumb", "Hydrar", "Zinca", "Stann", "Nicko", "Chromis", "Orich", 
+    "Vitrum", "Argil", "Arenis", "Seric", "Lana", "Cannabis", "Linum", "Jutan", "Cocos", "Rhex"
 ];
 
 const taxiPickupLines = [
