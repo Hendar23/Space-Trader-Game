@@ -225,24 +225,26 @@ const commodities = {
 };
 
 // ==========================================
-// STATION TYPES & SUPPLY/DEMAND LOGIC
+// STATION TYPES
 // ==========================================
 const stationTypes = {
     "Outpost": {
         description: "An isolated waystation operating on minimal power."
     },
     "Trade Hub": {
-        defaultImage: "tradehub.png",
+        defaultImage: "station003.png",
         description: "A massive central trading hub.",
         produces: ["Water", "Wheat", "Meat", "Packaged Food", "Copper Ore", "Iron Ore", "Silicon Ore", "Gold Ore", "Platinum Ore", "Copper Bars", "Iron Bars", "Silicon Wafers", "Gold Bars", "Platinum Bars", "Machine Parts", "Microchips"],
         consumes: { "Water": "TradeHub", "Wheat": "TradeHub", "Meat": "TradeHub", "Packaged Food": "TradeHub", "Copper Ore": "TradeHub", "Iron Ore": "TradeHub", "Silicon Ore": "TradeHub", "Gold Ore": "TradeHub", "Platinum Ore": "TradeHub", "Copper Bars": "TradeHub", "Iron Bars": "TradeHub", "Silicon Wafers": "TradeHub", "Gold Bars": "TradeHub", "Platinum Bars": "TradeHub", "Machine Parts": "TradeHub", "Microchips": "TradeHub" }
     },
     "Wheat Farm": {
+	defaultImage: "station002.png",
         description: "Vast hydroponic bays stretch into the distance.",
         produces: ["Wheat"],
         consumes: {"Packaged Food": "Low", "Water": "High", "Machine Parts": "Low" }
     },
     "Ice Mine": {
+	defaultImage: "mine002.png",
         description: "Chunks of asteroid are superheated to release precious water vapour.",
         produces: ["Water"],
         consumes: {"Packaged Food": "Low", "Machine Parts": "Low" }
@@ -268,7 +270,8 @@ const stationTypes = {
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
     },
     "Iron Mine": {
-        description: "Heavy drilling equipment tears iron ore from the bedrock.",
+	defaultImage: "mine001.png",
+        description: "Heavy drilling equipment tears iron ore from a tethered asteroid.",
         produces: ["Iron Ore"],
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
     },
@@ -316,7 +319,7 @@ const galaxy = [
     {
         id: 0, name: "Sol", x: 492, y: 535,
         pois: [
-            { name: "Earth Spacedock", type: "Trade Hub", encounters: ["Bartender Milo", "Brother Moo"], description: "A massive central trading hub. Everything is available, but convenience comes at a high price." },
+            { name: "Earth Spaceport 01", type: "Trade Hub", image: "port001.png", encounters: ["Bartender Milo", "Brother Moo"], description: "A massive central trading hub for the planet Earth" },
             { name: "Lunar Ice Extractors", type: "Ice Mine", description: "Vast machines evaporate ice into water" },
             { name: "Martian Wheat Farm", type: "Wheat Farm" },
             { name: "Sol Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Frank"], requiresFlag: "knows_frank", description: "Cheap but not cheerful." }
@@ -396,6 +399,7 @@ const galaxy = [
         pois: [
             { name: "Testhub", type: "Trade Hub" },
             { name: "This is also a test", type: "Ice Mine", encounters: ["Brother Moo"], description: "Testing the ICE!" },
+            { name: "Roid Chewer 023", type: "Iron Mine" },
             { name: "Obvious Taxis", type: "Outpost", encounters: ["Dispatcher Varlo"], description: "Obvious Taxis HQ is a cheaply refurbished outpost." }
         ]
     }
