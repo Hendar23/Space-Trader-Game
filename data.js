@@ -310,7 +310,7 @@ const interactions = {
                 ]
             },
             "give_money": {
-                text: "Here you go!",
+                text: "Here you go! <br><br><span class=\"text-green-600 font-bold\">They transfer 1,000,000 credits to your account.</i></span>\n",
                 options: [
                     { text: "Oh wow! Thanks!", nextNode: "leave" }
                 ]
