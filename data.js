@@ -23,6 +23,27 @@ const shipHulls = {
         },
         modularSlots: 1
     },
+	
+	"Midgeito": {
+        name: "Midgeito",
+        size: "Tiny",
+        description: "A microfighter designed to be deployed in swarms.",
+        multipliers: {
+            jumpRange: 0.7,
+            hull: 1.3,
+            cargo: 0.2,
+            handling: 1.4,
+            offensive: 1.2
+        },
+        coreSlots: {
+            warpDrive: 1,
+            hullArmour: 1,
+            cargoBay: 1,
+            thrusters: 1,
+            weapons: 1
+        },
+        modularSlots: 1
+    },
 
 	"Keiship": {
         name: "Keiship",
@@ -76,9 +97,9 @@ const equipment = {
 const TOTAL_ALIEN_PORTRAITS = 3; // Total number of random_alien_XXX.png images
 
 const firstNames = [
-    "Frank", "Bobby", "Aaron", "Jason", "Aria", "Jaxon", "Kael", "Lyra", "Zane", "Nova", "Orion", "Pax", "Ren", "Sera",
-    "Talon", "Vex", "Wren", "Xyler", "Yara", "Zephyr", "Cassian", "Elara", "Finn", "Gael",
-    "Kira", "Loki", "Mace", "Nyx", "Olin", "Poe", "Quin", "Roa", "Silas", "Tia"
+    "Frank", "Bobby", "Aaron", "Jason", "Aria", "Jaxon", "Kael", "Lyra", "Zane", "Nova", "Orion", "Pax", "Ren", "Sera", "Talon", "Vex", "Wren", "Xyler", "Yara", "Zephyr", 
+	"Elara", "Finn", "Gael", "Kira", "Loki", "Mace", "Nyx", "Olin", "Poe", "Quin", "Roa", "Silas", "Tia", "John", "Jeremy", "Jimmy", "Tyla", "Susan", "Suz-anne", "Kaylee",
+	"Xorbo", "Brance", "Skinny", "Fat", "Sneaky", "Serious", "Faith", "Popo", "Lampf", "Queeto"
 ];
 
 const lastNames = [
