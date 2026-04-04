@@ -151,6 +151,8 @@ const interactions = {
             "jobs": {
                 text: "\"Sure. Here is what we have on the board right now.\"",
                 generateTaxiJobs: true,
+                taxiJobCount: 3,
+                taxiMaxDistance: 100,
                 options: [
                     { text: "Maybe later. [Leave]", nextNode: "leave" }
                 ]
@@ -189,6 +191,8 @@ const interactions = {
             "work": {
                 text: "Of course.",
                 generateTaxiJobs: true,
+                taxiJobCount: 5,
+                taxiMaxDistance: 150,
                 options: [
                     { text: "Maybe another time. [Leave]", nextNode: "leave" }
                 ]

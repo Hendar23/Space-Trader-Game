@@ -164,8 +164,11 @@
                     
                     out += `                text: "${escapeJS(node.text)}",\n`;
                     
-                    // --- UPDATED: Saves the generateTaxiJobs flag! ---
-                    if (node.generateTaxiJobs) out += `                generateTaxiJobs: true,\n`;
+                    if (node.generateTaxiJobs) {
+                        out += `                generateTaxiJobs: true,\n`;
+                        if (node.taxiJobCount) out += `                taxiJobCount: ${node.taxiJobCount},\n`;
+                        if (node.taxiMaxDistance) out += `                taxiMaxDistance: ${node.taxiMaxDistance},\n`;
+                    }
                     
                     out += `                options: [\n`;
                     
@@ -270,10 +273,23 @@
                     <h2 class="font-bold text-2xl uppercase">Node: ${selNode}</h2>
                 </div>
 
-                <div class="flex items-center gap-2 mb-2">
-                    <input type="checkbox" id="node-taxi" ${node.generateTaxiJobs ? 'checked' : ''} onchange="updateNodeProp('generateTaxiJobs', this.checked)">
+                <div class="flex items-center gap-2 mb-2 bg-gray-200 p-2 border border-gray-400">
+                    <input type="checkbox" id="node-taxi" ${node.generateTaxiJobs ? 'checked' : ''} onchange="toggleTaxiJobs(this.checked)">
                     <label for="node-taxi" class="text-xs font-bold uppercase text-blue-800">Generate Taxi Job Board Here</label>
                 </div>
+                
+                ${node.generateTaxiJobs ? `
+                <div class="flex gap-4 mb-4 p-3 bg-blue-50 border-2 border-blue-200">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase mb-1">Max Distance (LY)</label>
+                        <input type="number" value="${node.taxiMaxDistance || 150}" oninput="updateNodeProp('taxiMaxDistance', parseInt(this.value) || 0)">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase mb-1">Number of Jobs</label>
+                        <input type="number" value="${node.taxiJobCount || 3}" oninput="updateNodeProp('taxiJobCount', parseInt(this.value) || 0)">
+                    </div>
+                </div>
+                ` : ''}
 
                 <label class="block text-xs font-bold uppercase mb-1">NPC Dialogue (HTML allowed, e.g., &lt;br&gt; or &lt;i&gt;)</label>
                 <textarea class="w-full h-32 mb-6 shrink-0" oninput="updateNodeProp('text', this.value)">${node.text || ''}</textarea>
@@ -394,10 +410,22 @@
             renderNodes();
         }
 
-        // --- UPDATED: New universal node property updater ---
         function updateNodeProp(key, val) {
             if (val === false || val === '') delete interactions[selEnc].dialogue[selNode][key];
             else interactions[selEnc].dialogue[selNode][key] = val;
+        }
+
+	function toggleTaxiJobs(checked) {
+            if (checked) {
+                interactions[selEnc].dialogue[selNode].generateTaxiJobs = true;
+                interactions[selEnc].dialogue[selNode].taxiJobCount = 3;
+                interactions[selEnc].dialogue[selNode].taxiMaxDistance = 150;
+            } else {
+                delete interactions[selEnc].dialogue[selNode].generateTaxiJobs;
+                delete interactions[selEnc].dialogue[selNode].taxiJobCount;
+                delete interactions[selEnc].dialogue[selNode].taxiMaxDistance;
+            }
+            renderEditor(); // Force the screen to redraw so the inputs appear/disappear!
         }
 
         function addOption() {
@@ -410,7 +438,6 @@
             renderEditor();
         }
 
-        // --- UPDATED: Handles boolean (checkbox) values properly ---
         function updateOpt(idx, key, val) {
             if (key === 'credits') val = parseInt(val) || 0;
             if (val === '' || val === 0 || val === false) delete interactions[selEnc].dialogue[selNode].options[idx][key];
