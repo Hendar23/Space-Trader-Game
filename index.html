@@ -127,12 +127,11 @@
          let isDragging = false;
          let lastMouse = { x: 0, y: 0 };
          let dragThreshold = false;
-         let initialPinchDistance = null;
-         
-         let player = { credits: 100, cargo: {}, cargoMax: 20, flags: {}, tasks: {} };
+         let initialPinchDistance = null;       
+         let player = {};
          let currentSystem = null;
          let currentPoi = null; 
-         let jumpRange = 100;
+         let jumpRange = 0; 
          let activeTab = 'map';
          let localView = 'menu';
          let currentEncounterName = null;
