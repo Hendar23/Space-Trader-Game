@@ -77,10 +77,16 @@
          <div id="tab-ship" class="hidden absolute inset-0 p-4 flex-col overflow-y-auto">
             <div class="max-w-3xl mx-auto w-full">
                <div class="mb-6 border-b-4 border-black pb-4">
-                  <h2 class="text-4xl font-bold uppercase mb-2" id="ui-ship-name">Unknown Class</h2>
-                  <p class="text-lg italic text-gray-600 mb-4" id="ui-ship-desc"></p>
+                  <div class="flex items-center gap-6 mb-4">
+                      <div id="ui-ship-image-container" class="w-32 h-32 shrink-0 border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
+                          </div>
+                      <div>
+                          <h2 class="text-4xl font-bold uppercase mb-2" id="ui-ship-name">Unknown Class</h2>
+                          <p class="text-xl font-bold text-gray-800 mb-1">Class: <span id="ui-stat-size">Unknown</span></p> 
+                          <p class="text-lg italic text-gray-600" id="ui-ship-desc"></p>
+                      </div>
+                  </div>
                   <div class="grid grid-cols-2 gap-4 text-xl font-bold uppercase bg-gray-50 p-4 border-2 border-black">
-                     <div class="col-span-2 pb-2 border-b border-gray-300">Size Class: <span id="ui-stat-size">Unknown</span></div>
                      
                      <div>Jump Range: <span id="ui-stat-jump">0</span>ly</div>
                      <div>Hull: <span id="ui-stat-hull">0</span></div>
@@ -364,37 +370,30 @@
          }
          
          function startNewGame() {
-         if (typeof galaxy === 'undefined') return alert("data.js missing!");
-         
-         // Updated Player Initialization
-         player = { 
-           credits: 100, 
-         	 cargo: {}, 
-         	 flags: {}, 
-         	 tasks: {},
-         		ship: {
-           		  hull: "Weescow",
-             		core: {
-                		warpDrive: "Civilian Drive T1",
-                 	hullArmour: "Light Plating",
-                 	cargoBay: "Tiny Hold",
-                 	thrusters: "Basic Maneuvering Jets",
-                 	weapons: "Pea Shooter"
-             	},
-             	modules: [
-                 	"Cargo Expander I" 
-             	]
-         	}
-         }; 
-         
-         currentSystem = galaxy[0];
-         randomizeMarket(); 
-         document.getElementById('start-screen').style.display = 'none';
-         switchTab('map'); 
-         
-         setTimeout(() => {
-         centerOnSystem(currentSystem);
-         }, 50);
+             if (typeof galaxy === 'undefined' || typeof newGameDefaults === 'undefined') {
+                 return alert("data.js missing or incomplete!");
+             }
+             
+             const startingShipClone = JSON.parse(JSON.stringify(newGameDefaults.startingShip));
+
+             player = { 
+                 credits: newGameDefaults.startingCredits, 
+                 cargo: {}, 
+                 flags: {}, 
+                 tasks: {},
+                 ship: startingShipClone
+             }; 
+             
+             // Find the system matching the starting ID, fallback to the first system if not found
+             currentSystem = galaxy.find(s => s.id === newGameDefaults.startingSystemId) || galaxy[0];
+             
+             randomizeMarket(); 
+             document.getElementById('start-screen').style.display = 'none';
+             switchTab('map'); 
+             
+             setTimeout(() => {
+                 centerOnSystem(currentSystem);
+             }, 50);
          }
          
          function centerOnSystem(sys) {
@@ -1094,11 +1093,16 @@
             const stats = getShipStats(player.ship);
             const hullData = shipHulls[player.ship.hull];
             
-            // --- UPDATED: Split the name and size into separate elements ---
+            // --- Update the image source ---
+            const imageFile = hullData.image || 'default.png';
+            document.getElementById('ui-ship-image-container').innerHTML = `<img src="assets/${imageFile}" alt="Ship" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">`;
+            
+            // --- Update basic ship info ---
             document.getElementById('ui-ship-name').innerText = hullData.name;
             document.getElementById('ui-ship-desc').innerText = hullData.description;
             document.getElementById('ui-stat-size').innerText = hullData.size;
             
+            // --- Update ship stats ---
             document.getElementById('ui-stat-jump').innerText = stats.jumpRange;
             document.getElementById('ui-stat-hull').innerText = stats.hullMax;
             document.getElementById('ui-stat-handling').innerText = stats.handling;
@@ -1106,7 +1110,7 @@
             document.getElementById('ship-cargo-total').innerText = stats.cargoMax;
             document.getElementById('ship-cargo-current').innerText = totalCargo;
             
-            // Render Core Slots
+            // --- Render Core Slots ---
             let coreHtml = '';
             const coreTypes = { warpDrive: "Warp", hullArmour: "Armor", cargoBay: "Cargo", thrusters: "Engines", weapons: "Weapons" };
             
@@ -1114,7 +1118,6 @@
                 const itemName = player.ship.core[key];
                 const itemData = itemName ? equipment[key][itemName] : null;
                 
-                // --- UPDATED: Removed "Base: " and red error colors ---
                 const displayValue = itemData ? `${itemData.name} (${itemData.baseValue})` : `<span class="italic text-gray-500">EMPTY</span>`;
                 
                 coreHtml += `
@@ -1125,13 +1128,12 @@
             }
             document.getElementById('ui-core-slots').innerHTML = coreHtml;
             
-            // Render Modular Slots
+            // --- Render Modular Slots ---
             let modHtml = '';
             for (let i = 0; i < hullData.modularSlots; i++) {
                 const itemName = player.ship.modules[i];
                 const itemData = itemName ? equipment.modules[itemName] : null;
                 
-                // --- UPDATED: Removed green highlight colors ---
                 let displayValue = `<span class="italic text-gray-500">EMPTY SLOT</span>`;
                 if (itemData) {
                     displayValue = `${itemData.name} (+${itemData.flatBonus} ${itemData.stat})`;
@@ -1145,10 +1147,9 @@
             }
             document.getElementById('ui-mod-slots').innerHTML = modHtml || '<p class="text-gray-500 italic">No modular slots available.</p>';
             
-            // Render Cargo
+            // --- Render Cargo Manifest ---
             let cl = '';
             for (const [itemName, q] of Object.entries(player.cargo)) {
-                // --- UPDATED: Removed "SCU" from the end ---
                 if (q > 0) cl += `<div class="flex justify-between border-b border-gray-300 py-1"><span>${itemName}</span><span>${q}</span></div>`;
             }
             document.getElementById('cargo-list').innerHTML = cl || '<p class="text-gray-500 italic">Empty.</p>';

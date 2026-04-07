@@ -1,10 +1,32 @@
 // ==========================================
+// NEW GAME DEFAULTS
+// ==========================================
+const newGameDefaults = {
+    startingCredits: 10,
+    startingSystemId: 0,
+    startingShip: {
+        hull: "Weescow",
+        core: {
+            warpDrive: "Civilian Drive T1",
+            hullArmour: "Light Plating",
+            cargoBay: "Tiny Hold",
+            thrusters: "Basic Maneuvering Jets",
+            weapons: "Pea Shooter"
+        },
+        modules: [
+            "Cargo Expander I" 
+        ]
+    }
+};
+
+// ==========================================
 // SHIPS & EQUIPMENT DATA
 // ==========================================
 
 const shipHulls = {
     "Weescow": {
         name: "Weescow",
+	image: "ship_weescow.png",
         size: "Tiny",
         description: "A tiny two-seater runabout",
         multipliers: {
