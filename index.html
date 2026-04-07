@@ -255,8 +255,14 @@
              } while ((!dropoffPoi || (dropoffSys.id === pickupSys.id && dropoffPoi.name === pickupPoi.name) || distToDropoff > maxDist) && attempts < 100);
          
              // Fallbacks in case the system is totally isolated
-             if (!pickupPoi) { pickupSys = currentSystem; pickupPoi = currentSystem.pois[0]; }
-             if (!dropoffPoi) { dropoffSys = currentSystem; dropoffPoi = currentSystem.pois[0]; }
+             if (!pickupPoi) { 
+   		 pickupSys = currentSystem.pois.length > 0 ? currentSystem : galaxy[0]; 
+ 		   pickupPoi = pickupSys.pois[0]; 
+		}
+		if (!dropoffPoi) { 
+		    dropoffSys = currentSystem.pois.length > 0 ? currentSystem : galaxy[0]; 
+		    dropoffPoi = dropoffSys.pois[0]; 
+		}
          
              // --- UPDATED REWARD LOGIC ---
              // Combine both the "deadhead" flight to the pickup and the actual trip distance.
