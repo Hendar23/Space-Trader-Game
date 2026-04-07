@@ -7,14 +7,14 @@ const newGameDefaults = {
     startingShip: {
         hull: "Weescow",
         core: {
-            warpDrive: "Civilian Drive T1",
-            hullArmour: "Light Plating",
-            cargoBay: "Tiny Hold",
-            thrusters: "Basic Maneuvering Jets",
-            weapons: "Pea Shooter"
+            warpDrive: "Drive T1",
+            hullArmour: "Hull T1",
+            cargoBay: "Bay T1",
+            thrusters: "Thrust T1",
+            weapons: "Weap T1"
         },
         modules: [
-            "Cargo Expander I" 
+            "Cargo Exp T1" 
         ]
     }
 };
@@ -109,31 +109,31 @@ const shipHulls = {
 
 const equipment = {
     warpDrive: {
-        "Civilian Drive T1": { name: "Civilian Drive", size: "Tiny", type: "warpDrive", baseValue: 50, description: "Standard issue civilian warp drive." },
-        "Civilian Drive T2": { name: "Pursuit Drive ", size: "Tiny", type: "warpDrive", baseValue: 60, description: "Upgraded civilian warp drive." },
-        "Civilian Drive M1": { name: "Civilian Drive S1", size: "Small", type: "warpDrive", baseValue: 55, description: "New Item" },
-        "Civilian Drive M2": { name: "Civilian Drive S2", size: "Small", type: "warpDrive", baseValue: 70, description: "New Item" }
+        "Drive T1": { name: "Jumpmaster XS", size: "Tiny", type: "warpDrive", baseValue: 50, description: "A budget stock warp drive" },
+        "Drive T2": { name: "Jumpmaster Plus", size: "Tiny", type: "warpDrive", baseValue: 60, description: "Popular with couriers and taxis" },
+        "Drive T3": { name: "Starhopper T23", size: "Tiny", type: "warpDrive", baseValue: 70, description: "Military grade scout drive" }
     },
     hullArmour: {
-        "Light Plating": { name: "Light Plating", size: "Tiny", type: "hullArmour", baseValue: 10, description: "Basic hull protection." },
-        "Reinforced Plating M": { name: "Reinforced Plating S", size: "Small", type: "hullArmour", baseValue: 15, description: "Uparmoured medium plate " }
+        "Hull T1": { name: "Stock Hull", size: "Tiny", type: "hullArmour", baseValue: 10, description: "The legal minimum level of protection." },
+        "Hull T2": { name: "Reinforced Plate", size: "Tiny", type: "hullArmour", baseValue: 12, description: "Added reflective layers for increased protection." },
+        "Hull T3": { name: "Military Spec", size: "Tiny", type: "hullArmour", baseValue: 14, description: "Military grade fighter armour" }
     },
     cargoBay: {
-        "Tiny Hold": { name: "Tiny Hold", size: "Tiny", type: "cargoBay", baseValue: 5, description: "Just slightly bigger than the glove compartment." },
-        "Mediun Hold ": { name: "Small Hold ", size: "Small", type: "cargoBay", baseValue: 10, description: "New Item" }
+        "Bay T1": { name: "Weekender XS5", size: "Tiny", type: "cargoBay", baseValue: 5, description: "Slightly bigger than the glove compartment" },
+        "Bay T2": { name: "Bigpocket DLV10", size: "Tiny", type: "cargoBay", baseValue: 10, description: "Standard personal haulage bay" },
+        "Bay T3": { name: "BigBag 2000", size: "Tiny", type: "cargoBay", baseValue: 15, description: "Light haulage module for small buisnesses" }
     },
     thrusters: {
-        "Basic Maneuvering Jets": { name: "Basic Maneuvering Jets", size: "Tiny", type: "thrusters", baseValue: 20, description: "Standard thrusters." },
-        "Small Maneuvering Jets": { name: "Small Maneuvering Jets", size: "Small", type: "thrusters", baseValue: 20, description: "New Item" }
+        "Thrust T1": { name: "380C Windbreakers", size: "Tiny", type: "thrusters", baseValue: 20, description: "Stock fighter class thrusters" },
+        "Thrust T2": { name: "Darooky 1220s", size: "Tiny", type: "thrusters", baseValue: 30, description: "Aftermarket modded thrusters" },
+        "Thrust T3": { name: "ShiftCore Accelerators", size: "Tiny", type: "thrusters", baseValue: 30, description: "A common sight in the illegal racing scene" }
     },
     weapons: {
-        "Pea Shooter": { name: "Pea Shooter", size: "Tiny", type: "weapons", baseValue: 5, description: "Better than nothing." },
-        "Pop Gun": { name: "Pop Gun", size: "Small", type: "weapons", baseValue: 10, description: "New Item" }
+        "Weap T1": { name: "Commblaster", size: "Tiny", type: "weapons", baseValue: 5, description: "Illegally overclocked communication laser. Better than nothing." },
+        "Weap T2": { name: "Microcannon", size: "Tiny", type: "weapons", baseValue: 5, description: "A low power directed energy weapon" }
     },
     modules: {
-        "Cargo Expander I": { name: "Cargo Expander I", size: "Tiny", type: "module", stat: "cargo", flatBonus: 5, description: "Adds a little extra space." },
-        "Jump Booster I": { name: "Jump Booster I", size: "Tiny", type: "module", stat: "jumpRange", flatBonus: 10, description: "Overclocks the warp drive slightly." },
-        "Basic Targetng Computer S": { name: "Basic Targetng Computer S", size: "Small", type: "module", stat: "cargo", flatBonus: 5, description: "New Module" }
+        "Cargo Exp T1": { name: "Cargo Exp T1", size: "Tiny", type: "module", stat: "cargo", flatBonus: 5, description: "A little extra storage space" }
     }
 };
 
