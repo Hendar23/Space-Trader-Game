@@ -794,7 +794,24 @@
         }
          
          function renderPoiList() {
-             let html = `<h2 class="text-4xl font-bold uppercase">${currentSystem.name}</h2>`;
+             // Fetch system data for image and description
+             const systemData = galaxy.find(s => s.id === currentSystem.id);
+             const sysImagePath = systemData.image ? `assets/${systemData.image}` : 'assets/star_system_default.png';
+             const sysDescription = systemData.description ? systemData.description : "";
+
+             // Build the side-by-side header
+             let html = `
+             <div class="flex items-center gap-6 mb-6 border-b-2 border-black pb-4">
+                 <div class="w-24 h-24 shrink-0 border-2 border-black bg-black flex items-center justify-center overflow-hidden">
+                     <img src="${sysImagePath}" alt="${systemData.name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">
+                 </div>
+                 <div>
+                     <h2 class="text-4xl font-bold uppercase mb-2">${currentSystem.name} SYSTEM</h2>
+                     <p class="text-lg italic text-gray-600">${sysDescription}</p>
+                 </div>
+             </div>`;
+
+             // Your exact original POI rendering loop
              currentSystem.pois.forEach((p, i) => {
                  
                  // Check flags before rendering the POI
@@ -817,7 +834,7 @@
                  const imageFile = p.image || stationConfig.defaultImage || 'default.png';
                  const imagePath = `assets/${imageFile}`;
          
-                 // --- Apply red border and background glow if it is a target ---
+                 // --- Apply blue border and background glow if it is a target ---
                  const targetClasses = isTarget ? "!border-blue-600 !bg-blue-50 shadow-[0_0_15px_rgba(37,99,235,0.3)]" : "";
                  const textHighlight = isTarget ? "text-blue-700" : "";
          

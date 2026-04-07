@@ -8,7 +8,7 @@ const shipHulls = {
         size: "Tiny",
         description: "A tiny two-seater runabout",
         multipliers: {
-            jumpRange: 1.0,
+            jumpRange: 1,
             hull: 0.8,
             cargo: 0.8,
             handling: 1.2,
@@ -23,8 +23,7 @@ const shipHulls = {
         },
         modularSlots: 1
     },
-	
-	"Midgeito": {
+    "Midgeito": {
         name: "Midgeito",
         size: "Tiny",
         description: "A microfighter designed to be deployed in swarms.",
@@ -44,13 +43,12 @@ const shipHulls = {
         },
         modularSlots: 1
     },
-
-	"Keiship": {
+    "Keiship": {
         name: "Keiship",
         size: "Tiny",
         description: "A tiny delivery ship",
         multipliers: {
-            jumpRange: 1.0,
+            jumpRange: 1,
             hull: 0.8,
             cargo: 1.2,
             handling: 0.9,
@@ -64,29 +62,56 @@ const shipHulls = {
             weapons: 1
         },
         modularSlots: 1
+    },
+    "Rooster": {
+        name: "Rooster",
+        size: "Small",
+        description: "Small patrol craft popular with law enforcement",
+        multipliers: {
+            jumpRange: 0.8,
+            hull: 1.4,
+            cargo: 0.3,
+            handling: 1.2,
+            offensive: 1.2
+        },
+        coreSlots: {
+            warpDrive: 1,
+            hullArmour: 1,
+            cargoBay: 1,
+            thrusters: 1,
+            weapons: 1
+        },
+        modularSlots: 2
     }
 };
 
 const equipment = {
     warpDrive: {
-        "Civilian Drive T1": { name: "Civilian Drive T1", size: "Tiny", type: "warpDrive", baseValue: 50, description: "Standard issue civilian warp drive." },
-        "Civilian Drive T2": { name: "Civilian Drive T2", size: "Tiny", type: "warpDrive", baseValue: 75, description: "Upgraded civilian warp drive." }
+        "Civilian Drive T1": { name: "Civilian Drive", size: "Tiny", type: "warpDrive", baseValue: 50, description: "Standard issue civilian warp drive." },
+        "Civilian Drive T2": { name: "Pursuit Drive ", size: "Tiny", type: "warpDrive", baseValue: 60, description: "Upgraded civilian warp drive." },
+        "Civilian Drive M1": { name: "Civilian Drive S1", size: "Small", type: "warpDrive", baseValue: 55, description: "New Item" },
+        "Civilian Drive M2": { name: "Civilian Drive S2", size: "Small", type: "warpDrive", baseValue: 70, description: "New Item" }
     },
     hullArmour: {
-        "Light Plating": { name: "Light Plating", size: "Tiny", type: "hullArmour", baseValue: 10, description: "Basic hull protection." }
+        "Light Plating": { name: "Light Plating", size: "Tiny", type: "hullArmour", baseValue: 10, description: "Basic hull protection." },
+        "Reinforced Plating M": { name: "Reinforced Plating S", size: "Small", type: "hullArmour", baseValue: 15, description: "Uparmoured medium plate " }
     },
     cargoBay: {
-        "Tiny Hold": { name: "Tiny Hold", size: "Tiny", type: "cargoBay", baseValue: 5, description: "Just slightly bigger than the glove compartment." }
+        "Tiny Hold": { name: "Tiny Hold", size: "Tiny", type: "cargoBay", baseValue: 5, description: "Just slightly bigger than the glove compartment." },
+        "Mediun Hold ": { name: "Small Hold ", size: "Small", type: "cargoBay", baseValue: 10, description: "New Item" }
     },
     thrusters: {
-        "Basic Maneuvering Jets": { name: "Basic Maneuvering Jets", size: "Tiny", type: "thrusters", baseValue: 10, description: "Standard thrusters." }
+        "Basic Maneuvering Jets": { name: "Basic Maneuvering Jets", size: "Tiny", type: "thrusters", baseValue: 20, description: "Standard thrusters." },
+        "Small Maneuvering Jets": { name: "Small Maneuvering Jets", size: "Small", type: "thrusters", baseValue: 20, description: "New Item" }
     },
     weapons: {
-        "Pea Shooter": { name: "Pea Shooter", size: "Tiny", type: "weapons", baseValue: 5, description: "Better than nothing." }
+        "Pea Shooter": { name: "Pea Shooter", size: "Tiny", type: "weapons", baseValue: 5, description: "Better than nothing." },
+        "Pop Gun": { name: "Pop Gun", size: "Small", type: "weapons", baseValue: 10, description: "New Item" }
     },
     modules: {
         "Cargo Expander I": { name: "Cargo Expander I", size: "Tiny", type: "module", stat: "cargo", flatBonus: 5, description: "Adds a little extra space." },
-        "Jump Booster I": { name: "Jump Booster I", size: "Tiny", type: "module", stat: "jumpRange", flatBonus: 10, description: "Overclocks the warp drive slightly." }
+        "Jump Booster I": { name: "Jump Booster I", size: "Tiny", type: "module", stat: "jumpRange", flatBonus: 10, description: "Overclocks the warp drive slightly." },
+        "Basic Targetng Computer S": { name: "Basic Targetng Computer S", size: "Small", type: "module", stat: "cargo", flatBonus: 5, description: "New Module" }
     }
 };
 
@@ -457,6 +482,8 @@ const stationTypes = {
 const galaxy = [
     {
         id: 0, name: "Sol", x: 492, y: 535,
+        image: "star_system_001.png",
+        description: "The home of humanity, an obscure species of mammal. It is a run-down polluted backwater.",
         pois: [
             { name: "Earth Spaceport 01", type: "Trade Hub", image: "port001.png", encounters: ["Bartender Milo", "Brother Moo"], description: "A massive central trading hub for the planet Earth" },
             { name: "Lunar Ice Extractors", type: "Ice Mine", description: "Vast machines evaporate ice into water" },
@@ -535,6 +562,7 @@ const galaxy = [
     },
     {
         id: 11, name: "Obvious Test", x: 448, y: 538,
+        description: "Just a test really.",
         pois: [
             { name: "Testhub", type: "Trade Hub" },
             { name: "This is also a test", type: "Ice Mine", encounters: ["Brother Moo"], description: "Testing the ICE!" },
