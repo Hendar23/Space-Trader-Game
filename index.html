@@ -285,9 +285,10 @@
              // Point the mission tracker to the PICKUP location
              quests['taxi_mission'] = {
                  title: `Taxi: Pick up ${job.client.name}`,
-                 description: `Pick up ${job.client.name} from ${job.pickupPoiName} in the ${job.pickupSysName} system, then deliver them to ${job.dropoffPoiName} in the ${job.dropoffSysName} system.`,
+                 // --- UPDATED: Shortened description for Phase 1 ---
+                 description: `Pick up ${job.client.name} from ${job.pickupPoiName} in the ${job.pickupSysName} system.`,
                  targetSystemId: job.pickupSysId,
-                 targetPoiName: job.pickupPoiName // NEW
+                 targetPoiName: job.pickupPoiName
              };
          
              showTaskPopup("NEW TASK ALERTS", quests['taxi_mission']);
@@ -320,8 +321,10 @@
              // Shift the phase to dropoff and redirect the map marker!
              player.activeTaxi.status = 'dropoff';
              quests['taxi_mission'].title = `Taxi: Deliver ${player.activeTaxi.client.name}`;
+             // --- Update the description for Phase 2 ---
+             quests['taxi_mission'].description = `Deliver ${player.activeTaxi.client.name} to ${player.activeTaxi.dropoffPoiName} in the ${player.activeTaxi.dropoffSysName} system.`;
              quests['taxi_mission'].targetSystemId = player.activeTaxi.dropoffSysId;
-             quests['taxi_mission'].targetPoiName = player.activeTaxi.dropoffPoiName; // NEW
+             quests['taxi_mission'].targetPoiName = player.activeTaxi.dropoffPoiName;
              showTaskPopup("NEW TASK ALERTS", quests['taxi_mission']);
          }
          
@@ -427,16 +430,18 @@
                          else if (player.activeTaxi.status === 'pickup') {
                              quests['taxi_mission'] = {
                                  title: `Taxi: Pick up ${player.activeTaxi.client.name}`,
-                                 description: `Pick up ${player.activeTaxi.client.name} from ${player.activeTaxi.pickupPoiName} in the ${player.activeTaxi.pickupSysName} system, then deliver them to ${player.activeTaxi.dropoffPoiName} in the ${player.activeTaxi.dropoffSysName} system.`,
+                                 // --- UPDATED ---
+                                 description: `Pick up ${player.activeTaxi.client.name} from ${player.activeTaxi.pickupPoiName} in the ${player.activeTaxi.pickupSysName} system.`,
                                  targetSystemId: player.activeTaxi.pickupSysId,
-                                 targetPoiName: player.activeTaxi.pickupPoiName // NEW
+                                 targetPoiName: player.activeTaxi.pickupPoiName 
                              };
                          } else {
                              quests['taxi_mission'] = {
                                  title: `Taxi: Deliver ${player.activeTaxi.client.name}`,
-                                 description: `Pick up ${player.activeTaxi.client.name} from ${player.activeTaxi.pickupPoiName} in the ${player.activeTaxi.pickupSysName} system, then deliver them to ${player.activeTaxi.dropoffPoiName} in the ${player.activeTaxi.dropoffSysName} system.`,
+                                 // --- UPDATED ---
+                                 description: `Deliver ${player.activeTaxi.client.name} to ${player.activeTaxi.dropoffPoiName} in the ${player.activeTaxi.dropoffSysName} system.`,
                                  targetSystemId: player.activeTaxi.dropoffSysId,
-                                 targetPoiName: player.activeTaxi.dropoffPoiName // NEW
+                                 targetPoiName: player.activeTaxi.dropoffPoiName 
                              };
                          }
                      }
