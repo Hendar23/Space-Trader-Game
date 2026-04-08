@@ -4,11 +4,16 @@
 const newGameDefaults = {
     startingCredits: 10,
     startingSystemId: 0,
+    startingSkills: {
+        piloting: 35,
+        weapon: 40,
+        engineer: 30
+    },
     startingShip: {
         hull: "Weescow",
         core: {
             warpDrive: "Drive T1",
-            hullArmour: "Hull T1",
+            armour: "Armour T1",
             cargoBay: "Bay T1",
             thrusters: "Thrust T1",
             weapons: "Weap T1"
@@ -31,14 +36,14 @@ const shipHulls = {
         description: "A two-seater runabout",
         multipliers: {
             jumpRange: 1,
-            hull: 0.8,
+            armour: 0.8,
             cargo: 0.8,
             handling: 1.2,
             offensive: 0.8
         },
         coreSlots: {
             warpDrive: 1,
-            hullArmour: 1,
+            armour: 1,
             cargoBay: 1,
             thrusters: 1,
             weapons: 1
@@ -51,14 +56,14 @@ const shipHulls = {
         description: "A microfighter designed to be deployed in swarms.",
         multipliers: {
             jumpRange: 0.7,
-            hull: 1.3,
+            armour: 1.3,
             cargo: 0.2,
             handling: 1.4,
             offensive: 1.2
         },
         coreSlots: {
             warpDrive: 1,
-            hullArmour: 1,
+            armour: 1,
             cargoBay: 1,
             thrusters: 1,
             weapons: 1
@@ -71,14 +76,14 @@ const shipHulls = {
         description: "A tiny delivery ship",
         multipliers: {
             jumpRange: 1,
-            hull: 0.8,
+            armour: 0.8,
             cargo: 1.2,
             handling: 0.9,
             offensive: 0.8
         },
         coreSlots: {
             warpDrive: 1,
-            hullArmour: 1,
+            armour: 1,
             cargoBay: 1,
             thrusters: 1,
             weapons: 1
@@ -91,14 +96,14 @@ const shipHulls = {
         description: "Small patrol craft popular with law enforcement",
         multipliers: {
             jumpRange: 0.8,
-            hull: 1.4,
+            armour: 1.4,
             cargo: 0.3,
             handling: 1.2,
             offensive: 1.2
         },
         coreSlots: {
             warpDrive: 1,
-            hullArmour: 1,
+            armour: 1,
             cargoBay: 1,
             thrusters: 1,
             weapons: 1
@@ -113,10 +118,10 @@ const equipment = {
         "Drive T2": { name: "Jumpmaster Plus", size: "Tiny", type: "warpDrive", baseValue: 60, description: "Popular with couriers and taxis" },
         "Drive T3": { name: "Starhopper T23", size: "Tiny", type: "warpDrive", baseValue: 70, description: "Military grade scout drive" }
     },
-    hullArmour: {
-        "Hull T1": { name: "Stock Hull", size: "Tiny", type: "hullArmour", baseValue: 10, description: "The legal minimum level of protection." },
-        "Hull T2": { name: "Reinforced Plate", size: "Tiny", type: "hullArmour", baseValue: 12, description: "Added reflective layers for increased protection." },
-        "Hull T3": { name: "Military Spec", size: "Tiny", type: "hullArmour", baseValue: 14, description: "Military grade fighter armour" }
+    armour: {
+        "Armour T1": { name: "Stock Armour", size: "Tiny", type: "armour", baseValue: 10, description: "The legal minimum level of protection." },
+        "Armour T2": { name: "Reinforced Plate", size: "Tiny", type: "armour", baseValue: 12, description: "Added reflective layers for increased protection." },
+        "Armour T3": { name: "Military Spec", size: "Tiny", type: "armour", baseValue: 14, description: "Military grade fighter armour" }
     },
     cargoBay: {
         "Bay T1": { name: "Weekender XS5", size: "Tiny", type: "cargoBay", baseValue: 5, description: "Slightly bigger than the glove compartment" },
@@ -136,6 +141,7 @@ const equipment = {
         "Cargo Exp T1": { name: "Cargo Exp T1", size: "Tiny", type: "module", stat: "cargo", flatBonus: 5, description: "A little extra storage space" }
     }
 };
+
 
 // ==========================================
 // PROCEDURAL GENERATION DATA
