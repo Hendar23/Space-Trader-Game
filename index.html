@@ -60,9 +60,9 @@
          </div>
       </div>
       <div class="bg-black text-white p-3 text-xl font-bold uppercase flex justify-between items-center shrink-0">
-         <div>Credits: <span id="status-credits">1000</span></div>
+         <div>CR: <span id="status-credits">1000</span></div>
          <div>Hull: <span id="status-hull" class="text-white">0</span>/<span id="status-hull-max" class="text-white">0</span></div>
-         <div>Cargo: <span id="status-cargo">0</span>/<span id="status-cargo-max">20</span></div>
+         <div>Crg: <span id="status-cargo">0</span>/<span id="status-cargo-max">20</span></div>
       </div>
       <div id="main-content" class="flex-grow relative overflow-hidden flex flex-col p-4">
          <div id="tab-map" class="absolute inset-0 p-4 flex flex-col hidden">
@@ -79,23 +79,23 @@
             <div class="max-w-3xl mx-auto w-full">
                <div class="mb-6 border-b-4 border-black pb-4">
                   <div class="flex items-center gap-6 mb-4">
-                      <div id="ui-ship-image-container" class="w-32 h-32 shrink-0 border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
-                          </div>
-                      <div>
-                          <h2 class="text-4xl font-bold uppercase mb-2" id="ui-ship-name">Unknown Class</h2>
-                          <p class="text-xl font-bold text-gray-800 mb-1">Class: <span id="ui-stat-size">Unknown</span></p> 
-                          <p class="text-lg italic text-gray-600" id="ui-ship-desc"></p>
-                      </div>
+                     <div id="ui-ship-image-container" class="w-32 h-32 shrink-0 border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
+                     </div>
+                     <div>
+                        <h2 class="text-4xl font-bold uppercase mb-2" id="ui-ship-name">Unknown Class</h2>
+                        <p class="text-xl font-bold text-gray-800 mb-1">Class: <span id="ui-stat-size">Unknown</span></p>
+                        <p class="text-lg italic text-gray-600" id="ui-ship-desc"></p>
+                     </div>
                   </div>
                   <div class="flex flex-col gap-3 text-xl font-bold uppercase bg-gray-50 p-4 border-2 border-black">
-                     <div class="border-b border-gray-300 pb-2">
+                     <div>
                          Integrity: <span id="ui-stat-hull">0 / 0</span>
                      </div>
                      <div>Jump Range: <span id="ui-stat-jump">0</span>ly</div>
                      <div>Armour: <span id="ui-stat-armour">0</span></div>
                      <div>Handling: <span id="ui-stat-handling">0</span></div>
                      <div>Offense: <span id="ui-stat-offense">0</span></div>
-                     <div class="pt-2 border-t border-gray-300">
+                     <div>
                         Cargo: <span id="ship-cargo-current">0</span> / <span id="ship-cargo-total">0</span>
                      </div>
                   </div>
@@ -147,7 +147,7 @@
          let currentDialogueNode = null; 
          let currentMarketPrices = {}; 
          let spawnedNPCs = []; // Tracks ambient traffic in the current location
-
+         
          const canvas = document.getElementById('star-map');
          const ctx = canvas.getContext('2d');
          
@@ -167,7 +167,7 @@
          	}
          }
          
-	function generateNPCs() {
+         function generateNPCs() {
              spawnedNPCs = [];
              if (currentSystem.npcSpawns) {
                  currentSystem.npcSpawns.forEach(spawn => {
@@ -182,7 +182,7 @@
                  });
              }
          }
-
+         
          function getPoiDescription(poi) {
              // 1. Check if the specific station in the galaxy array has a custom description override
              if (poi.description) return poi.description;
@@ -283,13 +283,13 @@
          
              // Fallbacks in case the system is totally isolated
              if (!pickupPoi) { 
-   		 pickupSys = currentSystem.pois.length > 0 ? currentSystem : galaxy[0]; 
- 		   pickupPoi = pickupSys.pois[0]; 
-		}
-		if (!dropoffPoi) { 
-		    dropoffSys = currentSystem.pois.length > 0 ? currentSystem : galaxy[0]; 
-		    dropoffPoi = dropoffSys.pois[0]; 
-		}
+         pickupSys = currentSystem.pois.length > 0 ? currentSystem : galaxy[0]; 
+         pickupPoi = pickupSys.pois[0]; 
+         }
+         if (!dropoffPoi) { 
+         dropoffSys = currentSystem.pois.length > 0 ? currentSystem : galaxy[0]; 
+         dropoffPoi = dropoffSys.pois[0]; 
+         }
          
              // --- UPDATED REWARD LOGIC ---
              // Combine both the "deadhead" flight to the pickup and the actual trip distance.
@@ -345,10 +345,10 @@
             
             // 2. Instantly update the quest tracker and map marker
             completeTaxiPickup();
-
+         
             currentDialogueNode = 'start';
             setLocalView('encounter');
-        }
+         }
          
          function completeTaxiPickup() {
              // Shift the phase to dropoff and redirect the map marker!
@@ -377,11 +377,11 @@
             
             // 2. Instantly process the payout and clear the passenger
             completeTaxiDropoff();
-
+         
             // 3. Draw the screen (which will instantly show the new credits in the top bar)
             currentDialogueNode = 'start';
             setLocalView('encounter');
-        }
+         }
          
          function completeTaxiDropoff() {
               player.credits += player.activeTaxi.reward;
@@ -396,7 +396,7 @@
              }
              
              const startingShipClone = JSON.parse(JSON.stringify(newGameDefaults.startingShip));
-
+         
              player = { 
                  credits: newGameDefaults.startingCredits, 
                  cargo: {}, 
@@ -405,15 +405,15 @@
                  skills: JSON.parse(JSON.stringify(newGameDefaults.startingSkills)),
                  ship: startingShipClone
              }; 
-
-	     const initialStats = getShipStats(player.ship);
+         
+         const initialStats = getShipStats(player.ship);
              player.ship.currentHull = initialStats.maxHull;
              
              // Find the system matching the starting ID, fallback to the first system if not found
              currentSystem = galaxy.find(s => s.id === newGameDefaults.startingSystemId) || galaxy[0];
              
              randomizeMarket();
-	     generateNPCs(); 
+         generateNPCs(); 
              document.getElementById('start-screen').style.display = 'none';
              switchTab('map'); 
              
@@ -664,12 +664,12 @@
          function getStationMarket(type) {
             const config = stationTypes[type];
             const market = { selling: [], buying: [] };
-        
+         
             if (!config) return market;
-        
+         
             // --- A localized price memory bank ---
             const resolvedPrices = {};
-        
+         
             // 1. Calculate prices for items the station SELLS to the player
             if (config.produces) {
                 config.produces.forEach(itemName => {
@@ -684,7 +684,7 @@
                     market.selling.push({ item: itemName, price: resolvedPrices[itemName] });
                 });
             }
-        
+         
             // 2. Calculate prices for items the station BUYS from the player
             if (config.consumes) {
                 Object.keys(config.consumes).forEach(itemName => {
@@ -700,22 +700,22 @@
                         if (demand === "High") multiplier = 1.15;      
                         else if (demand === "Average") multiplier = 1.1; 
                         else if (demand === "Low") multiplier = 1.05;  
-        
+         
                         let finalPrice = Math.ceil(base * multiplier);
-
+         
                         // --- NEW: Hard clamp the price so it never exceeds the data.js maximum ---
                         const absoluteMax = commodities[itemName].max || (commodities[itemName].basePrice * 1.5);
                         if (finalPrice > absoluteMax) {
                             finalPrice = absoluteMax;
                         }
-
+         
                         market.buying.push({ item: itemName, price: finalPrice });
                     }
                 });
             }
-        
+         
             return market;
-        }
+         }
          
          function buyGood(itemName, price) {
              const total = Object.values(player.cargo).reduce((a, b) => a + b, 0);
@@ -771,7 +771,7 @@
              }
              saveGame(); 
          }
-
+         
          function updateUI() {
             // Calculate current ship stats
             const stats = getShipStats(player.ship);
@@ -799,9 +799,9 @@
             const localScroll = localTab.scrollTop;
             const marketContainer = document.getElementById('market-container');
             const marketScroll = marketContainer ? marketContainer.scrollTop : 0;
-
+         
             if (!currentSystem) return;
-        
+         
             // 2. Delegate rendering based on current state
             if (localView === 'encounter') {
                 let html = '';
@@ -829,19 +829,19 @@
             localTab.scrollTop = localScroll;
             const newMarketContainer = document.getElementById('market-container');
             if (newMarketContainer) newMarketContainer.scrollTop = marketScroll;
-
+         
             // 3. Update Ship and Player Tabs
             updateShipTabUI(totalCargo);
             renderPlayerTab();
             updateTasksUI();
-        }
+         }
          
          function renderPoiList() {
              // Fetch system data for image and description
              const systemData = galaxy.find(s => s.id === currentSystem.id);
              const sysImagePath = systemData.image ? `assets/${systemData.image}` : 'assets/star_system_default.png';
              const sysDescription = systemData.description ? systemData.description : "";
-
+         
              // Build the side-by-side header
              let html = `
              <div class="flex items-center gap-6 mb-6 border-b-2 border-black pb-4">
@@ -853,7 +853,7 @@
                      <p class="text-lg italic text-gray-600">${sysDescription}</p>
                  </div>
              </div>`;
-
+         
              // Your exact original POI rendering loop
              currentSystem.pois.forEach((p, i) => {
                  
@@ -894,9 +894,9 @@
                      </div>
                  </button>`;
              });
-
-		html += renderNPCButtons();
-
+         
+         html += renderNPCButtons();
+         
              html += `</div>`;
              return html;
          }
@@ -1015,13 +1015,13 @@
             if (currentPoi && currentPoi.type === 'Encounter') {
                 html += `<p class="text-xl mb-8 italic border-l-4 border-black pl-4 py-2 bg-gray-50">${getPoiDescription(currentPoi)}</p>`;
             }
-        
+         
             const encData = interactions[currentEncounterName];
             const node = encData.dialogue[currentDialogueNode];
             const encImagePath = `assets/${encData.image || 'default.png'}`;
             
             let displayText = node.text.replace(/\b(\d+)(?=\s*(?:credits|cr)\b)/gi, match => parseInt(match).toLocaleString());
-        
+         
             html += `
                  <div class="flex flex-col h-full min-h-[50vh]">
                      <div class="flex-grow bg-gray-50 p-6 border-2 border-black mb-6 flex flex-col gap-6 shadow-inner">
@@ -1034,15 +1034,15 @@
                                  ${currentEncounterName}
                              </div>
                          </div>
-
+         
                          <div class="text-2xl font-bold text-gray-800 self-start w-full min-w-0 break-words">
                              ${node.text}
                          </div>
-
+         
                      </div>
                      <div class="space-y-4 shrink-0 mt-auto max-w-2xl mx-auto w-full pb-8">
              `;
-        
+         
             if (node.generateTaxiJobs) {
                 if (player.activeTaxi) {
                     html += `<div class="mb-4 p-4 bg-yellow-100 border-2 border-yellow-500 font-bold text-yellow-800 text-xl text-center">
@@ -1069,11 +1069,11 @@
                     html += `</div>`;
                 }
             }
-        
+         
             node.options.forEach(opt => {
                 if (opt.requiresFlag && !player.flags[opt.requiresFlag]) return;
                 if (opt.hidesOnFlag && player.flags[opt.hidesOnFlag]) return;
-        
+         
                 let disabledAttr = '';
                 let creditTag = '';
                 
@@ -1085,18 +1085,18 @@
                         creditTag = ` [+${opt.credits.toLocaleString()} CR]`;
                     }
                 }
-        
+         
                 const pickupAction = opt.completePickup ? "completeTaxiPickup();" : "";
                 const taxiAction = opt.completeTaxi ? "completeTaxiDropoff();" : "";
-        
+         
                 html += `<button class="btn" onclick="${pickupAction} ${taxiAction} selectDialogue('${opt.nextNode}', ${opt.credits || 0}, '${opt.setFlag || ''}', '${opt.clearFlag || ''}', '${opt.startTask || ''}', '${opt.completeTask || ''}')" ${disabledAttr}>
                     <span>${opt.text}${creditTag}</span>
                 </button>`;
             });
-        
+         
             html += `</div></div>`;
             return html;
-        }
+         }
          
          function renderMarket(totalCargo) {
             let html = `<div class="flex justify-between items-center mb-6 border-b-2 border-black pb-2">
@@ -1148,7 +1148,7 @@
             
             // Safety fallback just in case currentHull isn't set yet
             if (player.ship.currentHull === undefined) player.ship.currentHull = stats.maxHull;
-
+         
             // --- NEW: Inject the formatted Integrity string ---
             document.getElementById('ui-stat-hull').innerText = `${player.ship.currentHull} / ${stats.maxHull}`;
             
@@ -1202,9 +1202,9 @@
                 if (q > 0) cl += `<div class="flex justify-between border-b border-gray-300 py-1"><span>${itemName}</span><span>${q}</span></div>`;
             }
             document.getElementById('cargo-list').innerHTML = cl || '<p class="text-gray-500 italic">Empty.</p>';
-        }
+         }
          
-	function renderPlayerTab() {
+         function renderPlayerTab() {
              let html = `
                  <h2 class="text-4xl font-bold uppercase mb-6 border-b-4 border-black pb-2">Player Status</h2>
                  
@@ -1229,7 +1229,7 @@
              
              document.getElementById('tab-player').innerHTML = html;
          }
-
+         
          function triggerLocalTravel(i) {
              const dest = i === -1 ? null : currentSystem.pois[i];
              triggerTravel(dest, dest ? `APPROACHING ${dest.name}` : "DEPARTING STATION", 1000);
@@ -1248,8 +1248,8 @@
                      clearInterval(t); 
                      currentPoi = dest; 
                      ov.style.display = 'none';
-			
-		     generateNPCs(); 
+         
+         generateNPCs(); 
                      
                      // --- Check if we arrived at a standalone encounter ---
                      if (currentPoi && currentPoi.type === 'Encounter') {
@@ -1263,14 +1263,14 @@
                  }
              }, 30);
          }
-
-	function renderNPCButtons() {
+         
+         function renderNPCButtons() {
              let html = '';
              spawnedNPCs.forEach(npc => {
                  const hullConfig = shipHulls[npc.shipType] || {};
                  const imageFile = hullConfig.image || 'default.png';
                  const imagePath = `assets/${imageFile}`;
-     
+         
                  html += `
                  <button class="btn !p-2" onclick="startEncounter('${npc.encounter}')">
                      <div class="flex items-center gap-4 text-left">
