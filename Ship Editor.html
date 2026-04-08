@@ -34,7 +34,7 @@
         <div id="categories-list" class="space-y-1">
             <div class="list-item active" onclick="selectCategory('shipHulls')" id="cat-shipHulls">Ship Hulls</div>
             <div class="list-item" onclick="selectCategory('warpDrive')" id="cat-warpDrive">Warp Drives</div>
-            <div class="list-item" onclick="selectCategory('hullArmour')" id="cat-hullArmour">Hull Armor</div>
+            <div class="list-item" onclick="selectCategory('armour')" id="cat-armour">Armor</div>
             <div class="list-item" onclick="selectCategory('cargoBay')" id="cat-cargoBay">Cargo Bays</div>
             <div class="list-item" onclick="selectCategory('thrusters')" id="cat-thrusters">Thrusters</div>
             <div class="list-item" onclick="selectCategory('weapons')" id="cat-weapons">Weapons</div>
@@ -66,7 +66,7 @@
         let selItem = null;
 
         const sizes = ["Tiny", "Small", "Medium", "Large", "Huge"];
-        const moduleStats = ["jumpRange", "hull", "cargo", "handling", "offensive"];
+        const moduleStats = ["jumpRange", "armour", "cargo", "handling", "offensive"];
 
         function escapeJS(str) { return (str || "").toString().replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, ''); }
         function escapeHTML(str) { return (str || "").toString().replace(/"/g, '&quot;'); }
@@ -143,26 +143,24 @@
                 out += `        description: "${escapeJS(s.description)}",\n`;
                 out += `        multipliers: {\n`;
                 out += `            jumpRange: ${s.multipliers.jumpRange},\n`;
-                out += `            hull: ${s.multipliers.hull},\n`;
+                out += `            armour: ${s.multipliers.armour},\n`; // <-- FIXED
                 out += `            cargo: ${s.multipliers.cargo},\n`;
                 out += `            handling: ${s.multipliers.handling},\n`;
                 out += `            offensive: ${s.multipliers.offensive}\n`;
                 out += `        },\n`;
                 out += `        coreSlots: {\n`;
                 out += `            warpDrive: ${s.coreSlots.warpDrive},\n`;
-                out += `            hullArmour: ${s.coreSlots.hullArmour},\n`;
+                out += `            armour: ${s.coreSlots.armour},\n`; // <-- FIXED
                 out += `            cargoBay: ${s.coreSlots.cargoBay},\n`;
                 out += `            thrusters: ${s.coreSlots.thrusters},\n`;
                 out += `            weapons: ${s.coreSlots.weapons}\n`;
                 out += `        },\n`;
-                out += `        modularSlots: ${s.modularSlots}\n`;
-                out += `    }`;
                 if (i < hullKeys.length - 1) out += ",";
                 out += "\n";
             });
             out += "};\n\nconst equipment = {\n";
 
-            const eqCats = ["warpDrive", "hullArmour", "cargoBay", "thrusters", "weapons", "modules"];
+            const eqCats = ["warpDrive", "armour", "cargoBay", "thrusters", "weapons", "modules"];
             eqCats.forEach((cat, cIdx) => {
                 out += `    ${cat}: {\n`;
                 const items = Object.keys(equipmentData[cat] || {});
@@ -222,8 +220,8 @@
                 if (shipHullsData[name]) return alert("ID already exists.");
                 shipHullsData[name] = { 
                     name: name, size: "Tiny", description: "New Ship", 
-                    multipliers: { jumpRange: 1, hull: 1, cargo: 1, handling: 1, offensive: 1 },
-                    coreSlots: { warpDrive: 1, hullArmour: 1, cargoBay: 1, thrusters: 1, weapons: 1 },
+                    multipliers: { jumpRange: 1, armour: 1, cargo: 1, handling: 1, offensive: 1 },
+                    coreSlots: { warpDrive: 1, armour: 1, cargoBay: 1, thrusters: 1, weapons: 1 },
                     modularSlots: 1 
                 };
             } else if (selCat === 'modules') {
@@ -276,7 +274,6 @@
                         <input type="text" placeholder="ship_weescow.png" value="${escapeHTML(hull.image || '')}" oninput="setHull('image', this.value)">
                     </div>
 
-                    <label class="block text-xs font-bold uppercase mb-1">Description</label>
                     <label class="block text-xs font-bold uppercase mb-1">Description</label>
                     <textarea class="h-16 mb-4" oninput="setHull('description', this.value)">${escapeHTML(hull.description)}</textarea>
 
