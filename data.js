@@ -30,31 +30,97 @@ const newGameDefaults = {
 
 const shipHulls = {
     "Weescow": {
-        name: "Weescow", image: "ship_weescow.png", size: "Tiny",
-        description: "A two-seater runabout", baseHull: 10, weight: 5,
-        multipliers: { jumpRange: 1, armour: 0.8, cargo: 0.8, handling: 1.2, firepower: 0.8, accuracy: 1.0 },
-        coreSlots: { warpDrive: 1, armour: 1, cargoBay: 1, thrusters: 1, weapons: 1 },
+        name: "Weescow",
+        image: "ship_weescow.png",
+        size: "Tiny",
+        description: "A two-seater runabout",
+        baseHull: 10,
+        weight: 5,
+        multipliers: {
+            jumpRange: 1,
+            armour: 0.8,
+            cargo: 0.8,
+            handling: 1.2,
+            firepower: 0.8,
+            accuracy: 1
+        },
+        coreSlots: {
+            warpDrive: 1,
+            armour: 1,
+            cargoBay: 1,
+            thrusters: 1,
+            weapons: 1
+        },
         modularSlots: 1
     },
     "Midgeito": {
-        name: "Midgeito", size: "Tiny",
-        description: "A microfighter designed to be deployed in swarms.", baseHull: 12, weight: 4,
-        multipliers: { jumpRange: 0.7, armour: 1.3, cargo: 0.2, handling: 1.4, firepower: 1.2, accuracy: 1.0 },
-        coreSlots: { warpDrive: 1, armour: 1, cargoBay: 1, thrusters: 1, weapons: 1 },
+        name: "Midgeito",
+        size: "Tiny",
+        description: "A microfighter designed to be deployed in swarms.",
+        baseHull: 12,
+        weight: 4,
+        multipliers: {
+            jumpRange: 0.7,
+            armour: 1.3,
+            cargo: 0.2,
+            handling: 1.4,
+            firepower: 1.2,
+            accuracy: 1
+        },
+        coreSlots: {
+            warpDrive: 1,
+            armour: 1,
+            cargoBay: 1,
+            thrusters: 1,
+            weapons: 1
+        },
         modularSlots: 1
     },
     "Keiship": {
-        name: "Keiship", image: "ship_keiship.png", size: "Tiny",
-        description: "A tiny delivery ship", baseHull: 10, weight: 6,
-        multipliers: { jumpRange: 1, armour: 0.8, cargo: 1.2, handling: 0.9, firepower: 0.8, accuracy: 1.0 },
-        coreSlots: { warpDrive: 1, armour: 1, cargoBay: 1, thrusters: 1, weapons: 1 },
+        name: "Keiship",
+        image: "ship_keiship.png",
+        size: "Tiny",
+        description: "A tiny delivery ship",
+        baseHull: 10,
+        weight: 6,
+        multipliers: {
+            jumpRange: 1,
+            armour: 0.8,
+            cargo: 1.2,
+            handling: 0.9,
+            firepower: 0.8,
+            accuracy: 1
+        },
+        coreSlots: {
+            warpDrive: 1,
+            armour: 1,
+            cargoBay: 1,
+            thrusters: 1,
+            weapons: 1
+        },
         modularSlots: 1
     },
     "Rooster": {
-        name: "Rooster", size: "Small",
-        description: "Small patrol craft popular with law enforcement", baseHull: 18, weight: 8,
-        multipliers: { jumpRange: 0.8, armour: 1.4, cargo: 0.3, handling: 1.2, firepower: 1.2, accuracy: 1.2 },
-        coreSlots: { warpDrive: 1, armour: 1, cargoBay: 1, thrusters: 1, weapons: 1 },
+        name: "Rooster",
+        size: "Small",
+        description: "Small patrol craft popular with law enforcement",
+        baseHull: 18,
+        weight: 8,
+        multipliers: {
+            jumpRange: 0.8,
+            armour: 1.4,
+            cargo: 0.3,
+            handling: 1.2,
+            firepower: 1.2,
+            accuracy: 1.2
+        },
+        coreSlots: {
+            warpDrive: 1,
+            armour: 1,
+            cargoBay: 1,
+            thrusters: 1,
+            weapons: 1
+        },
         modularSlots: 2
     }
 };
@@ -82,7 +148,7 @@ const equipment = {
     },
     weapons: {
         "Weap T1": { name: "Commblaster", size: "Tiny", type: "weapons", weight: 1, firepower: 10, accuracy: 5, description: "Illegally overclocked communication laser." },
-        "Weap T2": { name: "Microcannon", size: "Tiny", type: "weapons", weight: 2, firepower: 15, accuracy: -5, description: "A low power directed energy weapon." }
+        "Weap T2": { name: "Microcannon", size: "Tiny", type: "weapons", weight: 2, firepower: 15, accuracy: 5, description: "A low power directed energy weapon." }
     },
     modules: {
         "Cargo Exp T1": { name: "Cargo Exp T1", size: "Tiny", type: "module", weight: 1, stat: "cargo", flatBonus: 5, description: "A little extra storage space" }
@@ -256,7 +322,7 @@ const interactions = {
         }
     },
     "Police Patrol": {
-        image: "random_alien_008.png",
+        image: ["random_alien_008.png", "random_alien_011.png"],
         dialogue: {
             "start": {
                 text: "<i>\"We have our eye on you citizen. You had better behave.\"</i>",
@@ -267,7 +333,7 @@ const interactions = {
         }
     },
     "Scrap Trader": {
-        image: "random_alien_004.png",
+        image: "random",
         dialogue: {
             "start": {
                 text: "<i>\"Fly safe friend!\"</i>",
@@ -502,7 +568,7 @@ const stationTypes = {
 // ==========================================
 const galaxy = [
     {
-        id: 0, name: "Sol", x: 492, y: 535,
+        id: 0, name: "Sol", x: 493, y: 538,
         image: "star_system_001.png",
         description: "The home of humanity, an obscure species of mammal. It is a run-down polluted backwater.",
         npcSpawns: [
@@ -590,7 +656,7 @@ const galaxy = [
         description: "When the famous explorer Dee-rack first saw this star he proclaimed \"Well obviously we have to check that out.\"",
         npcSpawns: [
             { name: "Blood Corsair", shipType: "Midgeito", encounter: "Obvious Pirate Ambush", chance: 0.8, isHostile: true },
-	    { name: "Blood Corsair", shipType: "Weescow", encounter: "Obviously belligerent", chance: 0.8, isHostile: true }
+            { name: "Blood Corsair", shipType: "Weescow", encounter: "Obviously belligerent", chance: 0.8, isHostile: true }
         ],
         pois: [
             { name: "The Obvious Trade Station", type: "Trade Hub" },
