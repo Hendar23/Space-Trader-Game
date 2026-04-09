@@ -167,9 +167,11 @@
          let localView = 'menu';
          let currentEncounterName = null;
          let currentEncounterDisplayName = null;
+         let currentEncounterImage = null;
          let currentDialogueNode = null; 
          let currentMarketPrices = {}; 
-         let spawnedNPCs = []; // Tracks ambient traffic in the current location
+         let spawnedNPCs = []; 
+         let localEncounterMemory = {};
          
          const canvas = document.getElementById('star-map');
          const ctx = canvas.getContext('2d');
@@ -194,13 +196,38 @@
              spawnedNPCs = [];
              if (currentSystem.npcSpawns) {
                  currentSystem.npcSpawns.forEach(spawn => {
-                     // Roll a random decimal between 0 and 1. If it's less than the chance, they spawn!
                      if (Math.random() < spawn.chance) {
+                         let finalName = spawn.name;
+                         let finalImage = null;
+                         
+                         // 1. Check for the "Total Random" keyword
+                         if (finalName.toLowerCase() === 'random') {
+                             const randomChar = generateRandomCharacter();
+                             finalName = randomChar.name;
+                             finalImage = randomChar.image;
+                         }
+                         
+                         // If the ship doesn't have a face yet, check the encounter data
+                         if (!finalImage && spawn.encounter) {
+                             const encData = interactions[spawn.encounter] || {};
+                             let baseImg = encData.image || 'default.png';
+                             
+                             // Roll the dice NOW, before the player ever clicks on them
+                             if (Array.isArray(baseImg)) {
+                                 finalImage = baseImg[Math.floor(Math.random() * baseImg.length)];
+                             } else if (baseImg === 'random') {
+                                 finalImage = generateRandomCharacter().image;
+                             } else {
+                                 finalImage = baseImg;
+                             }
+                         }
+                         
                          spawnedNPCs.push({
-                             name: spawn.name,
+                             name: finalName,
                              shipType: spawn.shipType,
                              encounter: spawn.encounter,
-                             isHostile: spawn.isHostile // <--- FIXED: Now the engine knows they are hostile!
+                             isHostile: spawn.isHostile,
+                             image: finalImage // The final, locked face
                          });
                      }
                  });
@@ -381,6 +408,7 @@
          function startTaxiPickup() {
             currentEncounterName = player.activeTaxi.client.name; 
             currentEncounterDisplayName = player.activeTaxi.client.name;
+            currentEncounterImage = player.activeTaxi.client.image;
             
             // 1. Build the encounter text first
             interactions[currentEncounterName] = {
@@ -414,6 +442,7 @@
          function startTaxiDropoff() {
             currentEncounterName = player.activeTaxi.client.name;
             currentEncounterDisplayName = player.activeTaxi.client.name;
+            currentEncounterImage = player.activeTaxi.client.image;
             
             // 1. Build the encounter text while the passenger data still exists
             interactions[currentEncounterName] = {
@@ -487,7 +516,7 @@
          
          function saveGame() {
              localStorage.setItem('spaceTraderSaveV4', JSON.stringify({
-                 player, systemId: currentSystem.id, poiName: currentPoi?.name, jumpRange, currentMarketPrices, spawnedNPCs
+                 player, systemId: currentSystem.id, poiName: currentPoi?.name, jumpRange, currentMarketPrices, spawnedNPCs, localEncounterMemory
              }));
          }
          
@@ -533,6 +562,7 @@
                      jumpRange = data.jumpRange || 100;
                      currentMarketPrices = data.currentMarketPrices || {};
                      spawnedNPCs = data.spawnedNPCs || [];
+                     localEncounterMemory = data.localEncounterMemory || {};
                      
                      if(Object.keys(currentMarketPrices).length === 0) randomizeMarket(); 
          
@@ -787,9 +817,30 @@
              }
          }
          
-         function startEncounter(name, displayName = null) {
+         function startEncounter(name, displayName = null, displayImage = null) {
              currentEncounterName = name;
-             currentEncounterDisplayName = displayName || name; // <--- NEW
+             currentEncounterDisplayName = displayName || name; 
+             
+             if (displayImage) {
+                 currentEncounterImage = displayImage;
+             } else if (localEncounterMemory[name]) {
+                 currentEncounterImage = localEncounterMemory[name];
+             } else {
+                 const encData = interactions[name] || {};
+                 let encImageFile = encData.image || 'default.png';
+                 
+                 if (Array.isArray(encImageFile)) {
+                     encImageFile = encImageFile[Math.floor(Math.random() * encImageFile.length)];
+                 } else if (encImageFile === 'random') {
+                     encImageFile = generateRandomCharacter().image;
+                 }
+                 currentEncounterImage = encImageFile;
+             }
+             
+             if (currentEncounterDisplayName.toLowerCase() === 'random') {
+                 currentEncounterDisplayName = generateRandomCharacter().name;
+             }
+             
              currentDialogueNode = 'start'; 
              setLocalView('encounter');
          }
@@ -811,15 +862,15 @@
              if (nextNode === 'leave') {
                  window.currentTaxiOffers = null; 
                  currentEncounterName = null;
-                 currentEncounterDisplayName = null; // <--- NEW: Clear it out
+                 currentEncounterDisplayName = null;
+                 currentEncounterImage = null;
                  currentDialogueNode = null;
                  
                  const nextHostileIndex = spawnedNPCs.findIndex(npc => npc.isHostile);
                  
                  if (nextHostileIndex !== -1) {
                      const nextHostile = spawnedNPCs.splice(nextHostileIndex, 1)[0];
-                     // --- Pass the NPC's custom name to the next fight ---
-                     startEncounter(nextHostile.encounter, nextHostile.name); 
+                     startEncounter(nextHostile.encounter, nextHostile.name, nextHostile.image); 
                      
                  } else if (currentPoi && currentPoi.type === 'Encounter') {
                      triggerLocalTravel(-1); 
@@ -1003,7 +1054,17 @@
                      if (encData.requiresFlag && !player.flags[encData.requiresFlag]) return;
                      if (encData.hidesOnFlag && player.flags[encData.hidesOnFlag]) return;
          
-                     const encImageFile = encData.image || 'default.png';
+                     let encImageFile = encData.image || 'default.png';
+                     
+                     if (localEncounterMemory[encName]) {
+                         encImageFile = localEncounterMemory[encName];
+                     } else {
+                         if (Array.isArray(encImageFile)) {
+                             encImageFile = encImageFile[Math.floor(Math.random() * encImageFile.length)];
+                         }
+                         localEncounterMemory[encName] = encImageFile;
+                     }
+                     
                      const encImagePath = `assets/${encImageFile}`;
          
                      encounterHtml += `
@@ -1079,7 +1140,7 @@
          
             const encData = interactions[currentEncounterName];
             const node = encData.dialogue[currentDialogueNode];
-            const encImagePath = `assets/${encData.image || 'default.png'}`;
+            const encImagePath = `assets/${currentEncounterImage}`;
             
             let displayText = node.text.replace(/\b(\d+)(?=\s*(?:credits|cr)\b)/gi, match => parseInt(match).toLocaleString());
          
@@ -1323,6 +1384,7 @@
          }
          
          function triggerTravel(dest, msg, dur) {
+             localEncounterMemory = {}; // NEW
              const ov = document.getElementById('travel-overlay');
              const bar = document.getElementById('progress-bar');
              document.getElementById('travel-text').innerText = msg;
@@ -1346,7 +1408,7 @@
                          
                          const hostileNPC = spawnedNPCs.splice(hostileIndex, 1)[0]; 
                          // --- Pass the NPC's custom name ---
-                         startEncounter(hostileNPC.encounter, hostileNPC.name);
+                         startEncounter(hostileNPC.encounter, hostileNPC.name, hostileNPC.image);
                          
                      } else if (currentPoi && currentPoi.type === 'Encounter') {
                          startEncounter(currentPoi.name);
@@ -1368,7 +1430,7 @@
                  const imagePath = `assets/${imageFile}`;
          
                  html += `
-                 <button class="btn !p-2" onclick="startEncounter('${npc.encounter}', '${npc.name.replace(/'/g, "\\'")}')">
+                 <button class="btn !p-2" onclick="startEncounter('${npc.encounter}', '${npc.name.replace(/'/g, "\\'")}', '${npc.image || ''}')">
                      <div class="flex items-center gap-4 text-left">
                          <div class="w-16 h-16 shrink-0 border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
                              <img src="${imagePath}" alt="${npc.shipType}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">

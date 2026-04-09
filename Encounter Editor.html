@@ -38,9 +38,15 @@
             <button class="btn !p-1 text-xs bg-yellow-100" id="btn-add-node" onclick="addNode()" disabled>+ ADD NODE</button>
          </div>
          <div id="encounter-settings" class="mb-6 hidden bg-gray-50 p-2 border border-gray-300">
-            <h3 class="text-xs font-bold uppercase mb-2 border-b border-gray-300 pb-1">Encounter Settings</h3>
-            <label class="block text-[10px] font-bold uppercase">Character Image (e.g., portrait.png)</label>
-            <input type="text" id="enc-image" class="text-xs mb-2" oninput="updateEncounterProp('image', this.value)">
+            <div class="flex justify-between items-center border-b border-gray-300 pb-1 mb-2">
+                <h3 class="text-xs font-bold uppercase">Encounter Settings</h3>
+                <button class="text-red-600 font-bold hover:underline text-[10px] uppercase" onclick="deleteEncounter()">DELETE ENCOUNTER</button>
+            </div>
+            <label class="block text-[10px] font-bold uppercase">Character Image</label>
+            <div class="flex gap-1 mb-2">
+                <input type="text" id="enc-image" class="text-xs flex-grow" placeholder="e.g. portrait.png" oninput="updateEncounterProp('image', this.value)">
+                <button class="btn !p-1 !mb-0 text-[10px] bg-purple-100" onclick="document.getElementById('enc-image').value='random'; updateEncounterProp('image', 'random')">RANDOM</button>
+            </div>
             <div class="flex gap-2">
                <div class="flex-1">
                   <label class="block text-[10px] font-bold uppercase">Requires Flag</label>
@@ -51,7 +57,6 @@
                   <input type="text" id="enc-hide-flag" class="text-xs" oninput="updateEncounterProp('hidesOnFlag', this.value)">
                </div>
             </div>
-            <button class="btn !p-1 text-xs bg-red-100 w-full mt-3" onclick="deleteEncounter()">Delete Encounter</button>
          </div>
          <div id="nodes-list" class="space-y-1"></div>
       </div>
