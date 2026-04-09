@@ -151,7 +151,7 @@ const equipment = {
 // PROCEDURAL GENERATION DATA
 // ==========================================
 
-const TOTAL_ALIEN_PORTRAITS = 8; // Total number of random_alien_XXX.png images
+const TOTAL_ALIEN_PORTRAITS = 11; // Total number of random_alien_XXX.png images
 
 const firstNames = [
     "Frank", "Bobby", "Aaron", "Jason", "Aria", "Jaxon", "Kael", "Lyra", "Zane", "Nova", 
@@ -303,7 +303,7 @@ const interactions = {
         image: "random_alien_004.png",
         dialogue: {
             "start": {
-                text: "<i>\"Hey there! Need any scrap? Just kidding, I only sell in bulk. Fly safe!\"</i>",
+                text: "<i>\"Fly safe friend!\"</i>",
                 options: [
                     { text: "You too. [Leave]", nextNode: "leave" }
                 ]
