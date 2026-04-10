@@ -993,23 +993,147 @@
              switchTab('battle');
          }
 
-         function doCombatRound(action) {
+         function doCombatRound(playerAction) {
+             if (!currentEnemy) return;
              const log = document.getElementById('battle-log');
              
-             if (action === 'attack') {
-                 log.innerHTML += `<div class="text-blue-400">> YOU INITIATED AN ATTACK RUN.</div>`;
-             } else if (action === 'manoeuvre') {
-                 log.innerHTML += `<div class="text-green-400">> YOU BEGAN EVASIVE MANOEUVRES.</div>`;
-             } else if (action === 'flee') {
-                 log.innerHTML += `<div class="text-yellow-400">> SPOOLING WARP DRIVE...</div>`;
-                 // Temporary flee logic to let you escape the fight screen:
+             // 1. Check for Flee
+             if (playerAction === 'flee') {
+                 log.innerHTML += `<div class="text-yellow-400 mt-2">> SPOOLING WARP DRIVE...</div>`;
                  currentEnemy = null;
                  switchTab('local');
                  return;
              }
              
-             // Auto-scroll the log to the bottom
+             // 2. Enemy AI Choice (Simple 50/50 split)
+             const enemyAction = Math.random() > 0.5 ? 'attack' : 'manoeuvre';
+             
+             log.innerHTML += `<div class="text-gray-500 mt-3 border-t border-gray-700 pt-1">--- NEW ROUND ---</div>`;
+             log.innerHTML += `<div>> YOU CHOSE: <span class="text-blue-400 uppercase">${playerAction}</span></div>`;
+             log.innerHTML += `<div>> ENEMY CHOSE: <span class="text-red-400 uppercase">${enemyAction}</span></div>`;
+             
+             // 3. Fetch Core Stats
+             const pStats = getShipStats(player.ship);
+             const eStats = currentEnemy.stats;
+             
+             // 4. Determine Active Stats (Skill + Hardware + Advantage)
+             const pBaseStat = playerAction === 'attack' 
+                 ? (player.skills.weapon + pStats.accuracy) 
+                 : (player.skills.piloting + pStats.handling);
+                 
+             const eBaseStat = enemyAction === 'attack' 
+                 ? (eStats.weapon + eStats.accuracy) 
+                 : (eStats.piloting + eStats.handling);
+             
+             const pActiveStat = pBaseStat + (playerAdvantage * 10);
+             const eActiveStat = eBaseStat + (enemyAdvantage * 10);
+             
+             // 5. THE ROLL ENGINE (With Tens Unit Math & Silent Tie-Breaker Rerolls)
+             let winner = null;
+             let pSuccesses = 0, eSuccesses = 0;
+             let pRoll = 0, eRoll = 0;
+             let safetyNet = 0; 
+             
+             while (winner === null) {
+                 pRoll = Math.floor(Math.random() * 100) + 1;
+                 eRoll = Math.floor(Math.random() * 100) + 1;
+                 
+                 // Calculate Successes: (Stat Tens Digit) - (Roll Tens Digit)
+                 pSuccesses = Math.floor(pActiveStat / 10) - Math.floor(pRoll / 10);
+                 eSuccesses = Math.floor(eActiveStat / 10) - Math.floor(eRoll / 10);
+                 
+                 if (pSuccesses > eSuccesses) {
+                     winner = 'player';
+                 } else if (eSuccesses > pSuccesses) {
+                     winner = 'enemy';
+                 } else {
+                     // TIE BREAKER: Who rolled equal to or under their stat?
+                     const pUnder = pRoll <= pActiveStat;
+                     const eUnder = eRoll <= eActiveStat;
+                     
+                     if (pUnder && !eUnder) winner = 'player';
+                     else if (!pUnder && eUnder) winner = 'enemy';
+                     else {
+                         // Both under or both over = Reroll!
+                         safetyNet++;
+                         if (safetyNet > 100) { winner = 'player'; break; } // Failsafe
+                     }
+                 }
+             }
+             
+             // ---Print the Telemetry to the Combat Log ---
+             log.innerHTML += `
+                <div class="text-white my-1 bg-gray-800 p-2 rounded">
+                    <div>[SYS] Player Target: ${pActiveStat} | Rolled: ${pRoll} | Successes: ${pSuccesses}</div>
+                    <div>[SYS] Enemy Target: ${eActiveStat} | Rolled: ${eRoll} | Successes: ${eSuccesses}</div>
+                </div>
+             `;
+             
+             // 6. RESOLVE MATRIX & CALCULATE DAMAGE
+             let damageToEnemy = 0;
+             let damageToPlayer = 0;
+             const successMargin = Math.abs(pSuccesses - eSuccesses);
+             
+             if (winner === 'player') {
+                 // Player Wins (Cap Advantage at 3)
+                 playerAdvantage = Math.min(3, playerAdvantage + 1);
+                 enemyAdvantage = 0;
+                 log.innerHTML += `<div class="text-green-400">> YOU WON THE EXCHANGE! (+Advantage)</div>`;
+                 
+                 if (playerAction === 'attack') {
+                     // Damage = Firepower + (WeaponSkill / 10) + Margin - Enemy Armour
+                     const grossDamage = pStats.firepower + Math.floor(player.skills.weapon / 10) + successMargin;
+                     damageToEnemy = Math.max(1, Math.ceil(grossDamage - eStats.armour));
+                     log.innerHTML += `<div class="text-blue-400">> DIRECT HIT! Dealt ${damageToEnemy} damage.</div>`;
+                 } else {
+                     log.innerHTML += `<div class="text-blue-400">> PERFECT MANOEUVRE. Superior positioning secured.</div>`;
+                 }
+             } else {
+                 // Enemy Wins (Cap Advantage at 3)
+                 enemyAdvantage = Math.min(3, enemyAdvantage + 1);
+                 playerAdvantage = 0;
+                 log.innerHTML += `<div class="text-red-400">> ENEMY WON THE EXCHANGE! (Lost Advantage)</div>`;
+                 
+                 if (enemyAction === 'attack') {
+                     // Damage = Firepower + (WeaponSkill / 10) + Margin - Player Armour
+                     const grossDamage = eStats.firepower + Math.floor(eStats.weapon / 10) + successMargin;
+                     damageToPlayer = Math.max(1, Math.ceil(grossDamage - pStats.armour));
+                     log.innerHTML += `<div class="text-red-500 font-bold bg-red-900 bg-opacity-30">> WARNING: HULL HIT! Took ${damageToPlayer} damage.</div>`;
+                 } else {
+                     log.innerHTML += `<div class="text-red-400">> ENEMY OUT-MANOEUVRED YOU.</div>`;
+                 }
+             }
+             
+             // 7. Apply Damage & Update UI
+             currentEnemy.currentHull -= damageToEnemy;
+             player.ship.currentHull -= damageToPlayer;
+             
+             // Visually grow the Advantage bars (3 points = 100%)
+             document.getElementById('battle-adv-player').style.height = Math.min(100, playerAdvantage * 33.33) + '%';
+             document.getElementById('battle-adv-enemy').style.height = Math.min(100, enemyAdvantage * 33.33) + '%';
+             
+             updateBattleUI();
              log.scrollTop = log.scrollHeight;
+             
+             // 8. Check for Destruction
+             if (currentEnemy.currentHull <= 0) {
+                 log.innerHTML += `<div class="text-yellow-400 font-bold text-xl mt-2">> TARGET DESTROYED.</div>`;
+                 const idx = spawnedNPCs.findIndex(n => n === currentEnemy);
+                 if (idx > -1) spawnedNPCs.splice(idx, 1);
+                 
+                 setTimeout(() => {
+                     alert(`You destroyed the ${currentEnemy.name}!`);
+                     currentEnemy = null;
+                     switchTab('local');
+                 }, 2000);
+                 
+             } else if (player.ship.currentHull <= 0) {
+                 log.innerHTML += `<div class="text-red-600 font-bold text-2xl mt-2 bg-black p-2">> CRITICAL HULL FAILURE. SHIP DESTROYED.</div>`;
+                 setTimeout(() => {
+                     alert("GAME OVER. Your ship was destroyed.");
+                     location.reload(); 
+                 }, 2000);
+             }
          }
          
          function updateBattleUI() {
