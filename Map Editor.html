@@ -283,6 +283,19 @@
                                  <input type="checkbox" class="w-4 h-4 cursor-pointer" ${spawn.isHostile ? 'checked' : ''} onchange="updateSpawnData(${index}, 'isHostile', this.checked)">
                              </div>
                          </div>
+                         
+                         <div class="mt-2 pt-2 border-t border-blue-200">
+                             <label class="block text-[10px] font-bold uppercase text-blue-800 mb-1">Combat Stats</label>
+                             <div class="grid grid-cols-4 gap-1">
+                                 <div><label class="text-[9px] uppercase">Hull</label><input type="number" class="text-xs p-1" value="${spawn.stats?.hull || 10}" oninput="updateSpawnStat(${index}, 'hull', this.value)"></div>
+                                 <div><label class="text-[9px] uppercase">Arm</label><input type="number" class="text-xs p-1" value="${spawn.stats?.armour || 10}" oninput="updateSpawnStat(${index}, 'armour', this.value)"></div>
+                                 <div><label class="text-[9px] uppercase">Hndl</label><input type="number" class="text-xs p-1" value="${spawn.stats?.handling || 20}" oninput="updateSpawnStat(${index}, 'handling', this.value)"></div>
+                                 <div><label class="text-[9px] uppercase">Fire</label><input type="number" class="text-xs p-1" value="${spawn.stats?.firepower || 10}" oninput="updateSpawnStat(${index}, 'firepower', this.value)"></div>
+                                 <div><label class="text-[9px] uppercase">Acc</label><input type="number" class="text-xs p-1" value="${spawn.stats?.accuracy || 0}" oninput="updateSpawnStat(${index}, 'accuracy', this.value)"></div>
+                                 <div><label class="text-[9px] uppercase">Pilot</label><input type="number" class="text-xs p-1" value="${spawn.stats?.piloting || 20}" oninput="updateSpawnStat(${index}, 'piloting', this.value)"></div>
+                                 <div><label class="text-[9px] uppercase">Weap</label><input type="number" class="text-xs p-1" value="${spawn.stats?.weapon || 20}" oninput="updateSpawnStat(${index}, 'weapon', this.value)"></div>
+                             </div>
+                         </div>
                      </div>
                  `;
              });
@@ -408,7 +421,10 @@
 
 	function addSpawn() {
              if(!selectedSystem.npcSpawns) selectedSystem.npcSpawns = [];
-             selectedSystem.npcSpawns.push({ name: "Unknown Pilot", shipType: "Weescow", encounter: "Scrap Trader", chance: 0.5, isHostile: false });
+             selectedSystem.npcSpawns.push({ 
+                 name: "Unknown Pilot", shipType: "Weescow", encounter: "Scrap Trader", chance: 0.5, isHostile: false,
+                 stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 }
+             });
              buildInspector();
          }
          
@@ -420,6 +436,14 @@
          function updateSpawnData(index, key, value) {
              if (key === 'chance') value = parseFloat(value) || 0;
              selectedSystem.npcSpawns[index][key] = value;
+         }
+         
+         function updateSpawnStat(index, key, value) {
+             // Create the stats object if it is missing from an older save
+             if (!selectedSystem.npcSpawns[index].stats) {
+                 selectedSystem.npcSpawns[index].stats = { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 };
+             }
+             selectedSystem.npcSpawns[index].stats[key] = parseInt(value) || 0;
          }
          
          async function connectFile() {
@@ -517,8 +541,13 @@
                  out += `        npcSpawns: [\n`;
                  out += sys.npcSpawns.map(s => {
                      let spawnStr = `            { name: "${s.name.replace(/"/g, '\\"')}", shipType: "${s.shipType}", encounter: "${s.encounter.replace(/"/g, '\\"')}", chance: ${s.chance}`;
-                     // --- NEW: Append the flag if it's checked ---
                      if (s.isHostile) spawnStr += `, isHostile: true`;
+                     
+                     // --- NEW: Append the combat stats! ---
+                     if (s.stats) {
+                         spawnStr += `,\n                stats: { hull: ${s.stats.hull || 10}, armour: ${s.stats.armour || 10}, handling: ${s.stats.handling || 20}, firepower: ${s.stats.firepower || 10}, accuracy: ${s.stats.accuracy || 0}, piloting: ${s.stats.piloting || 20}, weapon: ${s.stats.weapon || 20} }`;
+                     }
+                     
                      spawnStr += ` }`;
                      return spawnStr;
                  }).join(",\n") + "\n";

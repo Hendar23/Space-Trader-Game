@@ -327,7 +327,7 @@ const interactions = {
             "start": {
                 text: "<i>\"We have our eye on you citizen. You had better behave.\"</i>",
                 options: [
-                    { text: "Understood. [Leave]", nextNode: "leave" }
+                    { text: "You have a lovely day now officer. [Leave]", nextNode: "leave" }
                 ]
             }
         }
@@ -572,7 +572,8 @@ const galaxy = [
         image: "star_system_001.png",
         description: "The home of humanity, an obscure species of mammal. It is a run-down polluted backwater.",
         npcSpawns: [
-            { name: "System Security", shipType: "Weescow", encounter: "Police Patrol", chance: 0.6 },
+            { name: "System Security", shipType: "Weescow", encounter: "Police Patrol", chance: 0.6,
+                stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 30, weapon: 30 } },
             { name: "Independent Hauler", shipType: "Keiship", encounter: "Scrap Trader", chance: 0.4 }
         ],
         pois: [
@@ -655,11 +656,13 @@ const galaxy = [
         ]
     },
     {
-        id: 11, name: "Obviously", x: 450, y: 545,
+        id: 11, name: "Obviously", x: 454, y: 547,
         description: "When the famous explorer Dee-rack first saw this star he proclaimed \"Well obviously we have to check that out.\"",
         npcSpawns: [
-            { name: "Blood Corsair", shipType: "Midgeito", encounter: "Obvious Pirate Ambush", chance: 0.8, isHostile: true },
-            { name: "Blood Corsair", shipType: "Weescow", encounter: "Obviously belligerent", chance: 0.8, isHostile: true }
+            { name: "Blood Corsair", shipType: "Midgeito", encounter: "Obvious Pirate Ambush", chance: 0.8, isHostile: true,
+                stats: { hull: 12, armour: 15, handling: 45, firepower: 18, accuracy: 5, piloting: 40, weapon: 35 } },
+            { name: "Blood Corsair", shipType: "Weescow", encounter: "Obviously belligerent", chance: 0.8, isHostile: true,
+                stats: { hull: 15, armour: 10, handling: 30, firepower: 12, accuracy: 0, piloting: 30, weapon: 30 } }
         ],
         pois: [
             { name: "The Obvious Trade Station", type: "Trade Hub" },
