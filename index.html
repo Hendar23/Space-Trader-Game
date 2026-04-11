@@ -1219,11 +1219,16 @@
             } else {
                 // Otherwise, draw the standard station menus
                 let html = renderPoiHeader();
-                if (localView === 'menu') {
+                
+                // --- Route to Repair UI if it's a repair facility ---
+                if (currentPoi.type === "Repair Facility") {
+                    html += renderRepairFacility();
+                } else if (localView === 'menu') {
                     html += renderStationMenu();
                 } else {
                     html += renderMarket(totalCargo);
                 }
+                
                 localTab.innerHTML = html;
             }
             
@@ -1419,6 +1424,52 @@
              }
          
              html += `<div class="space-y-4 max-w-md mx-auto mt-12 pb-8"><button class="btn bg-gray-200" onclick="triggerLocalTravel(-1)">UNDOCK</button></div>`;
+             return html;
+         }
+
+         function repairShip(totalCost) {
+             if (player.credits >= totalCost) {
+                 player.credits -= totalCost;
+                 player.ship.currentHull = getShipStats(player.ship).maxHull;
+                 
+                 updateUI(); 
+                 saveGame(); 
+             }
+         }
+
+         function renderRepairFacility() {
+             const pStats = getShipStats(player.ship);
+             const damage = Math.max(0, pStats.maxHull - player.ship.currentHull);
+             
+             // Math: Use the station's custom cost, or default to 10
+             const costPerPoint = currentPoi.repairCost || 10;
+             const totalCost = damage * costPerPoint;
+             
+             // --- Add the standard POI description block to the top! ---
+             let html = `<p class="text-xl mb-8 italic border-l-4 border-black pl-4 py-2 bg-gray-50">${getPoiDescription(currentPoi)}</p>`;
+             
+             html += `
+                 <div class="bg-white p-4 border-2 border-black mb-6 max-w-md mx-auto mt-4">
+                     <div class="font-bold text-xl mb-2 border-b-2 border-gray-200 pb-2">Hull Integrity: ${player.ship.currentHull} / ${pStats.maxHull}</div>
+                     ${damage > 0 
+                         ? `<div class="text-red-600 font-bold text-lg">Damage Detected: -${damage} HP</div>
+                            <div class="text-blue-600 font-bold text-lg mb-4">Repair Rate: ${costPerPoint} CR / HP</div>`
+                         : `<div class="text-green-600 font-bold text-lg mt-2 mb-4">Ship is in optimal condition.</div>`
+                     }
+                 `;
+                 
+             if (damage > 0) {
+                 const canAfford = player.credits >= totalCost;
+                 html += `<button class="btn !bg-blue-100 hover:!bg-blue-200 border-blue-600 !mb-4" onclick="repairShip(${totalCost})" ${!canAfford ? 'disabled' : ''}>
+                             REPAIR SHIP (${totalCost} CR)
+                          </button>`;
+             }
+             
+             html += `</div>
+             <div class="space-y-4 max-w-md mx-auto mt-8 pb-8">
+                <button class="btn bg-gray-200" onclick="triggerLocalTravel(-1)">UNDOCK</button>
+             </div>`;
+             
              return html;
          }
          

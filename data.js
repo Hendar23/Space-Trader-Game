@@ -469,6 +469,12 @@ const stationTypes = {
     "Outpost": {
         description: "An isolated waystation operating on minimal power."
     },
+    "Repair Facility": { 
+        defaultImage: "station004.png",
+        description: "A starship repair facility with dedicated dry docks.",
+        produces: [],
+        consumes: [] 
+    },
     "Trade Hub": {
         defaultImage: "station003.png",
         description: "A massive central trading hub.",
@@ -567,7 +573,8 @@ const galaxy = [
             { name: "Earth Spaceport 01", type: "Trade Hub", image: "port001.png", encounters: ["Bartender Milo", "Brother Moo"], description: "A massive central trading hub for the planet Earth" },
             { name: "Lunar Ice Extractors", type: "Ice Mine", description: "Vast machines evaporate ice into water" },
             { name: "Martian Farm Hub", type: "Plant Farm" },
-            { name: "Sol Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Frank"], requiresFlag: "knows_frank", description: "Cheap but not cheerful." }
+            { name: "Sol Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Frank"], requiresFlag: "knows_frank", description: "Cheap but not cheerful." },
+            { name: "Startech Workshops", type: "Repair Facility", description: "", repairCost: 8 }
         ]
     },
     {
@@ -651,6 +658,7 @@ const galaxy = [
         ],
         pois: [
             { name: "The Obvious Trade Station", type: "Trade Hub" },
+            { name: "Rusty's Discount Repair Emporium", type: "Repair Facility", repairCost: 5 },
             { name: "Asteroid Belt Ice Mine", type: "Ice Mine", description: "Testing the ICE!" },
             { name: "Roid Chewer 023", type: "Iron Mine" },
             { name: "Obvious Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Varlo"], description: "Obvious Taxis HQ is a cheaply refurbished outpost." }
