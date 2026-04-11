@@ -1158,7 +1158,11 @@
                  const btnCont = document.getElementById('battle-continue');
                  btnCont.classList.remove('hidden');
                  btnCont.innerText = "GAME OVER";
-                 btnCont.onclick = () => location.reload();
+                 btnCont.onclick = () => {
+                     // --- NEW: Wipe the save file before reloading! ---
+                     localStorage.removeItem('spaceTraderSaveV4'); 
+                     location.reload(); 
+                 };
              }
          }
          
