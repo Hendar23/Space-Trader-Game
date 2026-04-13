@@ -302,14 +302,14 @@ const interactions = {
             "start": {
                 text: "<i>\"Stand and deliver, spacer!\"</i>",
                 options: [
-                    { text: "Never! [FIGHT]", startCombat: true }, // <--- CHANGED
+                    { text: "Never! [FIGHT]", nextNode: "leave", startCombat: true },
                     { text: "Take my money!", nextNode: "leave", credits: -500 }
                 ]
             }
         }
     },
     "Police Patrol": {
-        image: ["random_alien_008.png", "random_alien_011.png"],
+        image: "random_alien_008.png,random_alien_011.png",
         dialogue: {
             "start": {
                 text: "<i>\"We have our eye on you citizen. You had better behave.\"</i>",
@@ -436,6 +436,17 @@ const interactions = {
                 ]
             }
         }
+    },
+    "Rusty Hank": {
+        image: "random",
+        dialogue: {
+            "start": {
+                text: "<i> Don't worry, we can patch 'er up for ya.</i>",
+                options: [
+                    { text: "Thanks", nextNode: "leave" }
+                ]
+            }
+        }
     }
 
 };
@@ -468,12 +479,6 @@ const commodities = {
 const stationTypes = {
     "Outpost": {
         description: "An isolated waystation operating on minimal power."
-    },
-    "Repair Facility": { 
-        defaultImage: "station004.png",
-        description: "A starship repair facility with dedicated dry docks.",
-        produces: [],
-        consumes: [] 
     },
     "Trade Hub": {
         defaultImage: "station003.png",
@@ -553,6 +558,10 @@ const stationTypes = {
         description: "Dust-free cleanrooms manufacture high-tech circuitry.",
         produces: ["Microchips"],
         consumes: { "Silicon Wafers": "High", "Gold Bars": "High", "Machine Parts": "Low", "Packaged Food": "Low" }
+    },
+    "Repair Station": {
+        defaultImage: "station004.png",
+        description: "A sprawling orbital drydock surrounded by welding drones."
     }
 };
 
@@ -561,7 +570,7 @@ const stationTypes = {
 // ==========================================
 const galaxy = [
     {
-        id: 0, name: "Sol", x: 493, y: 538,
+        id: 0, name: "Sol", x: 494, y: 539,
         image: "star_system_001.png",
         description: "The home of humanity, an obscure species of mammal. It is a run-down polluted backwater.",
         npcSpawns: [
@@ -574,7 +583,7 @@ const galaxy = [
             { name: "Lunar Ice Extractors", type: "Ice Mine", description: "Vast machines evaporate ice into water" },
             { name: "Martian Farm Hub", type: "Plant Farm" },
             { name: "Sol Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Frank"], requiresFlag: "knows_frank", description: "Cheap but not cheerful." },
-            { name: "Startech Workshops", type: "Repair Facility", description: "", repairCost: 8 }
+            { name: "Sol Orbital Mechanics", type: "Repair Station", description: "", repairCost: 10 }
         ]
     },
     {
@@ -658,10 +667,10 @@ const galaxy = [
         ],
         pois: [
             { name: "The Obvious Trade Station", type: "Trade Hub" },
-            { name: "Rusty's Discount Repair Emporium", type: "Repair Facility", repairCost: 5 },
             { name: "Asteroid Belt Ice Mine", type: "Ice Mine", description: "Testing the ICE!" },
             { name: "Roid Chewer 023", type: "Iron Mine" },
-            { name: "Obvious Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Varlo"], description: "Obvious Taxis HQ is a cheaply refurbished outpost." }
+            { name: "Obvious Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Varlo"], description: "Obvious Taxis HQ is a cheaply refurbished outpost." },
+            { name: "Rusty Hanks Discount Repair Emporium", type: "Repair Station", encounters: ["Rusty Hank"], description: "", repairCost: 6 }
         ]
     }
 ];

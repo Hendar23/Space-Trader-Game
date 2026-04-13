@@ -177,9 +177,10 @@
                          if (opt.startTask) optStr += `, startTask: "${escapeJS(opt.startTask).trim()}"`;
                          if (opt.completeTask) optStr += `, completeTask: "${escapeJS(opt.completeTask).trim()}"`;
                          
-                         // --- UPDATED: Saves the Taxi Pickup and Dropoff flags! ---
+                        // --- UPDATED: Saves the Taxi Pickup and Dropoff flags! ---
                          if (opt.completePickup) optStr += `, completePickup: true`;
                          if (opt.completeTaxi) optStr += `, completeTaxi: true`;
+                         if (opt.startCombat) optStr += `, startCombat: true`;
                          
                          optStr += ` }`;
                          
@@ -348,7 +349,7 @@
                          </div>
                      </div>
                      
-                     <div class="grid grid-cols-2 gap-3 bg-blue-50 p-2 border border-blue-300 mt-3">
+                     <div class="grid grid-cols-3 gap-3 bg-blue-50 p-2 border border-blue-300 mt-3">
                          <div class="flex items-center gap-2">
                              <input type="checkbox" ${opt.completePickup ? 'checked' : ''} onchange="updateOpt(${i}, 'completePickup', this.checked)">
                              <label class="text-[10px] font-bold uppercase mb-0">Completes Taxi Pickup</label>
@@ -356,6 +357,10 @@
                          <div class="flex items-center gap-2">
                              <input type="checkbox" ${opt.completeTaxi ? 'checked' : ''} onchange="updateOpt(${i}, 'completeTaxi', this.checked)">
                              <label class="text-[10px] font-bold uppercase mb-0">Completes Taxi Dropoff</label>
+                         </div>
+                         <div class="flex items-center gap-2">
+                             <input type="checkbox" ${opt.startCombat ? 'checked' : ''} onchange="updateOpt(${i}, 'startCombat', this.checked)">
+                             <label class="text-[10px] font-bold uppercase text-red-600 mb-0">Initiates Combat</label>
                          </div>
                      </div>
                  </div>`;

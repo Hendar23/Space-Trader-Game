@@ -66,7 +66,7 @@
              'Trade Hub', 'Outpost', 'Wheat Farm', 'Ice Mine', 'Wheat Processing Plant', 
              'Livestock Farm', 'Meat Processing Plant', 'Copper Mine', 'Iron Mine', 
              'Platinum Mine', 'Silicon Mine', 'Gold Mine', 'Metal Ore Refinery', 
-             'Silicon Refinery', 'Machine Parts Factory', 'Chip Fab', 'Encounter', 'Repair Facility'
+             'Silicon Refinery', 'Machine Parts Factory', 'Chip Fab', 'Encounter', 'Repair Station'
          ];
          
          function resize() {
@@ -331,11 +331,6 @@
                                  <label class="block text-[10px] font-bold uppercase mt-1">Custom Image</label>
                                  <input type="text" class="text-xs" placeholder="default.png" value="${poi.image || ''}" oninput="updatePoiData(${index}, 'image', this.value)">
                              </div>
-                             ${poi.type === 'Repair Facility' ? `
-                             <div class="flex-1">
-                                 <label class="block text-[10px] font-bold uppercase mt-1 text-blue-600">Repair Cost</label>
-                                 <input type="number" class="text-xs border-blue-400" placeholder="10" value="${poi.repairCost || ''}" oninput="updatePoiData(${index}, 'repairCost', this.value)">
-                             </div>` : ''}
                          </div>
          
                          <div>
@@ -358,6 +353,12 @@
                              <label class="block text-[10px] font-bold uppercase mt-1">Description (Optional)</label>
                              <textarea class="text-xs h-12 resize-none" oninput="updatePoiData(${index}, 'description', this.value)">${poi.description || ''}</textarea>
                          </div>
+                         
+                         ${poi.type === 'Repair Station' ? `
+                         <div class="border-t border-gray-300 mt-2 pt-2">
+                             <label class="block text-[10px] font-bold uppercase mt-1 text-blue-800">Repair Cost per Hull</label>
+                             <input type="number" class="text-xs p-1 border border-gray-400 w-24" value="${poi.repairCost !== undefined ? poi.repairCost : 10}" oninput="updatePoiData(${index}, 'repairCost', parseInt(this.value) || 0)">
+                         </div>` : ''}
                      </div>
                  `;
              });
@@ -383,17 +384,14 @@
          
          function updatePoiData(index, key, value) {
              if (key === 'encounters') {
+                 // Convert the comma-separated string back into an array, filtering out empty strings
                  selectedSystem.pois[index][key] = value.split(',').map(s => s.trim()).filter(s => s !== '');
-             } else if (key === 'repairCost') {
-                 selectedSystem.pois[index][key] = parseInt(value) || 0;
              } else {
                  selectedSystem.pois[index][key] = value;
              }
              
-             // Redraw the inspector if the type changes so the Repair Cost box appears/disappears
-             if (key === 'type') {
-                 buildInspector();
-             }
+             // If we change the type, rebuild the inspector to show/hide specific fields
+             if (key === 'type') buildInspector();
          }
          
          function addNewSystem() {
@@ -590,8 +588,8 @@
                      pStr += `, description: "${p.description.replace(/"/g, '\\"')}"`;
                  }
                  
-                 if (p.type === 'Repair Facility' && p.repairCost !== undefined) {
-                     pStr += `, repairCost: ${p.repairCost}`;
+                 if (p.type === 'Repair Station') {
+                     pStr += `, repairCost: ${p.repairCost !== undefined ? p.repairCost : 10}`;
                  }
                  
                  pStr += ` }`;
