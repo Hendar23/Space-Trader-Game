@@ -454,6 +454,24 @@ const interactions = {
                 ]
             }
         }
+    },
+    "Uncle Bob": {
+        image: "portrait003.png",
+        dialogue: {
+            "start": {
+                text: "Hey kid, how you doin'?",
+                options: [
+                    { text: "Sorry Uncle Bob, I gotta go.", nextNode: "leave" },
+                    { text: "I did it Bob, I got my first ship", nextNode: "got_ship", hidesOnFlag: "told_bob_ship" }
+                ]
+            },
+            "got_ship": {
+                text: "Congratulations kiddo. I won't ask how you got the money together for it. What's your plans now?",
+                options: [
+                    { text: "TIME TO GO MAKE MY FORTUNE!", nextNode: "leave", setFlag: "told_bob_ship" }
+                ]
+            }
+        }
     }
 
 };
@@ -630,10 +648,11 @@ const galaxy = [
         ]
     },
     {
-        id: 101, name: "Herbies Star", x: 540, y: 548,
-        description: "A run-down backwater. Its only habitable planet, Leonton is known for large predators, petty crime, and poverty.",
+        id: 101, name: "Herbies Star", x: 540, y: 547,
+        description: "The only habitable planet, Leonton is known for it's large predators, petty crime, and poverty.",
         pois: [
-            { name: "Leonton Spaceport", type: "Trade Hub", image: "port002.png", description: "Smells like starship exhaust, cheap narcotics, vomit and desperation." }
+            { name: "Leonton Spaceport", type: "Trade Hub", image: "port003.png", description: "Smells like starship fuel, cheap narcotics, and desperation." },
+            { name: "The Full Burn Bar", type: "Outpost", image: "bar001.png", encounters: ["Uncle Bob"], description: "Leontons go to bar for visiting spacers. Uncle bob has run it as long as anyone can remember. " }
         ]
     }
 ];
