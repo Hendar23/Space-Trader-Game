@@ -593,8 +593,11 @@ const stationTypes = {
 // ==========================================
 // GALAXY MAP
 // ==========================================
+
+
 const mapBackgrounds = [
-    { image: "bak_neb001.png", x: 400, y: 450, width: 200, height: 200, alpha: 0.5 }
+    { image: "bak_neb001.png", x: 600, y: 450, width: 200, height: 200, alpha: 1 },
+    { image: "test_area.png", x: 440, y: 500, width: 80, height: 80, alpha: 1 }
 ];
 
 const galaxy = [
@@ -616,7 +619,7 @@ const galaxy = [
         ]
     },
     {
-        id: 98, name: "Alpha Centauri", x: 466, y: 518,
+        id: 98, name: "Alpha Centauri", x: 467, y: 524,
         npcSpawns: [
             { name: "Poovy bird", shipType: "<AVIAN>", shipImage: "ship_bird1.png", chance: 0.5, isHostile: true,
                 stats: { hull: 20, armour: 10, handling: 40, firepower: 6, accuracy: 10, piloting: 10, weapon: 5 } }
