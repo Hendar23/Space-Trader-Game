@@ -149,7 +149,20 @@
                  out += `    "${k}": {\n`;
                  if (enc.requiresFlag) out += `        requiresFlag: "${escapeJS(enc.requiresFlag).trim()}",\n`;
                  if (enc.hidesOnFlag) out += `        hidesOnFlag: "${escapeJS(enc.hidesOnFlag).trim()}",\n`;
-                 if (enc.image) out += `        image: "${escapeJS(enc.image).trim()}",\n`;
+                 
+                 if (enc.image) {
+                     // Check if it's already an array in memory, or a string
+                     let imgStr = Array.isArray(enc.image) ? enc.image.join(',') : enc.image;
+                     
+                     if (imgStr.includes(',')) {
+                         // Split by comma, trim spaces, and wrap each item in quotes
+                         let imgArr = imgStr.split(',').map(s => `"${escapeJS(s.trim())}"`).join(', ');
+                         out += `        image: [${imgArr}],\n`;
+                     } else {
+                         // Save normally as a single string
+                         out += `        image: "${escapeJS(imgStr).trim()}",\n`;
+                     }
+                 }
                  
                  out += `        dialogue: {\n`;
                  const dKeys = Object.keys(enc.dialogue || {});

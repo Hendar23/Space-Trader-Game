@@ -309,7 +309,7 @@ const interactions = {
         }
     },
     "Police Patrol": {
-        image: "random_alien_008.png,random_alien_011.png",
+        image: ["random_alien_008.png", "random_alien_011.png"],
         dialogue: {
             "start": {
                 text: "<i>\"We have our eye on you citizen. You had better behave.\"</i>",
