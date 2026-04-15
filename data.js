@@ -5,9 +5,9 @@ const newGameDefaults = {
     startingCredits: 10,
     startingSystemId: 0,
     startingSkills: {
-        piloting: 35,
-        weapon: 40,
-        engineer: 30
+        piloting: 10,
+        weapon: 10,
+        engineer: 10
     },
     startingShip: {
         hull: "Weescow",
@@ -577,7 +577,7 @@ const stationTypes = {
 // ==========================================
 const galaxy = [
     {
-        id: 0, name: "Sol", x: 494, y: 539,
+        id: 0, name: "Sol", x: 495, y: 538,
         image: "star_system_001.png",
         description: "The home of humanity, an obscure species of mammal. It is a run-down polluted backwater.",
         npcSpawns: [
@@ -594,12 +594,10 @@ const galaxy = [
         ]
     },
     {
-        id: 1, name: "Alpha Centauri", x: 516, y: 517,
+        id: 98, name: "Alpha Centauri", x: 466, y: 518,
         npcSpawns: [
             { name: "Poovy bird", shipType: "<AVIAN>", shipImage: "ship_bird1.png", chance: 0.5, isHostile: true,
-                stats: { hull: 20, armour: 10, handling: 40, firepower: 6, accuracy: 10, piloting: 30, weapon: 30 } },
-            { name: "Unknown Pilot", shipType: "Weescow", shipImage: "ship_weescow.png", chance: 0.3,
-                stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } }
+                stats: { hull: 20, armour: 10, handling: 40, firepower: 6, accuracy: 10, piloting: 10, weapon: 5 } }
         ],
         pois: [
             { name: "Centauri Pastures", type: "Livestock Farm" },
@@ -607,28 +605,7 @@ const galaxy = [
         ]
     },
     {
-        id: 2, name: "Sirius", x: 580, y: 550,
-        pois: [
-            { name: "Sirius Iron Works", type: "Iron Mine" },
-            { name: "Dog Star Copper", type: "Copper Mine" }
-        ]
-    },
-    {
-        id: 3, name: "Vega", x: 420, y: 410,
-        pois: [
-            { name: "Vega Smelting", type: "Metal Ore Refinery" },
-            { name: "Lyra Machine Co.", type: "Machine Parts Factory" }
-        ]
-    },
-    {
-        id: 4, name: "Rigel", x: 350, y: 450,
-        pois: [
-            { name: "Rigel Silicates", type: "Silicon Mine" },
-            { name: "Orion Gold", type: "Gold Mine" }
-        ]
-    },
-    {
-        id: 5, name: "Betelgeuse", x: 473, y: 572,
+        id: 97, name: "Betelgeuse", x: 474, y: 567,
         npcSpawns: [
             { name: "Cop", shipType: "Weescow", encounter: "Police Patrol", chance: 0.1, isHostile: true }
         ],
@@ -638,45 +615,11 @@ const galaxy = [
         ]
     },
     {
-        id: 6, name: "Arcturus", x: 604, y: 458,
-        pois: [
-            { name: "Arcturan Micro", type: "Chip Fab" },
-            { name: "Bootes Food Corp", type: "Plant Processing Facility" }
-        ]
-    },
-    {
-        id: 7, name: "Altair", x: 620, y: 620,
-        pois: [
-            { name: "Altair Ice Ring", type: "Ice Mine" },
-            { name: "Eagle Ranch", type: "Livestock Farm" },
-            { name: "Altair Platinum", type: "Platinum Mine" }
-        ]
-    },
-    {
-        id: 8, name: "Capella", x: 496, y: 421,
-        pois: [
-            { name: "Capella Copper", type: "Copper Mine" },
-            { name: "Charioteer Smelting", type: "Metal Ore Refinery" }
-        ]
-    },
-    {
-        id: 9, name: "Procyon", x: 550, y: 380,
-        pois: [
-            { name: "Procyon Free Market", type: "Trade Hub" },
-            { name: "Canis Minor Parts", type: "Machine Parts Factory" }
-        ]
-    },
-    {
-        id: 10, name: "New System", x: 1650, y: 1860,
-        pois: [
-        ]
-    },
-    {
-        id: 11, name: "Obviously", x: 454, y: 547,
+        id: 96, name: "Obviously", x: 452, y: 550,
         description: "When the famous explorer Dee-rack first saw this star he proclaimed \"Well obviously we have to check that out.\"",
         npcSpawns: [
             { name: "Amateur Pirate", shipType: "Raider Scout", shipImage: "ship_weescow.png", encounter: "Obvious Pirate Ambush", chance: 0.3, isHostile: true,
-                stats: { hull: 12, armour: 8, handling: 20, firepower: 8, accuracy: 5, piloting: 30, weapon: 30 } }
+                stats: { hull: 12, armour: 8, handling: 20, firepower: 8, accuracy: 5, piloting: 10, weapon: 10 } }
         ],
         pois: [
             { name: "The Obvious Trade Station", type: "Trade Hub" },
@@ -684,6 +627,13 @@ const galaxy = [
             { name: "Roid Chewer 023", type: "Iron Mine" },
             { name: "Obvious Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Varlo"], description: "Obvious Taxis HQ is a cheaply refurbished outpost." },
             { name: "Rusty Hanks Discount Repair Emporium", type: "Repair Station", encounters: ["Rusty Hank"], description: "", repairCost: 6 }
+        ]
+    },
+    {
+        id: 101, name: "Herbies Star", x: 540, y: 548,
+        description: "A run-down backwater. Its only habitable planet, Leonton is known for large predators, petty crime, and poverty.",
+        pois: [
+            { name: "Leonton Spaceport", type: "Trade Hub", image: "port002.png", description: "Smells like starship exhaust, cheap narcotics, vomit and desperation." }
         ]
     }
 ];
