@@ -574,9 +574,9 @@ const galaxy = [
         image: "star_system_001.png",
         description: "The home of humanity, an obscure species of mammal. It is a run-down polluted backwater.",
         npcSpawns: [
-            { name: "System Security", shipType: "Weescow", encounter: "Police Patrol", chance: 0.6,
+            { name: "System Security", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "Police Patrol", chance: 0.6,
                 stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 30, weapon: 30 } },
-            { name: "Independent Hauler", shipType: "Keiship", encounter: "Scrap Trader", chance: 0.4 }
+            { name: "Independent Hauler", shipType: "Keiship", shipImage: "ship_keiship.png", encounter: "Scrap Trader", chance: 0.4 }
         ],
         pois: [
             { name: "Earth Spaceport 01", type: "Trade Hub", image: "port001.png", encounters: ["Bartender Milo", "Brother Moo"], description: "A massive central trading hub for the planet Earth" },
@@ -588,6 +588,10 @@ const galaxy = [
     },
     {
         id: 1, name: "Alpha Centauri", x: 516, y: 517,
+        npcSpawns: [
+            { name: "Poovy bird", shipType: "<AVIAN>", shipImage: "brother_moo.png", chance: 0.5, isHostile: true,
+                stats: { hull: 20, armour: 10, handling: 40, firepower: 6, accuracy: 10, piloting: 30, weapon: 30 } }
+        ],
         pois: [
             { name: "Centauri Pastures", type: "Livestock Farm" },
             { name: "Alpha Meats", type: "Meat Processing Plant" }
@@ -662,7 +666,7 @@ const galaxy = [
         id: 11, name: "Obviously", x: 454, y: 547,
         description: "When the famous explorer Dee-rack first saw this star he proclaimed \"Well obviously we have to check that out.\"",
         npcSpawns: [
-            { name: "Amateur Pirate", shipType: "Weescow", encounter: "Obvious Pirate Ambush", chance: 0.5, isHostile: true,
+            { name: "Amateur Pirate", shipType: "Raider Scout", shipImage: "ship_weescow.png", encounter: "Obvious Pirate Ambush", chance: 0.5, isHostile: true,
                 stats: { hull: 12, armour: 8, handling: 20, firepower: 8, accuracy: 5, piloting: 30, weapon: 30 } }
         ],
         pois: [

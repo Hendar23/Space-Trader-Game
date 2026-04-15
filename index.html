@@ -286,6 +286,7 @@
                          spawnedNPCs.push({
                              name: finalName,
                              shipType: spawn.shipType,
+                             shipImage: spawn.shipImage,
                              encounter: spawn.encounter,
                              isHostile: spawn.isHostile,
                              image: finalImage,
@@ -1015,8 +1016,12 @@
              document.getElementById('battle-adv-enemy').style.height = '0%';
              
              // 4. Inject the enemy's visual data into the arena
-             const hullData = shipHulls[currentEnemy.shipType] || {};
-             document.getElementById('battle-img-enemy').src = `assets/${hullData.image || 'default.png'}`;
+             let enemyImage = currentEnemy.shipImage;
+             if (!enemyImage) {
+                 const hullData = shipHulls[currentEnemy.shipType] || {};
+                 enemyImage = hullData.image || 'default.png';
+             }
+             document.getElementById('battle-img-enemy').src = `assets/${enemyImage}`;
              document.getElementById('battle-name-enemy').innerText = currentEnemy.name;
              
              // 5. Clear the combat log and write the intro
@@ -1736,8 +1741,12 @@
                  travelText.classList.add('text-red-600');
                  
                  // Show the hull of the ship that is intercepting them
-                 const hullData = shipHulls[interceptor.shipType] || {};
-                 warnImg.src = `assets/${hullData.image || 'default.png'}`;
+                 let interceptorImage = interceptor.shipImage;
+                 if (!interceptorImage) {
+                     const hullData = shipHulls[interceptor.shipType] || {};
+                     interceptorImage = hullData.image || 'default.png';
+                 }
+                 warnImg.src = `assets/${interceptorImage}`;
                  warnName.innerHTML = `${interceptor.name}<br><span class="text-base text-black">Class: ${interceptor.shipType}</span>`;
 		 
 		 dur = 2500               
@@ -1765,8 +1774,15 @@
                      
                      if (interceptor) {
                          switchTab('local');
-                         interceptor.isHostile = false; 
-                         startEncounter(interceptor.encounter, interceptor.name, interceptor.image);
+                         
+                         // Instantly lock scanners and start fighting if there is no dialogue!
+                         if (!interceptor.encounter || interceptor.encounter === 'undefined' || interceptor.encounter === '') {
+                             currentEncounterDisplayName = interceptor.name;
+                             startCombat();
+                         } else {
+                             interceptor.isHostile = false; 
+                             startEncounter(interceptor.encounter, interceptor.name, interceptor.image);
+                         }
                      } else if (currentPoi && currentPoi.type === 'Encounter') {
                          startEncounter(currentPoi.name);
                      } else {
@@ -1782,12 +1798,23 @@
          function renderNPCButtons() {
              let html = '';
              spawnedNPCs.forEach(npc => {
-                 const hullConfig = shipHulls[npc.shipType] || {};
-                 const imageFile = hullConfig.image || 'default.png';
+                 let imageFile = npc.shipImage;
+                 if (!imageFile) {
+                     const hullConfig = shipHulls[npc.shipType] || {};
+                     imageFile = hullConfig.image || 'default.png';
+                 }
                  const imagePath = `assets/${imageFile}`;
+                 
+                 let onClickAction;
+                 // If the NPC is hostile and has no dialogue encounter set, go straight to combat!
+                 if (npc.isHostile && (!npc.encounter || npc.encounter === 'undefined' || npc.encounter === '')) {
+                     onClickAction = `currentEncounterDisplayName = '${npc.name.replace(/'/g, "\\'")}'; startCombat();`;
+                 } else {
+                     onClickAction = `startEncounter('${npc.encounter}', '${npc.name.replace(/'/g, "\\'")}', '${npc.image || ''}')`;
+                 }
          
                  html += `
-                 <button class="btn !p-2" onclick="startEncounter('${npc.encounter}', '${npc.name.replace(/'/g, "\\'")}', '${npc.image || ''}')">
+                 <button class="btn !p-2" onclick="${onClickAction}">
                      <div class="flex items-center gap-4 text-left">
                          <div class="w-16 h-16 shrink-0 border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
                              <img src="${imagePath}" alt="${npc.shipType}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">

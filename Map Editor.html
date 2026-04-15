@@ -262,11 +262,15 @@
                          <div class="flex gap-2">
                              <div class="flex-1">
                                  <label class="block text-[10px] font-bold uppercase mt-1">Display Name</label>
-                                 <input type="text" class="text-xs" value="${spawn.name || ''}" oninput="updateSpawnData(${index}, 'name', this.value)">
+                                 <input type="text" class="text-xs w-full" value="${spawn.name || ''}" oninput="updateSpawnData(${index}, 'name', this.value)">
                              </div>
                              <div class="flex-1">
                                  <label class="block text-[10px] font-bold uppercase mt-1">Ship Class</label>
-                                 <input type="text" class="text-xs" placeholder="e.g. Weescow" value="${spawn.shipType || ''}" oninput="updateSpawnData(${index}, 'shipType', this.value)">
+                                 <input type="text" class="text-xs w-full" placeholder="e.g. Weescow" value="${spawn.shipType || ''}" oninput="updateSpawnData(${index}, 'shipType', this.value)">
+                             </div>
+                             <div class="flex-1">
+                                 <label class="block text-[10px] font-bold uppercase mt-1">Ship Image</label>
+                                 <input type="text" class="text-xs w-full" placeholder="e.g. ship.png" value="${spawn.shipImage || ''}" oninput="updateSpawnData(${index}, 'shipImage', this.value)">
                              </div>
                          </div>
                          <div class="flex gap-2 items-end">
@@ -431,7 +435,7 @@
 	function addSpawn() {
              if(!selectedSystem.npcSpawns) selectedSystem.npcSpawns = [];
              selectedSystem.npcSpawns.push({ 
-                 name: "Unknown Pilot", shipType: "Weescow", encounter: "Scrap Trader", chance: 0.5, isHostile: false,
+                 name: "Unknown Pilot", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "Scrap Trader", chance: 0.5, isHostile: false,
                  stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 }
              });
              buildInspector();
@@ -549,7 +553,15 @@
 	     if (sys.npcSpawns && sys.npcSpawns.length > 0) {
                  out += `        npcSpawns: [\n`;
                  out += sys.npcSpawns.map(s => {
-                     let spawnStr = `            { name: "${s.name.replace(/"/g, '\\"')}", shipType: "${s.shipType}", encounter: "${s.encounter.replace(/"/g, '\\"')}", chance: ${s.chance}`;
+                     let spawnStr = `            { name: "${s.name.replace(/"/g, '\\"')}", shipType: "${s.shipType}"`;
+                     if (s.shipImage) spawnStr += `, shipImage: "${s.shipImage.trim()}"`;
+                     
+                     const safeEncounter = s.encounter ? s.encounter.replace(/"/g, '\\"') : "";
+                     if (safeEncounter !== "") {
+                         spawnStr += `, encounter: "${safeEncounter}"`;
+                     }
+                     
+                     spawnStr += `, chance: ${s.chance}`;
                      if (s.isHostile) spawnStr += `, isHostile: true`;
                      
                      // --- NEW: Append the combat stats! ---
