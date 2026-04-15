@@ -593,6 +593,10 @@ const stationTypes = {
 // ==========================================
 // GALAXY MAP
 // ==========================================
+const mapBackgrounds = [
+    { image: "bak_neb001.png", x: 400, y: 450, width: 200, height: 200, alpha: 0.5 }
+];
+
 const galaxy = [
     {
         id: 0, name: "Sol", x: 495, y: 538,

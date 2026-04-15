@@ -28,6 +28,7 @@
          <button class="btn bg-green-100" id="btn-save" onclick="saveToFile()" disabled>2. Save Changes</button>
          <div class="border-t-2 border-black mt-2 pt-4">
             <button class="btn bg-yellow-100 w-full" id="btn-add-sys" onclick="addNewSystem()" disabled>+ Add New System</button>
+            <button class="btn bg-purple-100 w-full mt-2" id="btn-edit-bgs" onclick="editBackgrounds()" disabled>Edit Backgrounds</button>
          </div>
          <div class="border-t-2 border-black mt-2 pt-4">
             <label class="block text-xs font-bold uppercase mb-1">Visualizer: Jump Range</label>
@@ -58,6 +59,23 @@
          let lastMouse = { x: 0, y: 0 };
          let jumpRange = 100;
          
+         let mapBackgrounds = [];
+         let isEditingBackgrounds = false;
+         const imageCache = {};
+         
+         function drawCachedImage(ctx, src, x, y, w, h, alpha) {
+             if (!imageCache[src]) {
+                 imageCache[src] = new Image();
+                 imageCache[src].src = "assets/" + src;
+                 imageCache[src].onload = render; 
+             }
+             if (imageCache[src].complete && imageCache[src].naturalWidth > 0) {
+                 ctx.globalAlpha = alpha;
+                 ctx.drawImage(imageCache[src], x, y, w, h);
+                 ctx.globalAlpha = 1.0;
+             }
+         }
+         
          const canvas = document.getElementById('map-canvas');
          const ctx = canvas.getContext('2d');
          const inspector = document.getElementById('inspector-panel');
@@ -87,8 +105,12 @@
              ctx.save();
              ctx.translate(-camera.x, -camera.y);
              ctx.scale(camera.zoom, camera.zoom);
+             
+             mapBackgrounds.forEach(bg => {
+                 drawCachedImage(ctx, bg.image, bg.x, bg.y, bg.width, bg.height, bg.alpha);
+             });
          
-             if (selectedSystem) {
+             if (selectedSystem && !isEditingBackgrounds) {
                  ctx.beginPath();
                  ctx.arc(selectedSystem.x, selectedSystem.y, jumpRange, 0, Math.PI * 2);
                  ctx.fillStyle = 'rgba(59, 130, 246, 0.05)'; 
@@ -167,12 +189,13 @@
          
              if (clickedNode) {
                  selectedSystem = clickedNode;
+                 isEditingBackgrounds = false;
                  isDraggingNode = true;
                  buildInspector();
              } else {
-                 selectedSystem = null;
+                 if (!isEditingBackgrounds) selectedSystem = null;
                  isDraggingMap = true;
-                 buildInspector();
+                 if (!isEditingBackgrounds) buildInspector();
              }
              
              lastMouse = { x: e.clientX, y: e.clientY };
@@ -220,7 +243,78 @@
              render();
          }, { passive: false });
          
+         function editBackgrounds() {
+             selectedSystem = null;
+             isEditingBackgrounds = true;
+             buildInspector();
+             render();
+         }
+
+         function addBackground() {
+             mapBackgrounds.push({ image: "nebula.png", x: 0, y: 0, width: 800, height: 600, alpha: 0.5 });
+             buildInspector();
+             render();
+         }
+         
+         function deleteBackground(index) {
+             mapBackgrounds.splice(index, 1);
+             buildInspector();
+             render();
+         }
+         
+         function updateBackgroundData(index, key, value) {
+             mapBackgrounds[index][key] = value;
+             render();
+         }
+
          function buildInspector() {
+             if (isEditingBackgrounds) {
+                 let html = `
+                 <div class="flex justify-between items-center border-b-2 border-black pb-2 mb-4">
+                     <h2 class="font-bold text-xl uppercase text-purple-800">Map Backgrounds</h2>
+                     <button class="btn text-xs !p-1 bg-purple-100" onclick="addBackground()">+ Add Image</button>
+                 </div>
+                 <div class="space-y-4">
+                 `;
+                 
+                 mapBackgrounds.forEach((bg, index) => {
+                     html += `
+                     <div class="border border-purple-400 p-2 bg-purple-50 relative flex flex-col gap-2">
+                         <button class="absolute top-1 right-2 text-red-500 font-bold text-xs" onclick="deleteBackground(${index})">X</button>
+                         <div>
+                             <label class="block text-[10px] font-bold uppercase mt-1">Image Filename</label>
+                             <input type="text" class="text-xs" value="${bg.image}" oninput="updateBackgroundData(${index}, 'image', this.value)">
+                         </div>
+                         <div class="grid grid-cols-2 gap-2">
+                             <div>
+                                 <label class="block text-[10px] font-bold uppercase">X Pos</label>
+                                 <input type="number" class="text-xs p-1" value="${bg.x}" oninput="updateBackgroundData(${index}, 'x', parseInt(this.value) || 0)">
+                             </div>
+                             <div>
+                                 <label class="block text-[10px] font-bold uppercase">Y Pos</label>
+                                 <input type="number" class="text-xs p-1" value="${bg.y}" oninput="updateBackgroundData(${index}, 'y', parseInt(this.value) || 0)">
+                             </div>
+                             <div>
+                                 <label class="block text-[10px] font-bold uppercase">Width</label>
+                                 <input type="number" class="text-xs p-1" value="${bg.width}" oninput="updateBackgroundData(${index}, 'width', parseInt(this.value) || 0)">
+                             </div>
+                             <div>
+                                 <label class="block text-[10px] font-bold uppercase">Height</label>
+                                 <input type="number" class="text-xs p-1" value="${bg.height}" oninput="updateBackgroundData(${index}, 'height', parseInt(this.value) || 0)">
+                             </div>
+                         </div>
+                         <div>
+                             <label class="block text-[10px] font-bold uppercase">Opacity (0.0 to 1.0)</label>
+                             <input type="number" step="0.1" min="0" max="1" class="text-xs p-1" value="${bg.alpha}" oninput="updateBackgroundData(${index}, 'alpha', parseFloat(this.value) || 0)">
+                         </div>
+                     </div>
+                     `;
+                 });
+                 html += `</div>`;
+                 inspector.innerHTML = html;
+                 return;
+             }
+
              if (!selectedSystem) {
                  inspector.innerHTML = `<div class="text-gray-500 italic text-center mt-10">Select a system on the map to edit it.</div>`;
                  return;
@@ -478,8 +572,16 @@
                      return; 
                  }
          
-                 // Preserve everything before the galaxy array
-                 filePrefix = text.substring(0, galaxyIndex);
+                 let tempPrefix = text.substring(0, galaxyIndex);
+                 const bgMatch = tempPrefix.match(/const\s+mapBackgrounds\s*=\s*(\[[\s\S]*?\])\s*;/);
+                 if (bgMatch) {
+                     mapBackgrounds = new Function('return ' + bgMatch[1])();
+                     filePrefix = tempPrefix.replace(bgMatch[0], '');
+                 } else {
+                     mapBackgrounds = [];
+                     filePrefix = tempPrefix;
+                 }
+                 
                  let restOfText = text.substring(galaxyIndex);
                  
                  // Smart regex to extract just the array and capture any suffix (like the interactions object)
@@ -516,6 +618,7 @@
                      
                      document.getElementById('btn-save').disabled = false;
                      document.getElementById('btn-add-sys').disabled = false;
+                     document.getElementById('btn-edit-bgs').disabled = false;
          
                  } else {
                      alert("The file was loaded, but no valid array was found.");
@@ -536,8 +639,14 @@
          btn.innerText = "SAVING...";
          
          try {
-         // Recombine prefix, updated galaxy array, and the suffix
-         let out = filePrefix + "const galaxy = [\n";
+         let bgOut = "const mapBackgrounds = [\n";
+         mapBackgrounds.forEach((bg, i) => {
+             bgOut += `    { image: "${bg.image}", x: ${bg.x}, y: ${bg.y}, width: ${bg.width}, height: ${bg.height}, alpha: ${bg.alpha} }${i < mapBackgrounds.length - 1 ? ',' : ''}\n`;
+         });
+         bgOut += "];\n\n";
+         
+         // Recombine prefix, background array, updated galaxy array, and the suffix
+         let out = filePrefix + bgOut + "const galaxy = [\n";
          
          galaxy.forEach((sys, i) => {
              // Start the system object block

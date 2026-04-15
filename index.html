@@ -742,6 +742,21 @@
              document.getElementById('tasks-list').innerHTML = html || '<p class="text-gray-500 italic text-xl">No active tasks.</p>';
          }
          
+         const imageCache = {};
+         function drawCachedImage(ctx, src, x, y, w, h, alpha) {
+             if (!imageCache[src]) {
+                 imageCache[src] = new Image();
+                 imageCache[src].src = "assets/" + src;
+                 // Force a map redraw once the image actually finishes loading
+                 imageCache[src].onload = () => { if (activeTab === 'map') renderMap(); }; 
+             }
+             if (imageCache[src].complete && imageCache[src].naturalWidth > 0) {
+                 ctx.globalAlpha = alpha;
+                 ctx.drawImage(imageCache[src], x, y, w, h);
+                 ctx.globalAlpha = 1.0;
+             }
+         }
+
          function renderMap() {
              if (activeTab !== 'map' || typeof galaxy === 'undefined') return;
              canvas.width = canvas.parentElement.clientWidth;
@@ -750,6 +765,15 @@
              ctx.save();
              ctx.translate(-camera.x, -camera.y);
              ctx.scale(camera.zoom, camera.zoom);
+             
+             // --- Draw Parallax Backgrounds First ---
+             if (typeof mapBackgrounds !== 'undefined') {
+                 mapBackgrounds.forEach(bg => {
+                     // Scale the coordinates and sizes up by drawScale so they match the stars perfectly!
+                     drawCachedImage(ctx, bg.image, bg.x * drawScale, bg.y * drawScale, bg.width * drawScale, bg.height * drawScale, bg.alpha);
+                 });
+             }
+             
              const cx = currentSystem.x * drawScale;
              const cy = currentSystem.y * drawScale;
              ctx.beginPath();
