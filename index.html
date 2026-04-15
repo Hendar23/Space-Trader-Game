@@ -1805,16 +1805,25 @@
                  }
                  const imagePath = `assets/${imageFile}`;
                  
-                 let onClickAction;
-                 // If the NPC is hostile and has no dialogue encounter set, go straight to combat!
-                 if (npc.isHostile && (!npc.encounter || npc.encounter === 'undefined' || npc.encounter === '')) {
-                     onClickAction = `currentEncounterDisplayName = '${npc.name.replace(/'/g, "\\'")}'; startCombat();`;
-                 } else {
-                     onClickAction = `startEncounter('${npc.encounter}', '${npc.name.replace(/'/g, "\\'")}', '${npc.image || ''}')`;
+                 const hasEncounter = npc.encounter && npc.encounter !== 'undefined' && npc.encounter !== '';
+                 let onClickAction = "";
+                 let disabledState = "";
+
+                 // If hostile and no dialogue, go to combat
+                 if (npc.isHostile && !hasEncounter) {
+                     onClickAction = `onclick="currentEncounterDisplayName = '${npc.name.replace(/'/g, "\\'")}'; startCombat();"`;
+                 } 
+                 // If they have dialogue, open the comms menu
+                 else if (hasEncounter) {
+                     onClickAction = `onclick="startEncounter('${npc.encounter}', '${npc.name.replace(/'/g, "\\'")}', '${npc.image || ''}')"`;
+                 } 
+                 // If they are peaceful but have NO dialogue, disable the button
+                 else {
+                     disabledState = "disabled";
                  }
          
                  html += `
-                 <button class="btn !p-2" onclick="${onClickAction}">
+                 <button class="btn !p-2" ${onClickAction} ${disabledState}>
                      <div class="flex items-center gap-4 text-left">
                          <div class="w-16 h-16 shrink-0 border-2 border-black bg-gray-100 flex items-center justify-center overflow-hidden">
                              <img src="${imagePath}" alt="${npc.shipType}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">
