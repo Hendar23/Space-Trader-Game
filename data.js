@@ -591,7 +591,7 @@ const galaxy = [
         npcSpawns: [
             { name: "Poovy bird", shipType: "<AVIAN>", shipImage: "brother_moo.png", chance: 0.5, isHostile: true,
                 stats: { hull: 20, armour: 10, handling: 40, firepower: 6, accuracy: 10, piloting: 30, weapon: 30 } },
-            { name: "Unknown Pilot", shipType: "Weescow", shipImage: "ship_weescow.png", chance: 0.5,
+            { name: "Unknown Pilot", shipType: "Weescow", shipImage: "ship_weescow.png", chance: 0.9,
                 stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } }
         ],
         pois: [
