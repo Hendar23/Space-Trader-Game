@@ -148,27 +148,31 @@
                     <div id="battle-adv-player" class="w-full bg-blue-500 transition-all duration-300" style="height: 0%;"></div>
                 </div>
      
-                <div class="absolute bottom-3 left-12 flex flex-col items-center">
-                    <span class="text-blue-400 font-bold text-xs mb-1 uppercase drop-shadow-md" id="battle-name-player">Player</span>
+                <div class="absolute bottom-3 left-12 flex flex-col items-center w-24">
+                    <span class="text-blue-400 font-bold text-xs mb-1 uppercase drop-shadow-md text-center" id="battle-name-player">Player</span>
                     <img id="battle-img-player" src="assets/ship_weescow.png" class="w-24 h-24 object-contain filter drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]" onerror="this.onerror=null; this.src='assets/default.png';">
                     <span class="text-white font-bold text-xs mt-1 bg-black px-1 border border-gray-700" id="battle-hull-player">Hull: 0/0</span>
+                    <div class="w-full bg-gray-800 h-1.5 border border-gray-600 mt-1">
+                        <div id="battle-hp-player" class="bg-blue-500 h-full transition-all duration-300" style="width: 100%"></div>
+                    </div>
                 </div>
      
                 <div class="absolute right-3 top-3 h-4/5 w-4 border-2 border-gray-600 flex flex-col justify-end bg-gray-900">
                     <div id="battle-adv-enemy" class="w-full bg-red-500 transition-all duration-300" style="height: 0%;"></div>
                 </div>
      
-                <div class="absolute top-3 right-12 flex flex-col items-center">
+                <div class="absolute top-3 right-12 flex flex-col items-center w-24">
                     <span class="text-white font-bold text-xs mb-1 bg-black px-1 border border-gray-700" id="battle-hull-enemy">Hull: 0/0</span>
+                    <div class="w-full bg-gray-800 h-1.5 border border-gray-600 mb-1">
+                        <div id="battle-hp-enemy" class="bg-red-500 h-full transition-all duration-300" style="width: 100%"></div>
+                    </div>
                     <img id="battle-img-enemy" src="assets/default.png" class="w-24 h-24 object-contain -scale-x-100 filter drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" onerror="this.onerror=null; this.src='assets/default.png';">
-                    <span class="text-red-400 font-bold text-xs mt-1 uppercase drop-shadow-md" id="battle-name-enemy">Enemy</span>
+                    <span class="text-red-400 font-bold text-xs mt-1 uppercase drop-shadow-md text-center" id="battle-name-enemy">Enemy</span>
                 </div>
             </div>
      
             <div class="flex-grow bg-gray-900 border-x-4 border-black p-3 overflow-y-auto font-mono text-sm shadow-inner flex flex-col gap-2" id="battle-log">
-                <div class="text-gray-400">> SCANNERS LOCKED.</div>
                 <div class="text-red-400">> HOSTILE INTERDICTION DETECTED.</div>
-                <div class="text-yellow-400">> AWAITING PILOT INPUT...</div>
             </div>
      
             <div class="shrink-0 bg-black p-3 border-4 border-black">
@@ -1053,9 +1057,7 @@
              
              // 5. Clear the combat log and write the intro
              document.getElementById('battle-log').innerHTML = `
-                <div class="text-gray-400">> SCANNERS LOCKED.</div>
                 <div class="text-red-400">> ENGAGING: ${currentEnemy.name.toUpperCase()} (${currentEnemy.shipType.toUpperCase()})</div>
-                <div class="text-yellow-400">> AWAITING PILOT INPUT...</div>
              `;
              
              // 6. Update the hull numbers and flip the screen!
@@ -1228,7 +1230,10 @@
              const pStats = getShipStats(player.ship);
              
              document.getElementById('battle-hull-player').innerText = `Hull: ${player.ship.currentHull}/${pStats.maxHull}`;
+             document.getElementById('battle-hp-player').style.width = `${Math.max(0, (player.ship.currentHull / pStats.maxHull) * 100)}%`;
+
              document.getElementById('battle-hull-enemy').innerText = `Hull: ${currentEnemy.currentHull}/${currentEnemy.stats.hull}`;
+             document.getElementById('battle-hp-enemy').style.width = `${Math.max(0, (currentEnemy.currentHull / currentEnemy.stats.hull) * 100)}%`;
          }
          
          function updateUI() {
