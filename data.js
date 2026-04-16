@@ -56,6 +56,7 @@ const shipHulls = {
     },
     "Midgeito": {
         name: "Midgeito",
+	image: "ship_midgeito.png",
         size: "Tiny",
         description: "A microfighter designed to be deployed in swarms.",
         baseHull: 12,
