@@ -25,7 +25,8 @@
             NOT CONNECTED
          </div>
          <button class="btn bg-blue-100" onclick="connectFile()">1. Connect to data.js</button>
-         <button class="btn bg-green-100" id="btn-save" onclick="saveToFile()" disabled>2. Save Changes</button>
+         <button class="btn bg-purple-100 w-full mb-2" id="btn-connect-assets" onclick="connectAssetsFolder()">2. Connect Assets Folder</button>
+         <button class="btn bg-green-100" id="btn-save" onclick="saveToFile()" disabled>3. Save Changes</button>
          <div class="border-t-2 border-black mt-2 pt-4">
             <button class="btn bg-yellow-100 w-full" id="btn-add-sys" onclick="addNewSystem()" disabled>+ Add New System</button>
             <button class="btn bg-purple-100 w-full mt-2" id="btn-edit-bgs" onclick="editBackgrounds()" disabled>Edit Backgrounds</button>
@@ -48,8 +49,8 @@
       </div>
       <script>
          let galaxy = [];
-         let filePrefix = ""; // Stores data above the galaxy array (e.g., commodities)
-         let fileSuffix = ""; // Stores data below the galaxy array (e.g., interactions)
+         let filePrefix = ""; 
+         let fileSuffix = ""; 
          let selectedSystem = null;
          let fileHandle = null; 
          
@@ -81,11 +82,36 @@
          const inspector = document.getElementById('inspector-panel');
          
          const typesList = [
-             'Trade Hub', 'Outpost', 'Wheat Farm', 'Ice Mine', 'Wheat Processing Plant', 
+             'Trade Hub', 'Outpost', 'Plant Farm', 'Ice Mine', 'Plant Processing Facility', 
              'Livestock Farm', 'Meat Processing Plant', 'Copper Mine', 'Iron Mine', 
              'Platinum Mine', 'Silicon Mine', 'Gold Mine', 'Metal Ore Refinery', 
-             'Silicon Refinery', 'Machine Parts Factory', 'Chip Fab', 'Encounter', 'Repair Station'
+             'Silicon Refinery', 'Machine Parts Factory', 'Chip Fab', 'Encounter', 'Repair Station', 'Outfitter'
          ];
+
+         let availableImages = []; 
+
+         async function connectAssetsFolder() {
+             try {
+                 const dirHandle = await window.showDirectoryPicker();
+                 availableImages = []; 
+                 
+                 for await (const entry of dirHandle.values()) {
+                     if (entry.kind === 'file' && entry.name.toLowerCase().endsWith('.png')) {
+                         availableImages.push(entry.name);
+                     }
+                 }
+                 
+                 availableImages.sort();
+                 
+                 document.getElementById('btn-connect-assets').innerText = `ASSETS LOADED (${availableImages.length})`;
+                 document.getElementById('btn-connect-assets').classList.replace('bg-purple-100', 'bg-green-100');
+                 
+                 if (selectedSystem) buildInspector();
+                 
+             } catch (err) {
+                 if (err.name !== 'AbortError') alert("Could not read folder. Ensure you select the correct 'assets' directory.");
+             }
+         }
          
          function resize() {
              canvas.width = canvas.parentElement.clientWidth;
@@ -333,7 +359,10 @@
          
                  <div class="space-y-2 mt-3 pt-3 border-t border-gray-300">
                      <label class="block text-xs font-bold uppercase">System Image (Optional)</label>
-                     <input type="text" placeholder="e.g. star_system_001.png" value="${selectedSystem.image || ''}" oninput="updateSystemData('image', this.value)">
+                     <div class="flex">
+                         <input type="text" id="sys-image" class="text-xs flex-grow" placeholder="e.g. star_system_001.png" value="${selectedSystem.image || ''}" oninput="updateSystemData('image', this.value)">
+                         ${availableImages.length > 0 ? `<select class="text-xs w-1/3 border-l-0 bg-gray-100" onchange="document.getElementById('sys-image').value=this.value; updateSystemData('image', this.value); this.selectedIndex=0;"><option value="" disabled selected>+ Pick Image</option><option value="">[ NONE ]</option>${availableImages.map(img => `<option value="${img}">${img}</option>`).join('')}</select>` : ''}
+                     </div>
                  </div>
                  <div class="space-y-2 mt-2">
                      <label class="block text-xs font-bold uppercase">System Description (Optional)</label>
@@ -355,16 +384,15 @@
                          
                          <div class="flex gap-2">
                              <div class="flex-1">
-                                 <label class="block text-[10px] font-bold uppercase mt-1">Display Name</label>
-                                 <input type="text" class="text-xs w-full" value="${spawn.name || ''}" oninput="updateSpawnData(${index}, 'name', this.value)">
+                                 <label class="block text-[10px] font-bold uppercase mt-1">Ship Image</label>
+                                 <div class="flex">
+                                     <input type="text" id="spawn-img-${index}" class="text-xs w-full flex-grow" placeholder="e.g. ship.png" value="${spawn.shipImage || ''}" oninput="updateSpawnData(${index}, 'shipImage', this.value)">
+                                     ${availableImages.length > 0 ? `<select class="text-xs w-8 border-l-0 bg-gray-100" style="padding:0; text-align:center;" onchange="document.getElementById('spawn-img-${index}').value=this.value; updateSpawnData(${index}, 'shipImage', this.value); this.selectedIndex=0;"><option value="" disabled selected>▼</option><option value="default.png">[ DEFAULT ]</option>${availableImages.map(img => `<option value="${img}">${img}</option>`).join('')}</select>` : ''}
+                                 </div>
                              </div>
                              <div class="flex-1">
                                  <label class="block text-[10px] font-bold uppercase mt-1">Ship Class</label>
                                  <input type="text" class="text-xs w-full" placeholder="e.g. Weescow" value="${spawn.shipType || ''}" oninput="updateSpawnData(${index}, 'shipType', this.value)">
-                             </div>
-                             <div class="flex-1">
-                                 <label class="block text-[10px] font-bold uppercase mt-1">Ship Image</label>
-                                 <input type="text" class="text-xs w-full" placeholder="e.g. ship.png" value="${spawn.shipImage || ''}" oninput="updateSpawnData(${index}, 'shipImage', this.value)">
                              </div>
                          </div>
                          <div class="flex gap-2 items-end">
@@ -427,7 +455,10 @@
                          <div class="flex gap-2">
                              <div class="flex-1">
                                  <label class="block text-[10px] font-bold uppercase mt-1">Custom Image</label>
-                                 <input type="text" class="text-xs" placeholder="default.png" value="${poi.image || ''}" oninput="updatePoiData(${index}, 'image', this.value)">
+                                 <div class="flex">
+                                     <input type="text" id="poi-img-${index}" class="text-xs flex-grow" placeholder="default.png" value="${poi.image || ''}" oninput="updatePoiData(${index}, 'image', this.value)">
+                                     ${availableImages.length > 0 ? `<select class="text-xs w-1/3 border-l-0 bg-gray-100" onchange="document.getElementById('poi-img-${index}').value=this.value; updatePoiData(${index}, 'image', this.value); this.selectedIndex=0;"><option value="" disabled selected>+ Pick Image</option><option value="">[ DEFAULT ]</option>${availableImages.map(img => `<option value="${img}">${img}</option>`).join('')}</select>` : ''}
+                                 </div>
                              </div>
                          </div>
          
@@ -526,7 +557,7 @@
              buildInspector();
          }
 
-	function addSpawn() {
+         function addSpawn() {
              if(!selectedSystem.npcSpawns) selectedSystem.npcSpawns = [];
              selectedSystem.npcSpawns.push({ 
                  name: "Unknown Pilot", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "Scrap Trader", chance: 0.5, isHostile: false,
@@ -659,7 +690,7 @@
              if (sys.description) {
                  out += `        description: "${sys.description.replace(/"/g, '\\"')}",\n`;
              }
-	     if (sys.npcSpawns && sys.npcSpawns.length > 0) {
+             if (sys.npcSpawns && sys.npcSpawns.length > 0) {
                  out += `        npcSpawns: [\n`;
                  out += sys.npcSpawns.map(s => {
                      let spawnStr = `            { name: "${s.name.replace(/"/g, '\\"')}", shipType: "${s.shipType}"`;

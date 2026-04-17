@@ -614,9 +614,7 @@ const stationTypes = {
 // GALAXY MAP
 // ==========================================
 
-//const mapBackgrounds = [
-//    { image: "test_area.png", x: 440, y: 500, width: 80, height: 80, alpha: 1 }
-//];
+const mapBackgrounds = [];
 
 const galaxy = [
     {

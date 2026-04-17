@@ -28,6 +28,7 @@
             Not Connected
         </div>
         <button class="btn bg-blue-100 w-full mb-2 text-sm" onclick="connectFile()">Connect data.js</button>
+        <button class="btn bg-purple-100 w-full mb-2 text-sm" id="btn-connect-assets" onclick="connectAssetsFolder()">Connect Assets Folder</button>
         <button class="btn bg-green-100 w-full mb-6 text-sm" id="btn-save" onclick="saveToFile()" disabled>Save Changes</button>
 
         <h2 class="font-bold text-xl uppercase border-b-2 border-black pb-2 mb-4">2. Categories</h2>
@@ -64,6 +65,31 @@
 
         let selCat = 'shipHulls';
         let selItem = null;
+
+        let availableImages = []; 
+
+        async function connectAssetsFolder() {
+            try {
+                const dirHandle = await window.showDirectoryPicker();
+                availableImages = []; 
+                
+                for await (const entry of dirHandle.values()) {
+                    if (entry.kind === 'file' && entry.name.toLowerCase().endsWith('.png')) {
+                        availableImages.push(entry.name);
+                    }
+                }
+                
+                availableImages.sort();
+                
+                document.getElementById('btn-connect-assets').innerText = `ASSETS LOADED (${availableImages.length})`;
+                document.getElementById('btn-connect-assets').classList.replace('bg-purple-100', 'bg-green-100');
+                
+                if (selItem) renderEditor();
+                
+            } catch (err) {
+                if (err.name !== 'AbortError') alert("Could not read folder. Ensure you select the correct 'assets' directory.");
+            }
+        }
 
         const sizes = ["Tiny", "Small", "Medium", "Large", "Huge"];
         const moduleStats = ["jumpRange", "armour", "cargo", "handling", "firepower", "accuracy"];
@@ -276,6 +302,18 @@
 
             if (selCat === 'shipHulls') {
                 const hull = shipHullsData[selItem];
+                
+                let dropdownHtml = '';
+                if (availableImages.length > 0) {
+                    dropdownHtml = `<select class="text-xs w-1/3 border-l-0 bg-gray-100" onchange="document.getElementById('hull-image').value=this.value; setHull('image', this.value); this.selectedIndex=0;">
+                        <option value="" disabled selected>+ Pick Image</option>
+                        <option value="default.png">[ DEFAULT SILHOUETTE ]</option>`;
+                    availableImages.forEach(img => {
+                        dropdownHtml += `<option value="${img}">${img}</option>`;
+                    });
+                    dropdownHtml += `</select>`;
+                }
+
                 html += `
                     <div class="grid grid-cols-2 gap-4 mb-2">
                         <div><label class="block text-xs font-bold uppercase mb-1">Display Name</label><input type="text" value="${escapeHTML(hull.name)}" oninput="setHull('name', this.value)"></div>
@@ -286,9 +324,11 @@
                     
                     <div class="mb-4">
                         <label class="block text-xs font-bold uppercase mb-1">Ship Image (Optional)</label>
-                        <input type="text" placeholder="ship_weescow.png" value="${escapeHTML(hull.image || '')}" oninput="setHull('image', this.value)">
+                        <div class="flex">
+                            <input type="text" id="hull-image" class="text-xs flex-grow" placeholder="ship_weescow.png" value="${escapeHTML(hull.image || '')}" oninput="setHull('image', this.value)">
+                            ${dropdownHtml}
+                        </div>
                     </div>
-
                     <label class="block text-xs font-bold uppercase mb-1">Description</label>
                     <textarea class="h-16 mb-4" oninput="setHull('description', this.value)">${escapeHTML(hull.description)}</textarea>
 

@@ -25,6 +25,7 @@
             Not Connected
          </div>
          <button class="btn bg-blue-100 w-full mb-2 text-sm" onclick="connectFile()">Connect data.js</button>
+         <button class="btn bg-purple-100 w-full mb-2 text-sm" id="btn-connect-assets" onclick="connectAssetsFolder()">Connect Assets Folder</button>
          <button class="btn bg-green-100 w-full mb-6 text-sm" id="btn-save" onclick="saveToFile()" disabled>Save Changes</button>
          <div class="flex justify-between items-end border-b-2 border-black pb-2 mb-4">
             <h2 class="font-bold text-xl uppercase">2. Encounters</h2>
@@ -38,25 +39,6 @@
             <button class="btn !p-1 text-xs bg-yellow-100" id="btn-add-node" onclick="addNode()" disabled>+ ADD NODE</button>
          </div>
          <div id="encounter-settings" class="mb-6 hidden bg-gray-50 p-2 border border-gray-300">
-            <div class="flex justify-between items-center border-b border-gray-300 pb-1 mb-2">
-                <h3 class="text-xs font-bold uppercase">Encounter Settings</h3>
-                <button class="text-red-600 font-bold hover:underline text-[10px] uppercase" onclick="deleteEncounter()">DELETE ENCOUNTER</button>
-            </div>
-            <label class="block text-[10px] font-bold uppercase">Character Image</label>
-            <div class="flex gap-1 mb-2">
-                <input type="text" id="enc-image" class="text-xs flex-grow" placeholder="e.g. portrait.png" oninput="updateEncounterProp('image', this.value)">
-                <button class="btn !p-1 !mb-0 text-[10px] bg-purple-100" onclick="document.getElementById('enc-image').value='random'; updateEncounterProp('image', 'random')">RANDOM</button>
-            </div>
-            <div class="flex gap-2">
-               <div class="flex-1">
-                  <label class="block text-[10px] font-bold uppercase">Requires Flag</label>
-                  <input type="text" id="enc-req-flag" class="text-xs" oninput="updateEncounterProp('requiresFlag', this.value)">
-               </div>
-               <div class="flex-1">
-                  <label class="block text-[10px] font-bold uppercase">Hides on Flag</label>
-                  <input type="text" id="enc-hide-flag" class="text-xs" oninput="updateEncounterProp('hidesOnFlag', this.value)">
-               </div>
-            </div>
          </div>
          <div id="nodes-list" class="space-y-1"></div>
       </div>
@@ -71,6 +53,31 @@
          
          let selEnc = null;
          let selNode = null;
+         
+         let availableImages = []; 
+
+         async function connectAssetsFolder() {
+             try {
+                 const dirHandle = await window.showDirectoryPicker();
+                 availableImages = []; 
+                 
+                 for await (const entry of dirHandle.values()) {
+                     if (entry.kind === 'file' && entry.name.toLowerCase().endsWith('.png')) {
+                         availableImages.push(entry.name);
+                     }
+                 }
+                 
+                 availableImages.sort();
+                 
+                 document.getElementById('btn-connect-assets').innerText = `ASSETS LOADED (${availableImages.length})`;
+                 document.getElementById('btn-connect-assets').classList.replace('bg-purple-100', 'bg-green-100');
+                 
+                 if (selEnc) selectEncounter(selEnc);
+                 
+             } catch (err) {
+                 if (err.name !== 'AbortError') alert("Could not read folder. Ensure you select the correct 'assets' directory.");
+             }
+         }
          
          // --- SAFE STRING HELPERS ---
          function escapeJS(str) {
@@ -236,12 +243,47 @@
              selEnc = k;
              selNode = null;
              
-             // Populate settings
+             // If the image is currently an array, join it with commas for the text box
+             let currentImg = interactions[k].image || '';
+             if (Array.isArray(currentImg)) currentImg = currentImg.join(', ');
+
+             let dropdownHtml = '';
+             if (availableImages.length > 0) {
+                 dropdownHtml = `<select class="text-xs w-1/3 border-l-0 bg-gray-100" onchange="appendEncounterImage(this.value); this.selectedIndex=0;">
+                     <option value="" disabled selected>+ Add Image</option>
+                     <option value="random">[ RANDOM ALIEN ]</option>
+                     <option value="default.png">[ DEFAULT IMAGE ]</option>`;
+                 availableImages.forEach(img => {
+                     dropdownHtml += `<option value="${img}">${img}</option>`;
+                 });
+                 dropdownHtml += `</select>`;
+             }
+
+             document.getElementById('encounter-settings').innerHTML = `
+                <div class="flex justify-between items-center border-b border-gray-300 pb-1 mb-2">
+                    <h3 class="text-xs font-bold uppercase">Encounter Settings</h3>
+                    <button class="text-red-600 font-bold hover:underline text-[10px] uppercase" onclick="deleteEncounter()">DELETE ENCOUNTER</button>
+                </div>
+                <label class="block text-[10px] font-bold uppercase">Character Image(s)</label>
+                <div class="flex mb-2">
+                    <input type="text" id="enc-image" class="text-xs flex-grow" placeholder="e.g. portrait.png, alien.png" value="${escapeHTML(currentImg)}" oninput="updateEncounterProp('image', this.value)">
+                    ${dropdownHtml}
+                    ${availableImages.length === 0 ? `<button class="btn !p-1 !mb-0 text-[10px] bg-purple-100 border-l-0 w-1/3" onclick="appendEncounterImage('random')">RANDOM</button>` : ''}
+                </div>
+                <div class="flex gap-2">
+                   <div class="flex-1">
+                      <label class="block text-[10px] font-bold uppercase">Requires Flag</label>
+                      <input type="text" id="enc-req-flag" class="text-xs" value="${interactions[k].requiresFlag || ''}" oninput="updateEncounterProp('requiresFlag', this.value)">
+                   </div>
+                   <div class="flex-1">
+                      <label class="block text-[10px] font-bold uppercase">Hides on Flag</label>
+                      <input type="text" id="enc-hide-flag" class="text-xs" value="${interactions[k].hidesOnFlag || ''}" oninput="updateEncounterProp('hidesOnFlag', this.value)">
+                   </div>
+                </div>
+             `;
+
              document.getElementById('encounter-settings').classList.remove('hidden');
              document.getElementById('btn-add-node').disabled = false;
-             document.getElementById('enc-image').value = interactions[k].image || '';
-             document.getElementById('enc-req-flag').value = interactions[k].requiresFlag || '';
-             document.getElementById('enc-hide-flag').value = interactions[k].hidesOnFlag || '';
          
              renderEncounters(); // Refresh active state
              renderNodes();
@@ -385,6 +427,23 @@
          
          // --- DATA MUTATIONS ---
          
+         function appendEncounterImage(val) {
+             if (!val) return;
+             const input = document.getElementById('enc-image');
+             let currentVal = input.value.trim();
+             
+             // If empty or just a placeholder, replace it. Otherwise, append with a comma.
+             if (currentVal === '' || currentVal === 'random' || currentVal === 'default.png') {
+                 input.value = val;
+             } else {
+                 let parts = currentVal.split(',').map(s => s.trim());
+                 if (!parts.includes(val)) {
+                     input.value = currentVal + ', ' + val;
+                 }
+             }
+             updateEncounterProp('image', input.value);
+         }
+
          function addEncounter() {
              const name = prompt("Enter new encounter name:");
              if (!name || interactions[name]) return;
