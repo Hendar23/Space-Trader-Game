@@ -9,6 +9,7 @@ const newGameDefaults = {
         weapon: 10,
         engineer: 10
     },
+    storage: [],
     startingShip: {
         hull: "Weescow",
         core: {
@@ -602,6 +603,10 @@ const stationTypes = {
     "Repair Station": {
         defaultImage: "station005.png",
         description: "A sprawling orbital drydock surrounded by welding drones."
+    },
+    "Outfitter": {
+        description: "A sprawling industrial drydock where pilots can purchase, sell, and store ship components.",
+        hasOutfitter: true
     }
 };
 
@@ -628,7 +633,8 @@ const galaxy = [
             { name: "Lunar Ice Extractors", type: "Ice Mine", description: "Vast machines evaporate ice into water" },
             { name: "Martian Farm Hub", type: "Plant Farm" },
             { name: "Sol Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Frank"], requiresFlag: "knows_frank", description: "Cheap but not cheerful." },
-            { name: "Sol Orbital Mechanics", type: "Repair Station", description: "", repairCost: 10 }
+            { name: "Sol Orbital Mechanics", type: "Repair Station", description: "", repairCost: 10 },
+	    { name: "Bits 'N Bobs", type: "Outfitter" },
         ]
     },
     {
