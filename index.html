@@ -48,6 +48,17 @@
          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
          background: #ffffff; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center;
          }
+         
+         @keyframes shake {
+             0%, 100% { translate: 0 0; }
+             20% { translate: -4px 2px; }
+             40% { translate: 4px -2px; }
+             60% { translate: -4px -2px; }
+             80% { translate: 4px 2px; }
+         }
+         .shake-animation {
+             animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+         }
       </style>
       <script src="data.js"></script>
    </head>
@@ -1226,6 +1237,20 @@
              currentEnemy.currentHull -= damageToEnemy;
              player.ship.currentHull -= damageToPlayer;
              
+             // --- Trigger Shake Animations if hit ---
+             if (damageToEnemy > 0) {
+                 const enemyImg = document.getElementById('battle-img-enemy');
+                 enemyImg.classList.remove('shake-animation'); // reset if already shaking
+                 void enemyImg.offsetWidth; // trigger reflow to restart animation seamlessly
+                 enemyImg.classList.add('shake-animation');
+             }
+             if (damageToPlayer > 0) {
+                 const playerImg = document.getElementById('battle-img-player');
+                 playerImg.classList.remove('shake-animation'); // reset if already shaking
+                 void playerImg.offsetWidth; // trigger reflow to restart animation seamlessly
+                 playerImg.classList.add('shake-animation');
+             }
+             
              // Visually grow the Advantage bars (3 points = 100%)
              document.getElementById('battle-adv-player').style.height = Math.min(100, playerAdvantage * 33.33) + '%';
              document.getElementById('battle-adv-enemy').style.height = Math.min(100, enemyAdvantage * 33.33) + '%';
@@ -1233,8 +1258,11 @@
              updateBattleUI();
              log.scrollTop = log.scrollHeight;
              
-             // 8. Check for Destruction
+             /// 8. Check for Destruction
              if (currentEnemy.currentHull <= 0) {
+                 // --- Show Kaboom ---
+                 document.getElementById('battle-img-enemy').src = 'assets/kaboom.png';
+                 
                  player.xp += currentEnemy.xpValue; // Award the XP
                  showXpPopup(currentEnemy.xpValue, "Ship Destroyed");
                  log.innerHTML += `<div class="text-yellow-400 font-bold text-xl mt-2">> TARGET DESTROYED. [+${currentEnemy.xpValue} XP]</div>`;
@@ -1244,13 +1272,16 @@
                  document.getElementById('battle-commands').classList.add('hidden');
                  const btnCont = document.getElementById('battle-continue');
                  btnCont.classList.remove('hidden');
-                 btnCont.innerText = "VICTORY - CONTINUE";
+                 btnCont.innerText = "CONTINUE";
                  btnCont.onclick = () => {
                      currentEnemy = null;
                      switchTab('local');
                  };
                  
              } else if (player.ship.currentHull <= 0) {
+                 // --- Show Kaboom ---
+                 document.getElementById('battle-img-player').src = 'assets/kaboom.png';
+                 
                  log.innerHTML += `<div class="text-red-600 font-bold text-2xl mt-2 bg-black p-2">> CRITICAL HULL FAILURE. SHIP DESTROYED.</div>`;
                  
                  document.getElementById('battle-commands').classList.add('hidden');
@@ -1258,7 +1289,7 @@
                  btnCont.classList.remove('hidden');
                  btnCont.innerText = "GAME OVER";
                  btnCont.onclick = () => {
-                     // --- NEW: Wipe the save file before reloading! ---
+                     // --- Wipe the save file before reloading! ---
                      localStorage.removeItem('spaceTraderSaveV4'); 
                      location.reload(); 
                  };
