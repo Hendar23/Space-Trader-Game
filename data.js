@@ -297,7 +297,7 @@ const quests = {
         description: "Find Frank at Sol Taxis in the Sol system and speak to him about work.",
         targetSystemId: 1, 
         targetPoiName: "Sol Taxis",
-        xpReward: 50
+        xpReward: 10
     }
 };
 

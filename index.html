@@ -1789,8 +1789,25 @@
 
              return total;
          }
+
 	function renderPlayerTab() {
              const netWorth = calculateNetWorth();
+             
+             // Calculate costs dynamically based on the 0-10, 11-20, 21-30 tiers
+             const getCost = (skill) => Math.floor(skill / 10) + 1;
+             
+             const pilCost = getCost(player.skills.piloting);
+             const wepCost = getCost(player.skills.weapon);
+             const engCost = getCost(player.skills.engineer);
+             
+             // Ensure player.xp is treated as a number to prevent NaN errors, fallback to 0
+             const currentXp = player.xp || 0;
+
+             // Disable the button if they don't have enough XP
+             const pilDisabled = currentXp < pilCost ? "disabled" : "";
+             const wepDisabled = currentXp < wepCost ? "disabled" : "";
+             const engDisabled = currentXp < engCost ? "disabled" : "";
+
              let html = `
                  <div class="mb-8 border-b-4 border-black pb-4 flex flex-col gap-2">
                      <div class="flex items-baseline gap-3">
@@ -1799,30 +1816,55 @@
                      </div>
                      <div class="flex items-baseline gap-3">
                          <div class="text-xl italic text-gray-500 uppercase">Total XP:</div>
-                         <div class="text-2xl font-bold text-blue-600">${player.xp ? player.xp.toLocaleString() : 0}</div>
+                         <div class="text-2xl font-bold text-blue-600">${currentXp.toLocaleString()}</div>
                      </div>
                  </div>
                  
                  <div class="max-w-md">
                      <h3 class="text-2xl font-bold uppercase bg-black text-white p-2 mb-4">Pilot Skills</h3>
                      <div class="space-y-3 text-xl font-bold uppercase bg-gray-50 p-4 border-2 border-black">
-                         <div class="flex justify-between border-b border-gray-300 pb-2">
+                         
+                         <div class="flex justify-between items-center border-b border-gray-300 pb-2">
                              <span class="text-gray-600">Piloting</span>
-                             <span>${player.skills.piloting}</span>
+                             <div class="flex items-center gap-4">
+                                 <span>${player.skills.piloting}</span>
+                                 <button class="btn !w-auto !py-1 !px-3 !mb-0 !text-sm" onclick="upgradeSkill('piloting')" ${pilDisabled}>+1 [${pilCost} XP]</button>
+                             </div>
                          </div>
-                         <div class="flex justify-between border-b border-gray-300 pb-2">
+                         
+                         <div class="flex justify-between items-center border-b border-gray-300 pb-2">
                              <span class="text-gray-600">Weaponry</span>
-                             <span>${player.skills.weapon}</span>
+                             <div class="flex items-center gap-4">
+                                 <span>${player.skills.weapon}</span>
+                                 <button class="btn !w-auto !py-1 !px-3 !mb-0 !text-sm" onclick="upgradeSkill('weapon')" ${wepDisabled}>+1 [${wepCost} XP]</button>
+                             </div>
                          </div>
-                         <div class="flex justify-between">
+                         
+                         <div class="flex justify-between items-center">
                              <span class="text-gray-600">Engineering</span>
-                             <span>${player.skills.engineer}</span>
+                             <div class="flex items-center gap-4">
+                                 <span>${player.skills.engineer}</span>
+                                 <button class="btn !w-auto !py-1 !px-3 !mb-0 !text-sm" onclick="upgradeSkill('engineer')" ${engDisabled}>+1 [${engCost} XP]</button>
+                             </div>
                          </div>
+                         
                      </div>
                  </div>
              `;
              
              document.getElementById('tab-player').innerHTML = html;
+         }
+
+	function upgradeSkill(skillName) {
+             const currentSkill = player.skills[skillName];
+             const cost = Math.floor(currentSkill / 10) + 1;
+
+             if (player.xp >= cost) {
+                 player.xp -= cost;
+                 player.skills[skillName]++;
+                 saveGame();
+                 updateUI(); 
+             }
          }
          
          function triggerLocalTravel(i) {
