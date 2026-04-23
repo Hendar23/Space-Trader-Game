@@ -57,7 +57,7 @@ const shipHulls = {
     },
     "Midgeito": {
         name: "Midgeito",
-	image: "ship_midgeito.png",
+        image: "ship_midgeito.png",
         size: "Tiny",
         description: "A microfighter designed to be deployed in swarms.",
         baseHull: 12,
@@ -133,42 +133,40 @@ const shipHulls = {
 
 const equipment = {
     warpDrive: {
-        "Drive T1": { name: "Jumpmaster XS", size: "Tiny", type: "warpDrive", price: 1000, weight: 1, baseValue: 50, description: "A budget stock warp drive" },
-        "Drive T2": { name: "Jumpmaster Plus", size: "Tiny", type: "warpDrive", price: 1500, weight: 1, baseValue: 60, description: "Popular with couriers and taxis" },
-        "Drive T3": { name: "Starhopper T23", size: "Tiny", type: "warpDrive", price: 2000, weight: 2, baseValue: 70, description: "Military grade scout drive" }
+        "Drive T1": { name: "Jumpmaster XS", size: "Tiny", type: "warpDrive", price: 100, weight: 1, baseValue: 50, description: "A budget stock warp drive" },
+        "Drive T2": { name: "Jumpmaster Plus", size: "Tiny", type: "warpDrive", price: 150, weight: 1, baseValue: 60, description: "Popular with couriers and taxis" },
+        "Drive T3": { name: "Starhopper T23", size: "Tiny", type: "warpDrive", price: 200, weight: 2, baseValue: 70, description: "Military grade scout drive" }
     },
     armour: {
-        "Armour T1": { name: "Stock Armour", size: "Tiny", type: "armour", price: 1000, weight: 1, baseValue: 10, description: "The legal minimum level of protection." },
-        "Armour T2": { name: "Reinforced Plate", size: "Tiny", type: "armour", price: 2000, weight: 2, baseValue: 12, description: "Added reflective layers for increased protection." },
-        "Armour T3": { name: "Military Spec", size: "Tiny", type: "armour", price: 3000, weight: 3, baseValue: 14, description: "Military grade fighter armour" }
+        "Armour T1": { name: "Stock Armour", size: "Tiny", type: "armour", price: 100, weight: 1, baseValue: 10, description: "The legal minimum level of protection." },
+        "Armour T2": { name: "Reinforced Plate", size: "Tiny", type: "armour", price: 200, weight: 2, baseValue: 12, description: "Added reflective layers for increased protection." },
+        "Armour T3": { name: "Military Spec", size: "Tiny", type: "armour", price: 300, weight: 3, baseValue: 14, description: "Military grade fighter armour" }
     },
     cargoBay: {
-        "Bay T1": { name: "Weekender XS5", size: "Tiny", type: "cargoBay", price: 1000, weight: 1, baseValue: 5, description: "Slightly bigger than the glove compartment" },
-        "Bay T2": { name: "Bigpocket DLV10", size: "Tiny", type: "cargoBay", price: 2000, weight: 2, baseValue: 10, description: "Standard personal haulage bay" },
-        "Bay T3": { name: "BigBag 2000", size: "Tiny", type: "cargoBay", price: 3000, weight: 3, baseValue: 15, description: "Light haulage module for small buisnesses" }
+        "Bay T1": { name: "Weekender XS5", size: "Tiny", type: "cargoBay", price: 100, weight: 1, baseValue: 5, description: "Slightly bigger than the glove compartment" },
+        "Bay T2": { name: "Bigpocket DLV10", size: "Tiny", type: "cargoBay", price: 200, weight: 2, baseValue: 10, description: "Standard personal haulage bay" },
+        "Bay T3": { name: "BigBag 2000", size: "Tiny", type: "cargoBay", price: 300, weight: 3, baseValue: 15, description: "Light haulage module for small buisnesses" }
     },
     thrusters: {
-        "Thrust T1": { name: "380C Windbreakers", size: "Tiny", type: "thrusters", price: 1000, weight: 1, baseValue: 30, description: "Stock fighter class thrusters" },
-        "Thrust T2": { name: "Darooky 1220s", size: "Tiny", type: "thrusters", price: 2000, weight: 1, baseValue: 40, description: "Aftermarket modded thrusters" },
-        "Thrust T3": { name: "ShiftCore Accelerators", size: "Tiny", type: "thrusters", price: 3000, weight: 2, baseValue: 50, description: "A common sight in the illegal racing scene" }
+        "Thrust T1": { name: "380C Windbreakers", size: "Tiny", type: "thrusters", price: 100, weight: 1, baseValue: 30, description: "Stock fighter class thrusters" },
+        "Thrust T2": { name: "Darooky 1220s", size: "Tiny", type: "thrusters", price: 200, weight: 1, baseValue: 40, description: "Aftermarket modded thrusters" },
+        "Thrust T3": { name: "ShiftCore Accelerators", size: "Tiny", type: "thrusters", price: 300, weight: 2, baseValue: 50, description: "A common sight in the illegal racing scene" }
     },
     weapons: {
-        "Weap T1": { name: "Commblaster", size: "Tiny", type: "weapons", price: 1000, weight: 1, firepower: 10, accuracy: 5, description: "Illegally overclocked communication laser." },
-        "Weap T2": { name: "Microcannon", size: "Tiny", type: "weapons", price: 1000, weight: 2, firepower: 15, accuracy: 5, description: "A low power directed energy weapon." }
+        "Weap T1": { name: "Commblaster", size: "Tiny", type: "weapons", price: 100, weight: 1, firepower: 10, accuracy: 5, description: "Illegally overclocked communication laser." },
+        "Weap T2": { name: "Microcannon", size: "Tiny", type: "weapons", price: 200, weight: 2, firepower: 15, accuracy: 5, description: "A low power directed energy weapon." }
     },
     modules: {
-        "Cargo Exp T1": { name: "Cargo Exp T1", size: "Tiny", type: "module", price: 1000, weight: 1, stat: "cargo", flatBonus: 5, description: "A little extra storage space" },
-        "T1 FP": { name: "T1 FP", size: "Tiny", type: "module", price: 1000, weight: 1, stat: "firepower", flatBonus: 5, description: "Tiny Overcharger" },
-        "T2 FP": { name: "T2 FP", size: "Tiny", type: "module", price: 2000, weight: 1, stat: "firepower", flatBonus: 10, description: "Overcharger" },
-        "T1 ACC": { name: "T1 ACC", size: "Tiny", type: "module", price: 1000, weight: 1, stat: "accuracy", flatBonus: 10, description: "Tiny Target Illuminator" }
+        "Cargo Exp T1": { name: "Cargo Exp T1", size: "Tiny", type: "module", price: 100, weight: 1, stat: "cargo", flatBonus: 5, description: "A little extra storage space" },
+        "T1 FP": { name: "T1 FP", size: "Tiny", type: "module", price: 100, weight: 1, stat: "firepower", flatBonus: 5, description: "Tiny Overcharger" },
+        "T2 FP": { name: "T2 FP", size: "Tiny", type: "module", price: 200, weight: 1, stat: "firepower", flatBonus: 10, description: "Overcharger" },
+        "T1 ACC": { name: "T1 ACC", size: "Tiny", type: "module", price: 100, weight: 1, stat: "accuracy", flatBonus: 10, description: "Tiny Target Illuminator" }
     }
 };
-
-// ==========================================
 // PROCEDURAL GENERATION DATA
 // ==========================================
 
-const TOTAL_ALIEN_PORTRAITS = 16; // Total number of random_alien_XXX.png images
+const TOTAL_ALIEN_PORTRAITS = 18; // Total number of random_alien_XXX.png images
 
 const firstNames = [
     "Frank", "Bobby", "Aaron", "Jason", "Aria", "Jaxon", "Kael", "Lyra", "Zane", "Nova", 
@@ -305,6 +303,7 @@ const quests = {
 // ==========================================
 // INTERACTIONS & ENCOUNTERS
 // ==========================================
+
 const interactions = {
     "Obvious Pirate Ambush": {
         image: "portrait002.png",
@@ -319,7 +318,7 @@ const interactions = {
         }
     },
     "Police Patrol": {
-        image: ["random_alien_008.png", "random_alien_011.png"],
+        image: "portrait005.png",
         dialogue: {
             "start": {
                 text: "<i>\"We have our eye on you citizen. You had better behave.\"</i>",
@@ -487,10 +486,8 @@ const interactions = {
             }
         }
     }
-
 };
 
-// ==========================================
 // COMMODITIES & BASELINE PRICES
 // ==========================================
 const commodities = {
@@ -549,11 +546,13 @@ const stationTypes = {
         consumes: { "Packaged Food": "Low", "Water": "High", "Plants": "High", "Machine Parts": "Low" }
     },
     "Meat Processing Plant": {
+        defaultImage: "station007.png",
         description: "You don't want to know how the sausage is made.",
         produces: ["Packaged Food"],
         consumes: { "Meat": "High", "Machine Parts": "Low" }
     },
     "Copper Mine": {
+        defaultImage: "station007.png",
         description: "Vast machinery grinds at raw copper veins.",
         produces: ["Copper Ore"],
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
@@ -614,7 +613,8 @@ const stationTypes = {
 // GALAXY MAP
 // ==========================================
 
-const mapBackgrounds = [];
+const mapBackgrounds = [
+];
 
 const galaxy = [
     {
@@ -632,7 +632,7 @@ const galaxy = [
             { name: "Martian Farm Hub", type: "Plant Farm" },
             { name: "Sol Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Frank"], requiresFlag: "knows_frank", description: "Cheap but not cheerful." },
             { name: "Sol Orbital Mechanics", type: "Repair Station", description: "", repairCost: 10 },
-	    { name: "Bits 'N Bobs", type: "Outfitter" },
+            { name: "Bits 'N Bobs", type: "Outfitter" }
         ]
     },
     {
@@ -649,7 +649,7 @@ const galaxy = [
     {
         id: 3, name: "Betelgeuse", x: 474, y: 567,
         npcSpawns: [
-            { name: "Cop", shipType: "Weescow", encounter: "Police Patrol", chance: 0.1, isHostile: true }
+            { name: "Cop", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "Police Patrol", chance: 0.1, isHostile: true }
         ],
         pois: [
             { name: "Red Supergiant Wafers", type: "Silicon Refinery" },
@@ -672,7 +672,7 @@ const galaxy = [
         ]
     },
     {
-        id: 0, name: "Herbies Star", x: 540, y: 547,
+        id: 0, name: "Herbies Star", x: 537, y: 550,
         description: "The only habitable planet, Leonton is known for it's large predators, petty crime, and poverty.",
         npcSpawns: [
             { name: "Leonton Traffic", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "civilian001", chance: 0.1,
@@ -686,11 +686,23 @@ const galaxy = [
             { name: "Leonton Traffic", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "civilian001", chance: 0.1,
                 stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } },
             { name: "Leonton Traffic", shipType: "Keiship", shipImage: "ship_keiship.png", encounter: "civilian001", chance: 0.1,
+                stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } },
+            { name: "Security Patrol", shipType: "Midgeito", shipImage: "ship_midgeito.png", encounter: "Police Patrol", chance: 0.5,
                 stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } }
         ],
         pois: [
             { name: "Leonton Spaceport", type: "Trade Hub", image: "port003.png", description: "Smells like starship fuel, cheap narcotics, and desperation." },
-            { name: "The Full Burn Bar", type: "Outpost", image: "bar001.png", encounters: ["Uncle Bob"], description: "Leontons go to bar for visiting spacers. Uncle bob has run it as long as anyone can remember. " }
+            { name: "The Full Burn Bar", type: "Outpost", image: "bar001.png", encounters: ["Uncle Bob"], description: "Leontons go to bar for visiting spacers. Uncle bob has run it as long as anyone can remember. " },
+            { name: "Copper Extractor", type: "Copper Mine", description: "Leontons copper rich moon is the heart of the systems economy." }
+        ]
+    },
+    {
+        id: 5, name: "New System", x: 552, y: 579,
+        pois: [
+
         ]
     }
 ];
+
+
+

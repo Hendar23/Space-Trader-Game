@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actinic Light - Master Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background: #f0f0f0; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* Shared Styles */
+        .panel { background: #ffffff; border: 2px solid #000; display: flex; flex-direction: column; }
+        .btn { border: 2px solid #000; padding: 10px 8px; background: #fff; font-weight: bold; cursor: pointer; text-transform: uppercase; text-align: center; transition: all 0.1s; }
+        .btn:hover:not(:disabled) { background: #e5e7eb; }
+        .btn:active:not(:disabled) { background: #000; color: #fff; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; border-style: dashed; }
+        input[type="text"], input[type="number"], textarea, select { border: 1px solid #000; padding: 6px; width: 100%; font-family: inherit; box-sizing: border-box; }
+        input[type="range"] { accent-color: #000; }
+        
+        .list-item { padding: 8px; border: 1px solid #ddd; cursor: pointer; margin-bottom: 4px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .list-item:hover { background: #f9fafb; }
+        .list-item.active { background: #000; color: #fff; border-color: #000; }
+
+        /* Map Specific */
+        #canvas-container { cursor: grab; background: #ffffff; background-image: radial-gradient(#d1d5db 1px, transparent 1px); background-size: 40px 40px; }
+        #canvas-container:active { cursor: grabbing; }
+
+        /* Tab Bar */
+        .master-tab { border-bottom: 4px solid transparent; opacity: 0.6; transition: all 0.2s; }
+        .master-tab.active { border-bottom: 4px solid #fff; opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div class="w-full bg-gray-900 p-2 flex gap-4 items-center shrink-0 border-b-4 border-black z-50">
+        <div class="text-white font-bold text-xl uppercase tracking-widest pl-2">ACTINIC ENGINE</div>
+        <div id="connection-status" class="px-4 py-2 bg-red-100 border-2 border-red-500 text-xs font-bold uppercase ml-8 text-black">Not Connected</div>
+        <button class="btn !mb-0 !py-1 !text-xs !bg-blue-100" onclick="connectMasterFile()">1. Connect data.js</button>
+        <button class="btn !mb-0 !py-1 !text-xs !bg-purple-100" id="btn-connect-assets" onclick="connectAssetsFolder()">2. Connect Assets</button>
+        <button class="btn !mb-0 !py-1 !text-xs !bg-green-400 ml-auto" id="btn-save-master" onclick="saveMasterFile()" disabled>SAVE ALL CHANGES</button>
+    </div>
+
+    <div class="w-full bg-black text-white flex shrink-0">
+        <button class="master-tab active flex-1 py-3 font-bold uppercase text-sm tracking-wide" id="tab-btn-map" onclick="switchMasterTab('map')">Map Editor</button>
+        <button class="master-tab flex-1 py-3 font-bold uppercase text-sm tracking-wide" id="tab-btn-enc" onclick="switchMasterTab('enc')">Encounter Editor</button>
+        <button class="master-tab flex-1 py-3 font-bold uppercase text-sm tracking-wide" id="tab-btn-ship" onclick="switchMasterTab('ship')">Ship & Item Editor</button>
+    </div>
+
+    <div id="tab-content-map" class="flex-grow flex overflow-hidden p-2 gap-2">
+        <div class="panel w-80 p-4 shrink-0 flex flex-col gap-4 z-10">
+            <h2 class="font-bold text-xl uppercase border-b-2 border-black pb-2">Map Settings</h2>
+            <div>
+                <button class="btn bg-yellow-100 w-full" id="btn-add-sys" onclick="addNewSystem()" disabled>+ Add New System</button>
+                <button class="btn bg-purple-100 w-full mt-2" id="btn-edit-bgs" onclick="editBackgrounds()" disabled>Edit Backgrounds</button>
+            </div>
+            <div class="border-t-2 border-black mt-2 pt-4">
+                <label class="block text-xs font-bold uppercase mb-1">Visualizer: Jump Range</label>
+                <div class="flex items-center gap-3">
+                    <input type="range" min="10" max="500" value="100" class="flex-grow cursor-pointer" oninput="updateJumpRange(this.value)">
+                    <input type="number" id="jump-val" min="10" max="500" value="100" class="font-bold text-sm w-20 text-right" oninput="updateJumpRange(this.value)">
+                </div>
+            </div>
+        </div>
+        
+        <div id="canvas-container" class="flex-grow relative border-2 border-black overflow-hidden">
+            <canvas id="map-canvas" class="absolute inset-0"></canvas>
+        </div>
+        
+        <div class="panel w-96 p-4 shrink-0 flex flex-col gap-4 z-10 overflow-y-auto" id="map-inspector-panel">
+            <div class="text-gray-500 italic text-center mt-10">Connect a file and select a system on the map to edit it.</div>
+        </div>
+    </div>
+
+    <div id="tab-content-enc" class="flex-grow overflow-hidden p-2 gap-2 hidden">
+        <div class="panel w-1/4 p-4 shrink-0 overflow-y-auto">
+            <div class="flex justify-between items-end border-b-2 border-black pb-2 mb-4">
+                <h2 class="font-bold text-xl uppercase">1. Encounters</h2>
+                <button class="btn !p-1 text-xs bg-yellow-100" id="btn-add-enc" onclick="addEncounter()" disabled>+ ADD</button>
+            </div>
+            <div id="encounters-list" class="space-y-1"></div>
+        </div>
+        
+        <div class="panel w-1/4 p-4 shrink-0 overflow-y-auto">
+            <div class="flex justify-between items-end border-b-2 border-black pb-2 mb-4">
+                <h2 class="font-bold text-xl uppercase">2. Nodes</h2>
+                <button class="btn !p-1 text-xs bg-yellow-100" id="btn-add-node" onclick="addNode()" disabled>+ ADD NODE</button>
+            </div>
+            <div id="encounter-settings" class="mb-6 hidden bg-gray-50 p-2 border border-gray-300"></div>
+            <div id="nodes-list" class="space-y-1"></div>
+        </div>
+        
+        <div class="panel w-2/4 p-4 overflow-y-auto bg-gray-50" id="enc-editor-panel">
+            <div class="text-gray-500 italic text-center mt-20">Select an encounter and a node to start editing.</div>
+        </div>
+    </div>
+
+    <div id="tab-content-ship" class="flex-grow overflow-hidden p-2 gap-2 hidden">
+        <div class="panel w-1/4 p-4 shrink-0 overflow-y-auto">
+            <h2 class="font-bold text-xl uppercase border-b-2 border-black pb-2 mb-4">1. Categories</h2>
+            <div id="categories-list" class="space-y-1">
+                <div class="list-item active" onclick="selectShipCategory('shipHulls')" id="cat-shipHulls">Ship Hulls</div>
+                <div class="list-item" onclick="selectShipCategory('warpDrive')" id="cat-warpDrive">Warp Drives</div>
+                <div class="list-item" onclick="selectShipCategory('armour')" id="cat-armour">Armor</div>
+                <div class="list-item" onclick="selectShipCategory('cargoBay')" id="cat-cargoBay">Cargo Bays</div>
+                <div class="list-item" onclick="selectShipCategory('thrusters')" id="cat-thrusters">Thrusters</div>
+                <div class="list-item" onclick="selectShipCategory('weapons')" id="cat-weapons">Weapons</div>
+                <div class="list-item" onclick="selectShipCategory('modules')" id="cat-modules">Modules</div>
+            </div>
+        </div>
+
+        <div class="panel w-1/4 p-4 shrink-0 overflow-y-auto">
+            <div class="flex justify-between items-end border-b-2 border-black pb-2 mb-4">
+                <h2 class="font-bold text-xl uppercase">2. Items</h2>
+                <button class="btn !p-1 text-xs bg-yellow-100" id="btn-add-item" onclick="addShipItem()" disabled>+ ADD ITEM</button>
+            </div>
+            <div id="ship-items-list" class="space-y-1"></div>
+        </div>
+
+        <div class="panel w-2/4 p-4 overflow-y-auto bg-gray-50" id="ship-editor-panel">
+            <div class="text-gray-500 italic text-center mt-20">Connect data.js and select an item to start editing.</div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // GLOBAL ENGINE STATE & FILE PARSING
+        // ==========================================
+        let fileHandle = null;
+        let availableImages = [];
+        let activeTab = 'map';
+
+        // Data Storage
+        let shipHullsData = {};
+        let equipmentData = {};
+        let interactions = {};
+        let mapBackgrounds = [];
+        let galaxy = [];
+
+        // File Slicing Strings
+        let filePrefix = ""; 
+        let midChunk1 = ""; 
+        let midChunk2 = ""; 
+        let fileSuffix = "";
+
+        // Constants
+        const typesList = ['Trade Hub', 'Outpost', 'Plant Farm', 'Ice Mine', 'Plant Processing Facility', 'Livestock Farm', 'Meat Processing Plant', 'Copper Mine', 'Iron Mine', 'Platinum Mine', 'Silicon Mine', 'Gold Mine', 'Metal Ore Refinery', 'Silicon Refinery', 'Machine Parts Factory', 'Chip Fab', 'Encounter', 'Repair Station', 'Outfitter'];
+        const sizes = ["Tiny", "Small", "Medium", "Large", "Huge"];
+        const moduleStats = ["jumpRange", "armour", "cargo", "handling", "firepower", "accuracy"];
+
+        // Safe String Helpers
+        function escapeJS(str) { return (str || "").toString().replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, ''); }
+        function escapeHTML(str) { return (str || "").toString().replace(/"/g, '&quot;'); }
+
+        function switchMasterTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.master-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-btn-' + tabId).classList.add('active');
+
+            document.getElementById('tab-content-map').style.display = tabId === 'map' ? 'flex' : 'none';
+            document.getElementById('tab-content-enc').style.display = tabId === 'enc' ? 'flex' : 'none';
+            document.getElementById('tab-content-ship').style.display = tabId === 'ship' ? 'flex' : 'none';
+
+            if (tabId === 'map') {
+                setTimeout(resizeMapCanvas, 50);
+            }
+        }
+
+        async function connectAssetsFolder() {
+            try {
+                const dirHandle = await window.showDirectoryPicker();
+                availableImages = []; 
+                for await (const entry of dirHandle.values()) {
+                    if (entry.kind === 'file' && entry.name.toLowerCase().endsWith('.png')) {
+                        availableImages.push(entry.name);
+                    }
+                }
+                availableImages.sort();
+                
+                document.getElementById('btn-connect-assets').innerText = `ASSETS LOADED (${availableImages.length})`;
+                document.getElementById('btn-connect-assets').classList.replace('bg-purple-100', 'bg-green-400');
+                
+                // Force UI Refreshes to show the new dropdowns
+                if (selectedSystem) buildMapInspector();
+                if (selEnc) selectEncounter(selEnc);
+                if (selShipItem) renderShipEditor();
+                
+            } catch (err) {
+                if (err.name !== 'AbortError') alert("Could not read folder. Ensure you select the correct 'assets' directory.");
+            }
+        }
+
+        async function connectMasterFile() {
+            try {
+                [fileHandle] = await window.showOpenFilePicker({ types: [{ accept: { 'text/javascript': ['.js'] } }] });
+                const file = await fileHandle.getFile();
+                let text = await file.text();
+
+                // Advanced Parsing strategy based on standard data.js structure
+                const iShip = text.indexOf('const shipHulls =');
+                const iProc = text.indexOf('// PROCEDURAL GENERATION DATA');
+                const iInt = text.indexOf('const interactions =');
+                const iCom = text.indexOf('// COMMODITIES');
+                const iMapBg = text.indexOf('const mapBackgrounds =');
+
+                if (iShip === -1 || iProc === -1 || iInt === -1 || iCom === -1 || iMapBg === -1) {
+                    return alert("File layout not recognized. Ensure the standard block comments are present.");
+                }
+
+                // Slice the text into dynamic and static chunks
+                filePrefix = text.substring(0, iShip);
+                midChunk1 = text.substring(iProc, iInt);
+                midChunk2 = text.substring(iCom, iMapBg);
+
+                const txtShips = text.substring(iShip, iProc);
+                const txtInt = text.substring(iInt, iCom);
+                const txtMap = text.substring(iMapBg);
+
+                // Eval Ships
+                const pShips = new Function(txtShips + "\n return { shipHulls, equipment };")();
+                shipHullsData = pShips.shipHulls;
+                equipmentData = pShips.equipment;
+
+                // Eval Interactions
+                interactions = new Function(txtInt + "\n return interactions;")();
+
+                // Eval Map (Find where the array ends to save suffix if any)
+                const iGalArrayEnd = txtMap.lastIndexOf('];');
+                if (iGalArrayEnd !== -1) {
+                    fileSuffix = txtMap.substring(iGalArrayEnd + 2);
+                } else {
+                    fileSuffix = "";
+                }
+                const pMap = new Function(txtMap + "\n return { mapBgs: (typeof mapBackgrounds !== 'undefined' ? mapBackgrounds : []), gal: galaxy };")();
+                mapBackgrounds = pMap.mapBgs;
+                galaxy = pMap.gal;
+
+                // Update UI State
+                document.getElementById('connection-status').innerText = `CONNECTED: ${file.name}`;
+                document.getElementById('connection-status').classList.replace('bg-red-100', 'bg-green-400');
+                document.getElementById('connection-status').classList.replace('border-red-500', 'border-green-600');
+                
+                // Enable global buttons
+                document.getElementById('btn-save-master').disabled = false;
+                document.getElementById('btn-add-sys').disabled = false;
+                document.getElementById('btn-edit-bgs').disabled = false;
+                document.getElementById('btn-add-enc').disabled = false;
+                document.getElementById('btn-add-item').disabled = false;
+
+                // Boot the Engines
+                initMapEngine();
+                renderEncounters();
+                renderShipItems();
+
+            } catch (err) {
+                console.error(err);
+                if (err.name !== 'AbortError') alert("Connection failed. Make sure you are using Chrome/Edge.");
+            }
+        }
+
+        async function saveMasterFile() {
+            if (!fileHandle) return;
+            const btn = document.getElementById("btn-save-master");
+            const orig = btn.innerText;
+            btn.innerText = "SAVING...";
+
+            try {
+                let out = filePrefix;
+                out += stringifyShipsAndEq();
+                out += "\n" + midChunk1.trim() + "\n\n";
+                out += stringifyInteractions();
+                out += "\n\n" + midChunk2.trim() + "\n\n";
+                out += stringifyMap();
+                out += fileSuffix;
+
+                const writable = await fileHandle.createWritable();
+                await writable.write(out);
+                await writable.close();
+
+                btn.innerText = "SAVED ALL!";
+                btn.classList.add("bg-white", "text-black");
+            } catch (err) {
+                console.error(err);
+                btn.innerText = "FAILED!";
+                btn.classList.add("bg-red-500", "text-white");
+            }
+            setTimeout(() => { btn.innerText = orig; btn.classList.remove("bg-white", "text-black", "bg-red-500"); }, 2000);
+        }
+
+
+        // ==========================================
+        // MAP EDITOR LOGIC
+        // ==========================================
+        let selectedSystem = null;
+        let camera = { x: -100, y: -100, zoom: 0.8 };
+        let isDraggingMap = false, isDraggingNode = false;
+        let lastMouse = { x: 0, y: 0 };
+        let jumpRange = 100;
+        let isEditingBackgrounds = false;
+        const imageCache = {};
+        let mapCanvas, ctx, mapInspector;
+
+        function initMapEngine() {
+            mapCanvas = document.getElementById('map-canvas');
+            ctx = mapCanvas.getContext('2d');
+            mapInspector = document.getElementById('map-inspector-panel');
+
+            window.addEventListener('resize', resizeMapCanvas);
+            
+            mapCanvas.addEventListener('mousedown', (e) => {
+                if (!fileHandle || activeTab !== 'map') return; 
+                const w = getMapWorldCoords(e);
+                let clickedNode = null;
+            
+                for (let i = galaxy.length - 1; i >= 0; i--) {
+                    const sys = galaxy[i];
+                    if (Math.sqrt((w.x - sys.x)**2 + (w.y - sys.y)**2) < 15 / camera.zoom) {
+                        clickedNode = sys; break;
+                    }
+                }
+            
+                if (clickedNode) {
+                    selectedSystem = clickedNode;
+                    isEditingBackgrounds = false;
+                    isDraggingNode = true;
+                    buildMapInspector();
+                } else {
+                    if (!isEditingBackgrounds) selectedSystem = null;
+                    isDraggingMap = true;
+                    if (!isEditingBackgrounds) buildMapInspector();
+                }
+                lastMouse = { x: e.clientX, y: e.clientY };
+                renderMap();
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (activeTab !== 'map') return;
+                if (isDraggingNode && selectedSystem) {
+                    const w = getMapWorldCoords(e);
+                    selectedSystem.x = Math.round(w.x);
+                    selectedSystem.y = Math.round(w.y);
+                    renderMap();
+                } else if (isDraggingMap) {
+                    camera.x -= (e.clientX - lastMouse.x);
+                    camera.y -= (e.clientY - lastMouse.y);
+                    document.getElementById('canvas-container').style.backgroundPosition = `${-camera.x}px ${-camera.y}px`;
+                    renderMap();
+                }
+                lastMouse = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => { isDraggingNode = false; isDraggingMap = false; });
+
+            mapCanvas.addEventListener('wheel', (e) => {
+                if (activeTab !== 'map') return;
+                e.preventDefault();
+                const r = mapCanvas.getBoundingClientRect();
+                const mx = e.clientX - r.left, my = e.clientY - r.top;
+                const wx = (mx + camera.x) / camera.zoom, wy = (my + camera.y) / camera.zoom;
+                
+                camera.zoom *= e.deltaY > 0 ? 0.9 : 1.1;
+                camera.zoom = Math.min(Math.max(camera.zoom, 0.1), 4);
+                
+                camera.x = (wx * camera.zoom) - mx; camera.y = (wy * camera.zoom) - my;
+                document.getElementById('canvas-container').style.backgroundPosition = `${-camera.x}px ${-camera.y}px`;
+                renderMap();
+            }, { passive: false });
+
+            if(galaxy.length > 0) {
+                camera.x = galaxy[0].x - (mapCanvas.width / 2) || 0;
+                camera.y = galaxy[0].y - (mapCanvas.height / 2) || 0;
+            }
+            resizeMapCanvas();
+        }
+
+        function resizeMapCanvas() {
+            if(!mapCanvas || activeTab !== 'map') return;
+            mapCanvas.width = mapCanvas.parentElement.clientWidth;
+            mapCanvas.height = mapCanvas.parentElement.clientHeight;
+            renderMap();
+        }
+
+        function getMapWorldCoords(e) {
+            const rect = mapCanvas.getBoundingClientRect();
+            return { x: ((e.clientX - rect.left) + camera.x) / camera.zoom, y: ((e.clientY - rect.top) + camera.y) / camera.zoom };
+        }
+
+        function updateJumpRange(val) {
+            jumpRange = parseInt(val);
+            document.getElementById('jump-val').innerText = jumpRange;
+            renderMap();
+        }
+
+        function drawCachedImageMap(ctx, src, x, y, w, h, alpha) {
+            if (!imageCache[src]) {
+                imageCache[src] = new Image();
+                imageCache[src].src = "assets/" + src;
+                imageCache[src].onload = () => { if(activeTab === 'map') renderMap(); }; 
+            }
+            if (imageCache[src].complete && imageCache[src].naturalWidth > 0) {
+                ctx.globalAlpha = alpha;
+                ctx.drawImage(imageCache[src], x, y, w, h);
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        function renderMap() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+            ctx.save();
+            ctx.translate(-camera.x, -camera.y);
+            ctx.scale(camera.zoom, camera.zoom);
+            
+            mapBackgrounds.forEach(bg => drawCachedImageMap(ctx, bg.image, bg.x, bg.y, bg.width, bg.height, bg.alpha));
+
+            if (selectedSystem && !isEditingBackgrounds) {
+                ctx.beginPath();
+                ctx.arc(selectedSystem.x, selectedSystem.y, jumpRange, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(59, 130, 246, 0.05)'; ctx.fill();
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)'; ctx.setLineDash([8, 8]); ctx.lineWidth = 2 / camera.zoom; ctx.stroke();
+                ctx.setLineDash([]); 
+
+                ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)'; ctx.lineWidth = 2 / camera.zoom;
+                galaxy.forEach(sys => {
+                    if (sys.id !== selectedSystem.id && Math.sqrt((selectedSystem.x - sys.x)**2 + (selectedSystem.y - sys.y)**2) <= jumpRange) {
+                        ctx.beginPath(); ctx.moveTo(selectedSystem.x, selectedSystem.y); ctx.lineTo(sys.x, sys.y); ctx.stroke();
+                    }
+                });
+            }
+
+            galaxy.forEach(sys => {
+                const isSel = selectedSystem && selectedSystem.id === sys.id;
+                ctx.beginPath(); ctx.arc(sys.x, sys.y, isSel ? 12 : 8, 0, Math.PI * 2);
+                ctx.fillStyle = isSel ? '#ef4444' : '#000000'; ctx.fill();
+                if (isSel) {
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 2 / camera.zoom; ctx.stroke();
+                    ctx.beginPath(); ctx.arc(sys.x, sys.y, 20, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#ef4444'; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+                }
+                ctx.fillStyle = '#000000'; ctx.font = isSel ? "bold 16px Courier New" : "14px Courier New";
+                ctx.fillText(sys.name, sys.x + 15, sys.y + 5);
+            });
+            ctx.restore();
+        }
+
+        // Map Mutations
+        function editBackgrounds() { selectedSystem = null; isEditingBackgrounds = true; buildMapInspector(); renderMap(); }
+        function addBackground() { mapBackgrounds.push({ image: "nebula.png", x: 0, y: 0, width: 800, height: 600, alpha: 0.5 }); buildMapInspector(); renderMap(); }
+        function deleteBackground(i) { mapBackgrounds.splice(i, 1); buildMapInspector(); renderMap(); }
+        function updateBackgroundData(i, k, v) { mapBackgrounds[i][k] = v; renderMap(); }
+
+        function addNewSystem() {
+            let maxId = galaxy.reduce((max, sys) => Math.max(max, sys.id), -1);
+            galaxy.push({ id: maxId + 1, name: "New System", x: Math.round(camera.x + (mapCanvas.width/2)/camera.zoom), y: Math.round(camera.y + (mapCanvas.height/2)/camera.zoom), pois: [] });
+            selectedSystem = galaxy[galaxy.length - 1];
+            buildMapInspector(); renderMap();
+        }
+        function deleteSystem() { if(confirm("Delete system?")) { galaxy = galaxy.filter(s => s.id !== selectedSystem.id); selectedSystem = null; buildMapInspector(); renderMap(); } }
+        function updateSystemData(k, v) { if(k === 'x' || k === 'y') v = parseInt(v) || 0; selectedSystem[k] = v; renderMap(); }
+
+        function addPoi() { if(!selectedSystem.pois) selectedSystem.pois = []; selectedSystem.pois.push({ name: "New POI", type: "Trade Hub", description: "", encounters: [] }); buildMapInspector(); }
+        function deletePoi(i) { selectedSystem.pois.splice(i, 1); buildMapInspector(); }
+        function updatePoiData(i, k, v) { 
+            if (k === 'encounters') selectedSystem.pois[i][k] = v.split(',').map(s => s.trim()).filter(s => s !== ''); 
+            else selectedSystem.pois[i][k] = v; 
+            if (k === 'type') buildMapInspector(); 
+        }
+
+        function addSpawn() {
+            if(!selectedSystem.npcSpawns) selectedSystem.npcSpawns = [];
+            selectedSystem.npcSpawns.push({ name: "Unknown Pilot", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "", chance: 0.5, isHostile: false, stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } });
+            buildMapInspector();
+        }
+        function deleteSpawn(i) { selectedSystem.npcSpawns.splice(i, 1); buildMapInspector(); }
+        function updateSpawnData(i, k, v) { if(k==='chance') v = parseFloat(v)||0; selectedSystem.npcSpawns[i][k] = v; }
+        function updateSpawnStat(i, k, v) { if(!selectedSystem.npcSpawns[i].stats) selectedSystem.npcSpawns[i].stats = {hull:10,armour:10,handling:20,firepower:10,accuracy:0,piloting:20,weapon:20}; selectedSystem.npcSpawns[i].stats[k] = parseInt(v)||0; }
+
+        function buildMapInspector() {
+            if (isEditingBackgrounds) {
+                let html = `<div class="flex justify-between items-center border-b-2 border-black pb-2 mb-4"><h2 class="font-bold text-xl uppercase text-purple-800">Backgrounds</h2><button class="btn text-xs !p-1 bg-purple-100" onclick="addBackground()">+ Add Image</button></div><div class="space-y-4">`;
+                mapBackgrounds.forEach((bg, index) => {
+                    html += `<div class="border border-purple-400 p-2 bg-purple-50 relative flex flex-col gap-2">
+                        <button class="absolute top-1 right-2 text-red-500 font-bold text-xs" onclick="deleteBackground(${index})">X</button>
+                        <div><label class="block text-[10px] font-bold uppercase mt-1">Image Filename</label><input type="text" class="text-xs" value="${bg.image}" oninput="updateBackgroundData(${index}, 'image', this.value)"></div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="block text-[10px] font-bold uppercase">X</label><input type="number" class="text-xs p-1" value="${bg.x}" oninput="updateBackgroundData(${index}, 'x', parseInt(this.value)||0)"></div>
+                            <div><label class="block text-[10px] font-bold uppercase">Y</label><input type="number" class="text-xs p-1" value="${bg.y}" oninput="updateBackgroundData(${index}, 'y', parseInt(this.value)||0)"></div>
+                            <div><label class="block text-[10px] font-bold uppercase">Width</label><input type="number" class="text-xs p-1" value="${bg.width}" oninput="updateBackgroundData(${index}, 'width', parseInt(this.value)||0)"></div>
+                            <div><label class="block text-[10px] font-bold uppercase">Height</label><input type="number" class="text-xs p-1" value="${bg.height}" oninput="updateBackgroundData(${index}, 'height', parseInt(this.value)||0)"></div>
+                        </div>
+                        <div><label class="block text-[10px] font-bold uppercase">Opacity</label><input type="number" step="0.1" class="text-xs p-1" value="${bg.alpha}" oninput="updateBackgroundData(${index}, 'alpha', parseFloat(this.value)||0)"></div>
+                    </div>`;
+                });
+                mapInspector.innerHTML = html + `</div>`; return;
+            }
+
+            if (!selectedSystem) { mapInspector.innerHTML = `<div class="text-gray-500 italic text-center mt-10">Select a system to edit.</div>`; return; }
+
+            let html = `
+                <div class="flex justify-between items-center border-b-2 border-black pb-2">
+                    <h2 class="font-bold text-xl uppercase">Edit System</h2><button class="text-red-600 font-bold hover:underline" onclick="deleteSystem()">DELETE</button>
+                </div>
+                <div class="space-y-2 mt-2">
+                    <label class="block text-xs font-bold uppercase">System Name</label><input type="text" value="${escapeHTML(selectedSystem.name)}" oninput="updateSystemData('name', this.value)">
+                </div>
+                <div class="space-y-2 mt-3 pt-3 border-t border-gray-300">
+                    <label class="block text-xs font-bold uppercase">System Image</label>
+                    <div class="flex">
+                        <input type="text" id="sys-image" class="text-xs flex-grow" placeholder="e.g. star_system_001.png" value="${escapeHTML(selectedSystem.image || '')}" oninput="updateSystemData('image', this.value)">
+                        ${availableImages.length > 0 ? `<select class="text-xs w-1/3 border-l-0 bg-gray-100" onchange="document.getElementById('sys-image').value=this.value; updateSystemData('image', this.value); this.selectedIndex=0;"><option value="" disabled selected>+ Pick Image</option><option value="">[ NONE ]</option>${availableImages.map(img => `<option value="${img}">${img}</option>`).join('')}</select>` : ''}
+                    </div>
+                </div>
+                <div class="space-y-2 mt-2">
+                    <label class="block text-xs font-bold uppercase">Description</label>
+                    <textarea class="text-sm h-16 resize-y" oninput="updateSystemData('description', this.value)">${escapeHTML(selectedSystem.description || '')}</textarea>
+                </div>
+                
+                <div class="mt-4 border-t-2 border-black pt-4">
+                    <div class="flex justify-between items-center mb-2"><h3 class="font-bold text-lg uppercase text-blue-800">Traffic</h3><button class="btn text-xs !p-1 bg-blue-100" onclick="addSpawn()">+ Add Ship</button></div>
+                    <div class="space-y-2">`;
+            
+            (selectedSystem.npcSpawns || []).forEach((spawn, index) => {
+                html += `
+                    <div class="border border-blue-400 p-2 bg-blue-50 relative flex flex-col gap-1">
+                        <button class="absolute top-1 right-2 text-red-500 font-bold text-xs" onclick="deleteSpawn(${index})">X</button>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase mt-1">Pilot / Spawn Name</label>
+                            <input type="text" class="text-sm w-full font-bold" placeholder="e.g. Unknown Pilot" value="${escapeHTML(spawn.name || '')}" oninput="updateSpawnData(${index}, 'name', this.value)">
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-bold uppercase mt-1">Ship Image</label>
+                                <div class="flex">
+                                    <input type="text" id="spawn-img-${index}" class="text-xs w-full flex-grow" value="${escapeHTML(spawn.shipImage || '')}" oninput="updateSpawnData(${index}, 'shipImage', this.value)">
+                                    ${availableImages.length > 0 ? `<select class="text-xs w-8 border-l-0 bg-gray-100" style="padding:0; text-align:center;" onchange="document.getElementById('spawn-img-${index}').value=this.value; updateSpawnData(${index}, 'shipImage', this.value); this.selectedIndex=0;"><option value="" disabled selected>▼</option><option value="default.png">[ DEFAULT ]</option>${availableImages.map(img => `<option value="${img}">${img}</option>`).join('')}</select>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-bold uppercase mt-1">Ship Class</label>
+                                <input type="text" class="text-xs w-full" value="${escapeHTML(spawn.shipType || '')}" oninput="updateSpawnData(${index}, 'shipType', this.value)">
+                            </div>
+                        </div>
+                        <div class="flex gap-2 items-end">
+                            <div class="flex-[2]"><label class="block text-[10px] font-bold uppercase mt-1">Encounter ID</label><input type="text" class="text-xs w-full" value="${escapeHTML(spawn.encounter || '')}" oninput="updateSpawnData(${index}, 'encounter', this.value)"></div>
+                            <div class="flex-1"><label class="block text-[10px] font-bold uppercase mt-1">Spawn %</label><input type="number" step="0.1" max="1.0" min="0" class="text-xs w-full" value="${spawn.chance || 0}" oninput="updateSpawnData(${index}, 'chance', this.value)"></div>
+                            <div class="flex-1 flex flex-col items-center mb-1"><label class="block text-[10px] font-bold uppercase text-red-600 mb-1">Hostile</label><input type="checkbox" ${spawn.isHostile ? 'checked' : ''} onchange="updateSpawnData(${index}, 'isHostile', this.checked)"></div>
+                        </div>
+                        <div class="mt-2 pt-2 border-t border-blue-200">
+                            <label class="block text-[10px] font-bold uppercase text-blue-800 mb-1">Combat Stats</label>
+                            <div class="grid grid-cols-4 gap-1">
+                                <div><label class="text-[9px] uppercase">Hull</label><input type="number" class="text-xs p-1" value="${spawn.stats?.hull||10}" oninput="updateSpawnStat(${index}, 'hull', this.value)"></div>
+                                <div><label class="text-[9px] uppercase">Arm</label><input type="number" class="text-xs p-1" value="${spawn.stats?.armour||10}" oninput="updateSpawnStat(${index}, 'armour', this.value)"></div>
+                                <div><label class="text-[9px] uppercase">Hndl</label><input type="number" class="text-xs p-1" value="${spawn.stats?.handling||20}" oninput="updateSpawnStat(${index}, 'handling', this.value)"></div>
+                                <div><label class="text-[9px] uppercase">Fire</label><input type="number" class="text-xs p-1" value="${spawn.stats?.firepower||10}" oninput="updateSpawnStat(${index}, 'firepower', this.value)"></div>
+                                <div><label class="text-[9px] uppercase">Acc</label><input type="number" class="text-xs p-1" value="${spawn.stats?.accuracy||0}" oninput="updateSpawnStat(${index}, 'accuracy', this.value)"></div>
+                                <div><label class="text-[9px] uppercase">Pilot</label><input type="number" class="text-xs p-1" value="${spawn.stats?.piloting||20}" oninput="updateSpawnStat(${index}, 'piloting', this.value)"></div>
+                                <div><label class="text-[9px] uppercase">Weap</label><input type="number" class="text-xs p-1" value="${spawn.stats?.weapon||20}" oninput="updateSpawnStat(${index}, 'weapon', this.value)"></div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+
+            html += `</div></div><div class="mt-4 border-t-2 border-black pt-4"><div class="flex justify-between items-center mb-2"><h3 class="font-bold text-lg uppercase">POIs</h3><button class="btn text-xs !p-1 bg-green-100" onclick="addPoi()">+ Add POI</button></div><div class="space-y-4">`;
+            
+            (selectedSystem.pois || []).forEach((poi, index) => {
+                html += `
+                    <div class="border border-gray-400 p-2 bg-gray-50 relative flex flex-col gap-1">
+                        <button class="absolute top-1 right-2 text-red-500 font-bold text-xs" onclick="deletePoi(${index})">X</button>
+                        <div><label class="block text-[10px] font-bold uppercase mt-1">Name</label><input type="text" class="text-sm" value="${escapeHTML(poi.name || '')}" oninput="updatePoiData(${index}, 'name', this.value)"></div>
+                        <div><label class="block text-[10px] font-bold uppercase mt-1">Station Type</label><select class="text-xs" oninput="updatePoiData(${index}, 'type', this.value)">${typesList.map(t => `<option value="${t}" ${poi.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-bold uppercase mt-1">Custom Image</label>
+                                <div class="flex">
+                                    <input type="text" id="poi-img-${index}" class="text-xs flex-grow" value="${escapeHTML(poi.image || '')}" oninput="updatePoiData(${index}, 'image', this.value)">
+                                    ${availableImages.length > 0 ? `<select class="text-xs w-1/3 border-l-0 bg-gray-100" onchange="document.getElementById('poi-img-${index}').value=this.value; updatePoiData(${index}, 'image', this.value); this.selectedIndex=0;"><option value="" disabled selected>+ Pick Image</option><option value="">[ DEFAULT ]</option>${availableImages.map(img => `<option value="${img}">${img}</option>`).join('')}</select>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div><label class="block text-[10px] font-bold uppercase mt-1">Encounters (Comma Sep)</label><input type="text" class="text-xs" value="${escapeHTML((poi.encounters || []).join(', '))}" oninput="updatePoiData(${index}, 'encounters', this.value)"></div>
+                        <div class="flex gap-2">
+                            <div class="flex-1"><label class="block text-[10px] font-bold uppercase mt-1">Requires Flag</label><input type="text" class="text-xs" value="${escapeHTML(poi.requiresFlag || '')}" oninput="updatePoiData(${index}, 'requiresFlag', this.value)"></div>
+                            <div class="flex-1"><label class="block text-[10px] font-bold uppercase mt-1">Hides on Flag</label><input type="text" class="text-xs" value="${escapeHTML(poi.hidesOnFlag || '')}" oninput="updatePoiData(${index}, 'hidesOnFlag', this.value)"></div>
+                        </div>
+                        <div><label class="block text-[10px] font-bold uppercase mt-1">Description (Optional)</label><textarea class="text-xs h-12 resize-none" oninput="updatePoiData(${index}, 'description', this.value)">${escapeHTML(poi.description || '')}</textarea></div>
+                        ${poi.type === 'Repair Station' ? `<div class="border-t border-gray-300 mt-2 pt-2"><label class="block text-[10px] font-bold uppercase mt-1 text-blue-800">Repair Cost per Hull</label><input type="number" class="text-xs p-1 border border-gray-400 w-24" value="${poi.repairCost !== undefined ? poi.repairCost : 10}" oninput="updatePoiData(${index}, 'repairCost', parseInt(this.value) || 0)"></div>` : ''}
+                    </div>`;
+            });
+            mapInspector.innerHTML = html + `</div></div>`;
+        }
+
+        function stringifyMap() {
+            let out = "const mapBackgrounds = [\n";
+            mapBackgrounds.forEach((bg, i) => { out += `    { image: "${escapeJS(bg.image)}", x: ${bg.x}, y: ${bg.y}, width: ${bg.width}, height: ${bg.height}, alpha: ${bg.alpha} }${i < mapBackgrounds.length - 1 ? ',' : ''}\n`; });
+            out += "];\n\nconst galaxy = [\n";
+            galaxy.forEach((sys, i) => {
+                out += `    {\n        id: ${sys.id}, name: "${escapeJS(sys.name)}", x: ${sys.x}, y: ${sys.y},\n`;
+                if (sys.image) out += `        image: "${escapeJS(sys.image.trim())}",\n`;
+                if (sys.description) out += `        description: "${escapeJS(sys.description)}",\n`;
+                if (sys.npcSpawns && sys.npcSpawns.length > 0) {
+                    out += `        npcSpawns: [\n` + sys.npcSpawns.map(s => {
+                        let str = `            { name: "${escapeJS(s.name)}", shipType: "${escapeJS(s.shipType)}"`;
+                        if (s.shipImage) str += `, shipImage: "${escapeJS(s.shipImage.trim())}"`;
+                        if (s.encounter) str += `, encounter: "${escapeJS(s.encounter)}"`;
+                        str += `, chance: ${s.chance}`;
+                        if (s.isHostile) str += `, isHostile: true`;
+                        if (s.stats) str += `,\n                stats: { hull: ${s.stats.hull||10}, armour: ${s.stats.armour||10}, handling: ${s.stats.handling||20}, firepower: ${s.stats.firepower||10}, accuracy: ${s.stats.accuracy||0}, piloting: ${s.stats.piloting||20}, weapon: ${s.stats.weapon||20} }`;
+                        return str + ` }`;
+                    }).join(",\n") + "\n        ],\n";
+                }
+                out += `        pois: [\n` + (sys.pois || []).map(p => {
+                    let str = `            { name: "${escapeJS(p.name)}", type: "${escapeJS(p.type)}"`;
+                    if (p.image !== undefined) str += `, image: "${escapeJS(p.image.trim())}"`;
+                    if (p.encounters && p.encounters.length > 0) str += `, encounters: [${p.encounters.map(e => `"${escapeJS(e)}"`).join(", ")}]`;
+                    if (p.requiresFlag) str += `, requiresFlag: "${escapeJS(p.requiresFlag.trim())}"`;
+                    if (p.hidesOnFlag) str += `, hidesOnFlag: "${escapeJS(p.hidesOnFlag.trim())}"`;
+                    if (p.description !== undefined) str += `, description: "${escapeJS(p.description)}"`;
+                    if (p.type === 'Repair Station') str += `, repairCost: ${p.repairCost !== undefined ? p.repairCost : 10}`;
+                    return str + ` }`;
+                }).join(",\n") + "\n        ]\n    }";
+                out += (i < galaxy.length - 1 ? "," : "") + "\n";
+            });
+            return out + "];\n";
+        }
+
+
+        // ==========================================
+        // ENCOUNTER EDITOR LOGIC
+        // ==========================================
+        let selEnc = null, selNode = null;
+
+        function renderEncounters() {
+            let html = '';
+            Object.keys(interactions).forEach(k => {
+                html += `<div class="list-item ${selEnc === k ? 'active' : ''}" onclick="selectEncounter('${escapeJS(k)}')">${k}</div>`;
+            });
+            document.getElementById('encounters-list').innerHTML = html;
+            if (!selEnc || !interactions[selEnc]) {
+                document.getElementById('encounter-settings').classList.add('hidden');
+                document.getElementById('btn-add-node').disabled = true;
+                document.getElementById('nodes-list').innerHTML = '';
+                document.getElementById('enc-editor-panel').innerHTML = `<div class="text-gray-500 italic text-center mt-20">Select an encounter.</div>`;
+            }
+        }
+
+        function selectEncounter(k) {
+            selEnc = k; selNode = null;
+            let currentImg = interactions[k].image || '';
+            if (Array.isArray(currentImg)) currentImg = currentImg.join(', ');
+
+            let dropHtml = '';
+            if (availableImages.length > 0) {
+                dropHtml = `<select class="text-xs w-1/3 border-l-0 bg-gray-100" onchange="appendEncImage(this.value); this.selectedIndex=0;"><option value="" disabled selected>+ Add Image</option><option value="random">[ RANDOM ]</option><option value="default.png">[ DEFAULT ]</option>${availableImages.map(img => `<option value="${img}">${img}</option>`).join('')}</select>`;
+            }
+
+            document.getElementById('encounter-settings').innerHTML = `
+                <div class="flex justify-between items-center border-b border-gray-300 pb-1 mb-2">
+                    <h3 class="text-xs font-bold uppercase">Settings</h3><button class="text-red-600 font-bold hover:underline text-[10px] uppercase" onclick="deleteEncounter()">DELETE</button>
+                </div>
+                <label class="block text-[10px] font-bold uppercase">Image(s)</label>
+                <div class="flex mb-2"><input type="text" id="enc-image" class="text-xs flex-grow" value="${escapeHTML(currentImg)}" oninput="updateEncProp('image', this.value)">${dropHtml}</div>
+                <div class="flex gap-2">
+                   <div class="flex-1"><label class="block text-[10px] font-bold uppercase">Req Flag</label><input type="text" class="text-xs" value="${escapeHTML(interactions[k].requiresFlag || '')}" oninput="updateEncProp('requiresFlag', this.value)"></div>
+                   <div class="flex-1"><label class="block text-[10px] font-bold uppercase">Hide Flag</label><input type="text" class="text-xs" value="${escapeHTML(interactions[k].hidesOnFlag || '')}" oninput="updateEncProp('hidesOnFlag', this.value)"></div>
+                </div>`;
+            document.getElementById('encounter-settings').classList.remove('hidden');
+            document.getElementById('btn-add-node').disabled = false;
+            renderEncounters(); renderNodes();
+        }
+
+        function appendEncImage(val) {
+            if (!val) return;
+            const input = document.getElementById('enc-image');
+            let cur = input.value.trim();
+            if (cur === '' || cur === 'random' || cur === 'default.png') input.value = val;
+            else if (!cur.split(',').map(s=>s.trim()).includes(val)) input.value = cur + ', ' + val;
+            updateEncProp('image', input.value);
+        }
+
+        function renderNodes() {
+            if (!selEnc) return;
+            let html = '';
+            Object.keys(interactions[selEnc].dialogue).forEach(k => {
+                html += `<div class="list-item ${selNode === k ? 'active' : ''}" onclick="selectNode('${escapeJS(k)}')"><span>${k}</span><button class="text-red-500 hover:text-red-700" onclick="deleteNode('${escapeJS(k)}', event)">X</button></div>`;
+            });
+            document.getElementById('nodes-list').innerHTML = html;
+            renderEncEditor();
+        }
+        function selectNode(k) { selNode = k; renderNodes(); }
+
+        function renderEncEditor() {
+            const panel = document.getElementById('enc-editor-panel');
+            if (!selEnc || !selNode) return panel.innerHTML = `<div class="text-gray-500 italic text-center mt-20">Select a node.</div>`;
+            const node = interactions[selEnc].dialogue[selNode];
+            
+            let html = `<h2 class="font-bold text-2xl uppercase border-b-2 border-black pb-2 mb-4">Node: ${selNode}</h2>
+                <div class="flex items-center gap-2 mb-2 bg-gray-200 p-2 border border-gray-400">
+                    <input type="checkbox" id="node-taxi" ${node.generateTaxiJobs ? 'checked' : ''} onchange="toggleTaxiJobs(this.checked)">
+                    <label for="node-taxi" class="text-xs font-bold uppercase text-blue-800">Generate Taxi Job Board</label>
+                </div>
+                ${node.generateTaxiJobs ? `<div class="flex gap-4 mb-4 p-3 bg-blue-50 border-2 border-blue-200"><div><label class="block text-[10px] font-bold uppercase">Max Dist (LY)</label><input type="number" value="${node.taxiMaxDistance||150}" oninput="updateNodeProp('taxiMaxDistance', parseInt(this.value)||0)"></div><div><label class="block text-[10px] font-bold uppercase">Number of Jobs</label><input type="number" value="${node.taxiJobCount||3}" oninput="updateNodeProp('taxiJobCount', parseInt(this.value)||0)"></div></div>` : ''}
+                <label class="block text-xs font-bold uppercase mb-1">NPC Dialogue (HTML allowed)</label>
+                <textarea class="w-full h-32 mb-6 shrink-0" oninput="updateNodeProp('text', this.value)">${escapeHTML(node.text || '')}</textarea>
+                <div class="flex justify-between items-center border-b-2 border-black pb-2 mb-4 shrink-0"><h3 class="font-bold text-xl uppercase">Player Options</h3><button class="btn !p-1 text-xs bg-green-100" onclick="addOption()">+ ADD OPTION</button></div>
+                <div class="space-y-4 pb-8">`;
+            
+            (node.options || []).forEach((opt, i) => {
+                html += `<div class="bg-white border-2 border-black p-3 relative"><button class="absolute top-2 right-2 text-red-500 font-bold" onclick="deleteOption(${i})">DEL</button>
+                    <div class="mb-3 pr-16"><label class="block text-[10px] font-bold uppercase text-blue-600 mb-1">Button Text</label><input type="text" value="${escapeHTML(opt.text)}" oninput="updateOpt(${i}, 'text', this.value)"></div>
+                    <div class="grid grid-cols-2 gap-3 mb-3"><div><label class="block text-[10px] font-bold uppercase text-blue-600 mb-1">Target Node (or 'leave')</label><input type="text" value="${escapeHTML(opt.nextNode)}" oninput="updateOpt(${i}, 'nextNode', this.value)"></div><div><label class="block text-[10px] font-bold uppercase mb-1">Credit Change (+/-)</label><input type="number" value="${opt.credits || ''}" oninput="updateOpt(${i}, 'credits', this.value)"></div></div>
+                    <div class="grid grid-cols-2 gap-3 mb-3 bg-gray-100 p-2 border border-gray-300">
+                        <div><label class="block text-[10px] font-bold uppercase mb-1">Give Flag</label><input type="text" class="text-xs" value="${escapeHTML(opt.setFlag)}" oninput="updateOpt(${i}, 'setFlag', this.value)"></div>
+                        <div><label class="block text-[10px] font-bold uppercase mb-1">Remove Flag</label><input type="text" class="text-xs" value="${escapeHTML(opt.clearFlag)}" oninput="updateOpt(${i}, 'clearFlag', this.value)"></div>
+                        <div><label class="block text-[10px] font-bold uppercase mb-1">Requires Flag</label><input type="text" class="text-xs" value="${escapeHTML(opt.requiresFlag)}" oninput="updateOpt(${i}, 'requiresFlag', this.value)"></div>
+                        <div><label class="block text-[10px] font-bold uppercase mb-1">Hide on Flag</label><input type="text" class="text-xs" value="${escapeHTML(opt.hidesOnFlag)}" oninput="updateOpt(${i}, 'hidesOnFlag', this.value)"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 bg-yellow-50 p-2 border border-yellow-300"><div><label class="block text-[10px] font-bold uppercase">Start Task ID</label><input type="text" class="text-xs" value="${escapeHTML(opt.startTask)}" oninput="updateOpt(${i}, 'startTask', this.value)"></div><div><label class="block text-[10px] font-bold uppercase">Complete Task ID</label><input type="text" class="text-xs" value="${escapeHTML(opt.completeTask)}" oninput="updateOpt(${i}, 'completeTask', this.value)"></div></div>
+                    <div class="grid grid-cols-3 gap-3 bg-blue-50 p-2 border border-blue-300 mt-3"><div class="flex items-center gap-2"><input type="checkbox" ${opt.completePickup?'checked':''} onchange="updateOpt(${i}, 'completePickup', this.checked)"><label class="text-[10px] font-bold uppercase mb-0">Completes Taxi Pickup</label></div><div class="flex items-center gap-2"><input type="checkbox" ${opt.completeTaxi?'checked':''} onchange="updateOpt(${i}, 'completeTaxi', this.checked)"><label class="text-[10px] font-bold uppercase mb-0">Completes Dropoff</label></div><div class="flex items-center gap-2"><input type="checkbox" ${opt.startCombat?'checked':''} onchange="updateOpt(${i}, 'startCombat', this.checked)"><label class="text-[10px] font-bold uppercase text-red-600 mb-0">Starts Combat</label></div></div></div>`;
+            });
+            panel.innerHTML = html + `</div>`;
+        }
+
+        // Enc Mutations
+        function addEncounter() { const n = prompt("Encounter Name:"); if(n && !interactions[n]){ interactions[n] = {image:"default.png",dialogue:{"start":{text:"Hello",options:[{text:"[Leave]",nextNode:"leave"}]}}}; selectEncounter(n); } }
+        function deleteEncounter() { if(confirm(`Delete ${selEnc}?`)){ delete interactions[selEnc]; selEnc = null; renderEncounters(); } }
+        function updateEncProp(k, v) { if (v==='') delete interactions[selEnc][k]; else interactions[selEnc][k] = v; }
+        function addNode() { const n = prompt("Node Name:"); if(n && !interactions[selEnc].dialogue[n]) { interactions[selEnc].dialogue[n]={text:"New node.",options:[]}; selectNode(n); } }
+        function deleteNode(k, e) { e.stopPropagation(); if(confirm("Delete node?")) { delete interactions[selEnc].dialogue[k]; if(selNode===k) selNode=null; renderNodes(); } }
+        function updateNodeProp(k, v) { if (v===false||v==='') delete interactions[selEnc].dialogue[selNode][k]; else interactions[selEnc].dialogue[selNode][k] = v; }
+        function toggleTaxiJobs(checked) { if(checked){ interactions[selEnc].dialogue[selNode].generateTaxiJobs=true; interactions[selEnc].dialogue[selNode].taxiJobCount=3; interactions[selEnc].dialogue[selNode].taxiMaxDistance=150;}else{ delete interactions[selEnc].dialogue[selNode].generateTaxiJobs; delete interactions[selEnc].dialogue[selNode].taxiJobCount; delete interactions[selEnc].dialogue[selNode].taxiMaxDistance;} renderEncEditor(); }
+        function addOption() { interactions[selEnc].dialogue[selNode].options.push({text:"New Option",nextNode:"leave"}); renderEncEditor(); }
+        function deleteOption(i) { interactions[selEnc].dialogue[selNode].options.splice(i,1); renderEncEditor(); }
+        function updateOpt(i, k, v) { if(k==='credits') v=parseInt(v)||0; if(v===''||v===0||v===false) delete interactions[selEnc].dialogue[selNode].options[i][k]; else interactions[selEnc].dialogue[selNode].options[i][k]=v; }
+
+        function stringifyInteractions() {
+            let out = "const interactions = {\n";
+            Object.keys(interactions).forEach((k, i, arr) => {
+                const e = interactions[k];
+                out += `    "${escapeJS(k)}": {\n`;
+                if (e.requiresFlag) out += `        requiresFlag: "${escapeJS(e.requiresFlag).trim()}",\n`;
+                if (e.hidesOnFlag) out += `        hidesOnFlag: "${escapeJS(e.hidesOnFlag).trim()}",\n`;
+                if (e.image) {
+                    let imgStr = Array.isArray(e.image) ? e.image.join(',') : e.image;
+                    if (imgStr.includes(',')) out += `        image: [${imgStr.split(',').map(s=>`"${escapeJS(s.trim())}"`).join(', ')}],\n`;
+                    else out += `        image: "${escapeJS(imgStr).trim()}",\n`;
+                }
+                out += `        dialogue: {\n`;
+                Object.keys(e.dialogue||{}).forEach((dk, j, dArr) => {
+                    const n = e.dialogue[dk];
+                    out += `            "${escapeJS(dk)}": {\n                text: "${escapeJS(n.text)}",\n`;
+                    if(n.generateTaxiJobs) out += `                generateTaxiJobs: true,\n                taxiJobCount: ${n.taxiJobCount||3},\n                taxiMaxDistance: ${n.taxiMaxDistance||150},\n`;
+                    out += `                options: [\n`;
+                    (n.options||[]).forEach((opt, oIdx) => {
+                        let os = `                    { text: "${escapeJS(opt.text)}", nextNode: "${escapeJS(opt.nextNode)||'leave'}"`;
+                        if(opt.credits) os += `, credits: ${opt.credits}`;
+                        if(opt.setFlag) os += `, setFlag: "${escapeJS(opt.setFlag).trim()}"`;
+                        if(opt.clearFlag) os += `, clearFlag: "${escapeJS(opt.clearFlag).trim()}"`;
+                        if(opt.requiresFlag) os += `, requiresFlag: "${escapeJS(opt.requiresFlag).trim()}"`;
+                        if(opt.hidesOnFlag) os += `, hidesOnFlag: "${escapeJS(opt.hidesOnFlag).trim()}"`;
+                        if(opt.startTask) os += `, startTask: "${escapeJS(opt.startTask).trim()}"`;
+                        if(opt.completeTask) os += `, completeTask: "${escapeJS(opt.completeTask).trim()}"`;
+                        if(opt.completePickup) os += `, completePickup: true`;
+                        if(opt.completeTaxi) os += `, completeTaxi: true`;
+                        if(opt.startCombat) os += `, startCombat: true`;
+                        out += os + ` }` + (oIdx < n.options.length-1 ? ',' : '') + `\n`;
+                    });
+                    out += `                ]\n            }` + (j < dArr.length-1 ? ',' : '') + `\n`;
+                });
+                out += `        }\n    }` + (i < arr.length-1 ? ',' : '') + `\n`;
+            });
+            return out + "};";
+        }
+
+
+        // ==========================================
+        // SHIP & EQUIPMENT EDITOR LOGIC
+        // ==========================================
+        let selCat = 'shipHulls', selShipItem = null;
+
+        function selectShipCategory(cat) {
+            document.querySelectorAll('#categories-list .list-item').forEach(el => el.classList.remove('active'));
+            selCat = cat;
+            document.getElementById('cat-' + cat).classList.add('active');
+            selShipItem = null; renderShipItems();
+        }
+
+        function renderShipItems() {
+            let html = '';
+            const dataSrc = selCat === 'shipHulls' ? shipHullsData : (equipmentData[selCat] || {});
+            Object.keys(dataSrc).forEach(k => {
+                html += `<div class="list-item ${selShipItem === k ? 'active' : ''}" onclick="selectShipItem('${escapeJS(k)}')"><span>${k}</span><button class="text-red-500 hover:text-red-700" onclick="deleteShipItem('${escapeJS(k)}', event)">X</button></div>`;
+            });
+            document.getElementById('ship-items-list').innerHTML = html;
+            renderShipEditor();
+        }
+        function selectShipItem(k) { selShipItem = k; renderShipItems(); }
+
+        function renderShipEditor() {
+            const panel = document.getElementById('ship-editor-panel');
+            if (!selShipItem) return panel.innerHTML = `<div class="text-gray-500 italic text-center mt-20">Select an item to edit.</div>`;
+            
+            let html = `<h2 class="font-bold text-2xl uppercase border-b-2 border-black pb-2 mb-4">${selShipItem}</h2>`;
+            
+            if (selCat === 'shipHulls') {
+                const h = shipHullsData[selShipItem];
+                let dropHtml = '';
+                if(availableImages.length > 0) dropHtml = `<select class="text-xs w-1/3 border-l-0 bg-gray-100" onchange="document.getElementById('hull-img').value=this.value; setHull('image', this.value); this.selectedIndex=0;"><option value="" disabled selected>+ Pick Image</option><option value="default.png">[ DEFAULT ]</option>${availableImages.map(img => `<option value="${img}">${img}</option>`).join('')}</select>`;
+
+                html += `
+                    <div class="grid grid-cols-2 gap-4 mb-2">
+                        <div><label class="block text-xs font-bold uppercase mb-1">Display Name</label><input type="text" value="${escapeHTML(h.name)}" oninput="setHull('name', this.value)"></div>
+                        <div><label class="block text-xs font-bold uppercase mb-1">Size Class</label><select onchange="setHull('size', this.value)">${sizes.map(s => `<option value="${s}" ${h.size === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+                    </div>
+                    <div class="mb-4"><label class="block text-xs font-bold uppercase mb-1">Ship Image</label><div class="flex"><input type="text" id="hull-img" class="text-xs flex-grow" value="${escapeHTML(h.image||'')}" oninput="setHull('image', this.value)">${dropHtml}</div></div>
+                    <label class="block text-xs font-bold uppercase mb-1">Description</label><textarea class="h-16 mb-4" oninput="setHull('description', this.value)">${escapeHTML(h.description)}</textarea>
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="bg-red-50 p-2 border border-red-300"><label class="block text-[10px] font-bold uppercase text-red-800">Base Hull</label><input type="number" value="${h.baseHull||10}" oninput="setHull('baseHull', parseInt(this.value)||0)"></div>
+                        <div class="bg-gray-200 p-2 border border-gray-400"><label class="block text-[10px] font-bold uppercase">Chassis Weight</label><input type="number" value="${h.weight||5}" oninput="setHull('weight', parseInt(this.value)||0)"></div>
+                        <div class="bg-green-50 p-2 border border-green-300"><label class="block text-[10px] font-bold uppercase text-green-800">Base Price (CR)</label><input type="number" value="${h.price||1000}" oninput="setHull('price', parseInt(this.value)||0)"></div>
+                    </div>
+                    <h3 class="font-bold text-lg uppercase bg-black text-white p-2 mb-2">Stat Multipliers</h3>
+                    <div class="grid grid-cols-3 gap-2 mb-6 bg-gray-200 p-2 border border-gray-400">
+                        ${Object.keys(h.multipliers).map(m => `<div><label class="block text-[10px] font-bold uppercase">${m}</label><input type="number" step="0.1" value="${h.multipliers[m]}" oninput="setHullNest('multipliers', '${m}', this.value)"></div>`).join('')}
+                    </div>
+                    <h3 class="font-bold text-lg uppercase bg-black text-white p-2 mb-2">Core Slots</h3>
+                    <div class="grid grid-cols-3 gap-2 mb-4 bg-gray-200 p-2 border border-gray-400">
+                        ${Object.keys(h.coreSlots).map(c => `<div><label class="block text-[10px] font-bold uppercase">${c}</label><input type="number" value="${h.coreSlots[c]}" oninput="setHullNest('coreSlots', '${c}', this.value)"></div>`).join('')}
+                    </div>
+                    <div class="w-1/3 bg-blue-100 p-2 border border-blue-400"><label class="block text-xs font-bold uppercase">Modular Slots</label><input type="number" value="${h.modularSlots}" oninput="setHull('modularSlots', parseInt(this.value)||0)"></div>
+                `;
+            } else if (selCat === 'modules') {
+                const m = equipmentData.modules[selShipItem];
+                html += `
+                    <div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-xs font-bold uppercase">Display Name</label><input type="text" value="${escapeHTML(m.name)}" oninput="setEq('name', this.value)"></div><div><label class="block text-xs font-bold uppercase">Size Class</label><select onchange="setEq('size', this.value)">${sizes.map(s => `<option value="${s}" ${m.size === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
+                    <div class="grid grid-cols-4 gap-4 mb-4 bg-green-50 p-3 border border-green-300">
+                        <div><label class="block text-[10px] font-bold uppercase text-green-800">Price</label><input type="number" value="${m.price||100}" oninput="setEqNum('price', this.value)"></div>
+                        <div><label class="block text-[10px] font-bold uppercase text-green-800">Weight</label><input type="number" value="${m.weight||1}" oninput="setEqNum('weight', this.value)"></div>
+                        <div><label class="block text-[10px] font-bold uppercase text-green-800">Target Stat</label><select class="text-xs" onchange="setEq('stat', this.value)">${moduleStats.map(s => `<option value="${s}" ${m.stat === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+                        <div><label class="block text-[10px] font-bold uppercase text-green-800">Flat Bonus</label><input type="number" value="${m.flatBonus}" oninput="setEqNum('flatBonus', this.value)"></div>
+                    </div><label class="block text-xs font-bold uppercase">Description</label><textarea class="h-16" oninput="setEq('description', this.value)">${escapeHTML(m.description)}</textarea>`;
+            } else {
+                const eq = equipmentData[selCat][selShipItem];
+                html += `<div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-xs font-bold uppercase">Display Name</label><input type="text" value="${escapeHTML(eq.name)}" oninput="setEq('name', this.value)"></div><div><label class="block text-xs font-bold uppercase">Size Class</label><select onchange="setEq('size', this.value)">${sizes.map(s => `<option value="${s}" ${eq.size === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>`;
+                if (selCat === 'weapons') {
+                    html += `<div class="grid grid-cols-4 gap-4 mb-4 bg-orange-50 p-3 border border-orange-300"><div><label class="block text-[10px] font-bold uppercase text-orange-800">Price</label><input type="number" value="${eq.price||100}" oninput="setEqNum('price', this.value)"></div><div><label class="block text-[10px] font-bold uppercase text-orange-800">Weight</label><input type="number" value="${eq.weight||1}" oninput="setEqNum('weight', this.value)"></div><div><label class="block text-[10px] font-bold uppercase text-orange-800">Firepower</label><input type="number" value="${eq.firepower||0}" oninput="setEqNum('firepower', this.value)"></div><div><label class="block text-[10px] font-bold uppercase text-orange-800">Accuracy</label><input type="number" value="${eq.accuracy||0}" oninput="setEqNum('accuracy', this.value)"></div></div>`;
+                } else {
+                    html += `<div class="grid grid-cols-3 gap-4 mb-4 bg-yellow-50 p-3 border border-yellow-300"><div><label class="block text-[10px] font-bold uppercase text-yellow-800">Price</label><input type="number" value="${eq.price||100}" oninput="setEqNum('price', this.value)"></div><div><label class="block text-[10px] font-bold uppercase text-yellow-800">Weight</label><input type="number" value="${eq.weight||1}" oninput="setEqNum('weight', this.value)"></div><div><label class="block text-[10px] font-bold uppercase text-yellow-800">Base Value</label><input type="number" value="${eq.baseValue||0}" oninput="setEqNum('baseValue', this.value)"></div></div>`;
+                }
+                html += `<label class="block text-xs font-bold uppercase">Description</label><textarea class="h-16" oninput="setEq('description', this.value)">${escapeHTML(eq.description)}</textarea>`;
+            }
+            panel.innerHTML = html;
+        }
+
+        function addShipItem() {
+            const n = prompt("Item ID:"); if(!n) return;
+            if(selCat === 'shipHulls'){
+                if(shipHullsData[n]) return alert("Exists");
+                shipHullsData[n] = {name:n,size:"Tiny",description:"",baseHull:10,weight:5,price:1000,multipliers:{jumpRange:1,armour:1,cargo:1,handling:1,firepower:1,accuracy:1},coreSlots:{warpDrive:1,armour:1,cargoBay:1,thrusters:1,weapons:1},modularSlots:1};
+            } else if(selCat==='modules'){
+                if(equipmentData.modules[n]) return alert("Exists");
+                equipmentData.modules[n] = {name:n,size:"Tiny",type:"module",price:100,weight:1,stat:"cargo",flatBonus:5,description:""};
+            } else {
+                if(!equipmentData[selCat]) equipmentData[selCat]={}; if(equipmentData[selCat][n]) return alert("Exists");
+                if(selCat==='weapons') equipmentData[selCat][n] = {name:n,size:"Tiny",type:selCat,price:100,weight:1,firepower:10,accuracy:0,description:""};
+                else equipmentData[selCat][n] = {name:n,size:"Tiny",type:selCat,price:100,weight:1,baseValue:10,description:""};
+            }
+            selectShipItem(n);
+        }
+        function deleteShipItem(k, e){ e.stopPropagation(); if(confirm("Delete?")){ if(selCat==='shipHulls') delete shipHullsData[k]; else delete equipmentData[selCat][k]; if(selShipItem===k) selShipItem=null; renderShipItems(); } }
+        function setHull(p,v){ shipHullsData[selShipItem][p]=v; }
+        function setHullNest(p,c,v){ shipHullsData[selShipItem][p][c]=parseFloat(v)||0; }
+        function setEq(p,v){ equipmentData[selCat][selShipItem][p]=v; }
+        function setEqNum(p,v){ equipmentData[selCat][selShipItem][p]=parseInt(v)||0; }
+
+        function stringifyShipsAndEq() {
+            let out = "const shipHulls = {\n";
+            const hk = Object.keys(shipHullsData);
+            hk.forEach((k, i) => {
+                const s = shipHullsData[k];
+                out += `    "${escapeJS(k)}": {\n        name: "${escapeJS(s.name)}",\n`;
+                if(s.image) out += `        image: "${escapeJS(s.image)}",\n`;
+                out += `        size: "${escapeJS(s.size)}",\n        description: "${escapeJS(s.description)}",\n        baseHull: ${s.baseHull||10},\n        weight: ${s.weight||5},\n        price: ${s.price||1000},\n        multipliers: {\n            jumpRange: ${s.multipliers.jumpRange},\n            armour: ${s.multipliers.armour},\n            cargo: ${s.multipliers.cargo},\n            handling: ${s.multipliers.handling},\n            firepower: ${s.multipliers.firepower||1},\n            accuracy: ${s.multipliers.accuracy||1}\n        },\n        coreSlots: {\n            warpDrive: ${s.coreSlots.warpDrive},\n            armour: ${s.coreSlots.armour},\n            cargoBay: ${s.coreSlots.cargoBay},\n            thrusters: ${s.coreSlots.thrusters},\n            weapons: ${s.coreSlots.weapons}\n        },\n        modularSlots: ${s.modularSlots}\n    }` + (i<hk.length-1 ? ',' : '') + `\n`;
+            });
+            out += "};\n\nconst equipment = {\n";
+            const cats = ["warpDrive", "armour", "cargoBay", "thrusters", "weapons", "modules"];
+            cats.forEach((cat, cIdx) => {
+                out += `    ${cat}: {\n`;
+                const items = Object.keys(equipmentData[cat]||{});
+                items.forEach((k, i) => {
+                    const eq = equipmentData[cat][k];
+                    if(cat==='modules') out += `        "${escapeJS(k)}": { name: "${escapeJS(eq.name)}", size: "${escapeJS(eq.size)}", type: "module", price: ${eq.price||100}, weight: ${eq.weight||1}, stat: "${escapeJS(eq.stat)}", flatBonus: ${eq.flatBonus}, description: "${escapeJS(eq.description)}" }`;
+                    else if(cat==='weapons') out += `        "${escapeJS(k)}": { name: "${escapeJS(eq.name)}", size: "${escapeJS(eq.size)}", type: "weapons", price: ${eq.price||100}, weight: ${eq.weight||1}, firepower: ${eq.firepower||0}, accuracy: ${eq.accuracy||0}, description: "${escapeJS(eq.description)}" }`;
+                    else out += `        "${escapeJS(k)}": { name: "${escapeJS(eq.name)}", size: "${escapeJS(eq.size)}", type: "${escapeJS(eq.type)}", price: ${eq.price||100}, weight: ${eq.weight||1}, baseValue: ${eq.baseValue||0}, description: "${escapeJS(eq.description)}" }`;
+                    out += (i<items.length-1 ? ',' : '') + `\n`;
+                });
+                out += `    }` + (cIdx<cats.length-1 ? ',' : '') + `\n`;
+            });
+            return out + "};";
+        }
+    </script>
+</body>
+</html>

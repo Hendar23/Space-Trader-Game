@@ -382,6 +382,11 @@
                      <div class="border border-blue-400 p-2 bg-blue-50 relative flex flex-col gap-1">
                          <button class="absolute top-1 right-2 text-red-500 font-bold text-xs" onclick="deleteSpawn(${index})">X</button>
                          
+                         <div>
+                             <label class="block text-[10px] font-bold uppercase mt-1">Pilot / Spawn Name</label>
+                             <input type="text" class="text-sm w-full font-bold" placeholder="e.g. Unknown Pilot" value="${spawn.name || ''}" oninput="updateSpawnData(${index}, 'name', this.value)">
+                         </div>
+                         
                          <div class="flex gap-2">
                              <div class="flex-1">
                                  <label class="block text-[10px] font-bold uppercase mt-1">Ship Image</label>
