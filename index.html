@@ -1031,8 +1031,16 @@
              setLocalView('encounter');
          }
          
-         function selectDialogue(nextNode, creditChange = 0, setFlag = '', clearFlag = '', startTask = '', completeTask = '', initiateCombat = false) {
+         function selectDialogue(nextNode, creditChange = 0, xpChange = 0, setFlag = '', clearFlag = '', startTask = '', completeTask = '', initiateCombat = false) {
              player.credits += creditChange;
+             
+             if (xpChange > 0) {
+                 player.xp += xpChange;
+                 showXpPopup(xpChange, "Dialogue");
+             } else if (xpChange < 0) {
+                 player.xp += xpChange; // Applies deductions silently
+             }
+             
              if (setFlag) player.flags[setFlag] = true;
              if (clearFlag) player.flags[clearFlag] = false;
          
@@ -1679,13 +1687,17 @@
                         creditTag = ` [+${opt.credits.toLocaleString()} CR]`;
                     }
                 }
+                
+                let xpTag = '';
+                if (opt.xp) {
+                    xpTag = opt.xp > 0 ? ` [+${opt.xp.toLocaleString()} XP]` : ` [${opt.xp.toLocaleString()} XP]`;
+                }
          
                 const pickupAction = opt.completePickup ? "completeTaxiPickup();" : "";
                 const taxiAction = opt.completeTaxi ? "completeTaxiDropoff();" : "";
          
-                // Pass the startCombat flag as the 7th parameter ---
-                html += `<button class="btn" onclick="${pickupAction} ${taxiAction} selectDialogue('${opt.nextNode}', ${opt.credits || 0}, '${opt.setFlag || ''}', '${opt.clearFlag || ''}', '${opt.startTask || ''}', '${opt.completeTask || ''}', ${opt.startCombat ? 'true' : 'false'})" ${disabledAttr}>
-                    <span>${opt.text}${creditTag}</span>
+                html += `<button class="btn" onclick="${pickupAction} ${taxiAction} selectDialogue('${opt.nextNode}', ${opt.credits || 0}, ${opt.xp || 0}, '${opt.setFlag || ''}', '${opt.clearFlag || ''}', '${opt.startTask || ''}', '${opt.completeTask || ''}', ${opt.startCombat ? 'true' : 'false'})" ${disabledAttr}>
+                    <span>${opt.text}${creditTag}${xpTag}</span>
                 </button>`;
             });
          
@@ -2053,7 +2065,7 @@
              const netWorth = calculateNetWorth();
              
              // Calculate costs dynamically based on the 0-10, 11-20, 21-30 tiers
-             const getCost = (skill) => Math.floor(skill / 10) + 1;
+             const getCost = (skill) => Math.pow(2, Math.floor(skill / 10));
              
              const pilCost = getCost(player.skills.piloting);
              const wepCost = getCost(player.skills.weapon);
@@ -2116,7 +2128,7 @@
 
 	function upgradeSkill(skillName) {
              const currentSkill = player.skills[skillName];
-             const cost = Math.floor(currentSkill / 10) + 1;
+             const cost = Math.pow(2, Math.floor(currentSkill / 10));
 
              if (player.xp >= cost) {
                  player.xp -= cost;

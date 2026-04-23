@@ -412,7 +412,7 @@ const interactions = {
     },
     "Brother Moo": {
         requiresFlag: "knows_frank",
-        image: "brother_moo.png",
+        image: "portrait004.png",
         dialogue: {
             "start": {
                 text: "<i>\"Greetings.\"</i>",
@@ -424,14 +424,21 @@ const interactions = {
             "teach_me_the_way": {
                 text: "Oh I am sorry. There has been a misunderstanding. I exist only to test dialogue triggers. Would you like some money instead?",
                 options: [
-                    { text: "No, thank you. [LEAVE]", nextNode: "leave" },
-                    { text: "Yes please, that would be delightful.", nextNode: "give_money", credits: 1000000 }
+                    { text: "Yes please, that would be delightful.", nextNode: "give_money", credits: 1000000 },
+                    { text: "Actually, can you give me some XP instead?", nextNode: "give_xp" },
+                    { text: "No, thank you. [LEAVE]", nextNode: "leave" }
                 ]
             },
             "give_money": {
                 text: "Here you go! <br><br><span class=\"text-green-600 font-bold\">They transfer 1,000,000 credits to your account.</i></span>\n",
                 options: [
                     { text: "Oh wow! Thanks!", nextNode: "leave" }
+                ]
+            },
+            "give_xp": {
+                text: "Certainly. ",
+                options: [
+                    { text: "Thank you Brother Moo ", nextNode: "leave", xp: 100000 }
                 ]
             }
         }
@@ -474,14 +481,26 @@ const interactions = {
             "start": {
                 text: "Hey kid, how you doin'?",
                 options: [
-                    { text: "Sorry Uncle Bob, I gotta go. [Leave]", nextNode: "leave" },
-                    { text: "I did it Bob, I got my first ship.", nextNode: "got_ship", hidesOnFlag: "told_bob_ship" }
+                    { text: "I did it Bob, I got my first ship.", nextNode: "got_ship", hidesOnFlag: "told_bob_ship" },
+                    { text: "Sorry Uncle Bob, I gotta go. [Leave]", nextNode: "leave" }
                 ]
             },
             "got_ship": {
                 text: "Congratulations kiddo. I won't ask how you got the money together for it. What's your plans now?",
                 options: [
                     { text: "TIME TO GO MAKE MY FORTUNE!", nextNode: "leave", setFlag: "told_bob_ship" }
+                ]
+            }
+        }
+    },
+    "herb01": {
+        image: "random",
+        dialogue: {
+            "start": {
+                text: "Hand over the cash!",
+                options: [
+                    { text: "Never! [FIGHT]", nextNode: "leave", startCombat: true },
+                    { text: "Take my money, just leave me alone!", nextNode: "leave", credits: -10 }
                 ]
             }
         }
@@ -552,7 +571,7 @@ const stationTypes = {
         consumes: { "Meat": "High", "Machine Parts": "Low" }
     },
     "Copper Mine": {
-        defaultImage: "station007.png",
+	defaultImage: "mine003.png",
         description: "Vast machinery grinds at raw copper veins.",
         produces: ["Copper Ore"],
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
@@ -687,8 +706,8 @@ const galaxy = [
                 stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } },
             { name: "Leonton Traffic", shipType: "Keiship", shipImage: "ship_keiship.png", encounter: "civilian001", chance: 0.1,
                 stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } },
-            { name: "Security Patrol", shipType: "Midgeito", shipImage: "ship_midgeito.png", encounter: "Police Patrol", chance: 0.5,
-                stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } }
+            { name: "Desperate Pirate", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "herb01", chance: 0.1, isHostile: true,
+                stats: { hull: 10, armour: 8, handling: 20, firepower: 10, accuracy: 5, piloting: 5, weapon: 5 } }
         ],
         pois: [
             { name: "Leonton Spaceport", type: "Trade Hub", image: "port003.png", description: "Smells like starship fuel, cheap narcotics, and desperation." },
@@ -703,6 +722,9 @@ const galaxy = [
         ]
     }
 ];
+
+
+
 
 
 

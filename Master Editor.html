@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actinic Light - Master Engine</title>
+    <title>Actinic Light - Universe Editor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Courier New', Courier, monospace; background: #f0f0f0; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
@@ -704,10 +704,14 @@
                 <div class="space-y-4 pb-8">`;
             
             (node.options || []).forEach((opt, i) => {
-                html += `<div class="bg-white border-2 border-black p-3 relative"><button class="absolute top-2 right-2 text-red-500 font-bold" onclick="deleteOption(${i})">DEL</button>
-                    <div class="mb-3 pr-16"><label class="block text-[10px] font-bold uppercase text-blue-600 mb-1">Button Text</label><input type="text" value="${escapeHTML(opt.text)}" oninput="updateOpt(${i}, 'text', this.value)"></div>
-                    <div class="grid grid-cols-2 gap-3 mb-3"><div><label class="block text-[10px] font-bold uppercase text-blue-600 mb-1">Target Node (or 'leave')</label><input type="text" value="${escapeHTML(opt.nextNode)}" oninput="updateOpt(${i}, 'nextNode', this.value)"></div><div><label class="block text-[10px] font-bold uppercase mb-1">Credit Change (+/-)</label><input type="number" value="${opt.credits || ''}" oninput="updateOpt(${i}, 'credits', this.value)"></div></div>
-                    <div class="grid grid-cols-2 gap-3 mb-3 bg-gray-100 p-2 border border-gray-300">
+                html += `<div class="bg-white border-2 border-black p-3 relative">
+                    <div class="absolute top-2 right-2 flex gap-3 text-[10px]">
+                        ${i > 0 ? `<button class="text-blue-500 font-bold hover:underline" onclick="moveOptionUp(${i})">UP</button>` : ''}
+                        ${i < node.options.length - 1 ? `<button class="text-blue-500 font-bold hover:underline" onclick="moveOptionDown(${i})">DOWN</button>` : ''}
+                        <button class="text-red-500 font-bold hover:underline" onclick="deleteOption(${i})">DEL</button>
+                    </div>
+                    <div class="mb-3 pr-32"><label class="block text-[10px] font-bold uppercase text-blue-600 mb-1">Button Text</label><input type="text" value="${escapeHTML(opt.text)}" oninput="updateOpt(${i}, 'text', this.value)"></div>
+                    <div class="grid grid-cols-3 gap-3 mb-3"><div><label class="block text-[10px] font-bold uppercase text-blue-600 mb-1">Target Node (or 'leave')</label><input type="text" value="${escapeHTML(opt.nextNode)}" oninput="updateOpt(${i}, 'nextNode', this.value)"></div><div><label class="block text-[10px] font-bold uppercase mb-1">Credit Change (+/-)</label><input type="number" value="${opt.credits || ''}" oninput="updateOpt(${i}, 'credits', this.value)"></div><div><label class="block text-[10px] font-bold uppercase mb-1">XP Change (+/-)</label><input type="number" value="${opt.xp || ''}" oninput="updateOpt(${i}, 'xp', this.value)"></div></div>                    <div class="grid grid-cols-2 gap-3 mb-3 bg-gray-100 p-2 border border-gray-300">
                         <div><label class="block text-[10px] font-bold uppercase mb-1">Give Flag</label><input type="text" class="text-xs" value="${escapeHTML(opt.setFlag)}" oninput="updateOpt(${i}, 'setFlag', this.value)"></div>
                         <div><label class="block text-[10px] font-bold uppercase mb-1">Remove Flag</label><input type="text" class="text-xs" value="${escapeHTML(opt.clearFlag)}" oninput="updateOpt(${i}, 'clearFlag', this.value)"></div>
                         <div><label class="block text-[10px] font-bold uppercase mb-1">Requires Flag</label><input type="text" class="text-xs" value="${escapeHTML(opt.requiresFlag)}" oninput="updateOpt(${i}, 'requiresFlag', this.value)"></div>
@@ -729,8 +733,8 @@
         function toggleTaxiJobs(checked) { if(checked){ interactions[selEnc].dialogue[selNode].generateTaxiJobs=true; interactions[selEnc].dialogue[selNode].taxiJobCount=3; interactions[selEnc].dialogue[selNode].taxiMaxDistance=150;}else{ delete interactions[selEnc].dialogue[selNode].generateTaxiJobs; delete interactions[selEnc].dialogue[selNode].taxiJobCount; delete interactions[selEnc].dialogue[selNode].taxiMaxDistance;} renderEncEditor(); }
         function addOption() { interactions[selEnc].dialogue[selNode].options.push({text:"New Option",nextNode:"leave"}); renderEncEditor(); }
         function deleteOption(i) { interactions[selEnc].dialogue[selNode].options.splice(i,1); renderEncEditor(); }
-        function updateOpt(i, k, v) { if(k==='credits') v=parseInt(v)||0; if(v===''||v===0||v===false) delete interactions[selEnc].dialogue[selNode].options[i][k]; else interactions[selEnc].dialogue[selNode].options[i][k]=v; }
-
+        function updateOpt(i, k, v) { if(k==='credits' || k==='xp') v=parseInt(v)||0; if(v===''||v===0||v===false) delete interactions[selEnc].dialogue[selNode].options[i][k]; else interactions[selEnc].dialogue[selNode].options[i][k]=v; }        function moveOptionUp(i) { if (i <= 0) return; const opts = interactions[selEnc].dialogue[selNode].options; [opts[i - 1], opts[i]] = [opts[i], opts[i - 1]]; renderEncEditor(); }
+        function moveOptionDown(i) { const opts = interactions[selEnc].dialogue[selNode].options; if (i >= opts.length - 1) return; [opts[i + 1], opts[i]] = [opts[i], opts[i + 1]]; renderEncEditor(); }
         function stringifyInteractions() {
             let out = "const interactions = {\n";
             Object.keys(interactions).forEach((k, i, arr) => {
@@ -752,6 +756,7 @@
                     (n.options||[]).forEach((opt, oIdx) => {
                         let os = `                    { text: "${escapeJS(opt.text)}", nextNode: "${escapeJS(opt.nextNode)||'leave'}"`;
                         if(opt.credits) os += `, credits: ${opt.credits}`;
+                        if(opt.xp) os += `, xp: ${opt.xp}`;
                         if(opt.setFlag) os += `, setFlag: "${escapeJS(opt.setFlag).trim()}"`;
                         if(opt.clearFlag) os += `, clearFlag: "${escapeJS(opt.clearFlag).trim()}"`;
                         if(opt.requiresFlag) os += `, requiresFlag: "${escapeJS(opt.requiresFlag).trim()}"`;
