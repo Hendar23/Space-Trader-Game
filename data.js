@@ -166,7 +166,7 @@ const equipment = {
 // PROCEDURAL GENERATION DATA
 // ==========================================
 
-const TOTAL_ALIEN_PORTRAITS = 18; // Total number of random_alien_XXX.png images
+const TOTAL_ALIEN_PORTRAITS = 20; // Total number of random_alien_XXX.png images
 
 const firstNames = [
     "Frank", "Bobby", "Aaron", "Jason", "Aria", "Jaxon", "Kael", "Lyra", "Zane", "Nova", 
@@ -312,7 +312,7 @@ const interactions = {
                 text: "<i>\"Stand and deliver, spacer!\"</i>",
                 options: [
                     { text: "Never! [FIGHT]", nextNode: "leave", startCombat: true },
-                    { text: "Take my money!", nextNode: "leave", credits: -500 }
+                    { text: "Take my money!", nextNode: "leave", credits: -100 }
                 ]
             }
         }
@@ -623,6 +623,7 @@ const stationTypes = {
         description: "A sprawling orbital drydock surrounded by welding drones."
     },
     "Outfitter": {
+        defaultImage: "station008.png",
         description: "A sprawling industrial drydock where pilots can purchase, sell, and store ship components.",
         hasOutfitter: true
     }
@@ -716,12 +717,23 @@ const galaxy = [
         ]
     },
     {
-        id: 5, name: "New System", x: 552, y: 579,
+        id: 5, name: "Britel", x: 553, y: 584,
+        description: "A sleepy backwater.",
+        npcSpawns: [
+            { name: "Trader", shipType: "Keiship", shipImage: "ship_keiship.png", encounter: "civilian001", chance: 0.5,
+                stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } },
+            { name: "Taxi", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "civilian001", chance: 0.3,
+                stats: { hull: 10, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 } },
+            { name: "Desperate Pirate", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "herb01", chance: 0.1, isHostile: true,
+                stats: { hull: 10, armour: 8, handling: 20, firepower: 10, accuracy: 5, piloting: 10, weapon: 10 } }
+        ],
         pois: [
-
+            { name: "Roovy Farms", type: "Plant Farm", description: "" },
+            { name: "Salty's Hydroponics Inc", type: "Plant Farm", description: "" }
         ]
     }
 ];
+
 
 
 
