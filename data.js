@@ -2,13 +2,13 @@
 // NEW GAME DEFAULTS
 // ==========================================
 const newGameDefaults = {
-    startingCredits: 1000,
+    startingCredits: 10,
     startingSystemId: 0,
     startingSkills: {
-        piloting: 1000,
-        weapon: 1000,
-        engineer: 1000,
-        charm: 1000
+        piloting: 10,
+        weapon: 10,
+        engineer: 10,
+        charm: 10
     },
     storage: [],
     startingTasks: ["meet_bob"],
@@ -509,13 +509,6 @@ const quests = {
         targetSystemId: 8, 
         targetPoiName: "Bitz and Bobs Outfitters",
         xpReward: 20
-    },
-    "locus_attack": {
-        title: "Kill the Locus Leader",
-        description: "Fly to Barron Locus and destroy the cult leader  ",
-        targetSystemId: 7, 
-        targetPoiName: "Scary Raider Base",
-        xpReward: 200
     }
 };
 
@@ -769,7 +762,7 @@ const interactions = {
                 text: "\"Always. Here is our current most wanted list.\"",
                 generateBountyJobs: true,
                 bountyJobCount: 3,
-                bountyMaxDistance: 90,
+                bountyMaxDistance: 75,
                 bountyShips: "Weescow, Midgeito, Keiship",
                 bountyStats: { hull: 20, armour: 10, handling: 25, firepower: 15, accuracy: 10, piloting: 20, weapon: 20 },
                 options: [
@@ -782,7 +775,7 @@ const interactions = {
         image: "random_alien_023.png",
         dialogue: {
             "start": {
-                text: "Welcome to Bitz and Bobs Outfitters pilot! What can we you do for you today?",
+                text: "Welcome to Bitz and Bobs Outfitters pilot! What can we you do for you today? Need bigger cargo hold? Maybe a weapon upgrade to see off those pesky pirates? At Bitz and Bob's we have everything you need!",
                 options: [
                     { text: "Actually Uncle Bob sent me. Said you might be able to help me find a long range warp drive. Something strong enough to get me out of this sector?", nextNode: "bitz1", requiresFlag: "meet_bitz" },
                     { text: "Sounds great Bitz, I'll go check your catalogue! [Leave]", nextNode: "leave" }
@@ -792,20 +785,7 @@ const interactions = {
                 text: "Bob? hah! How is the old fella? Still running that dive bar of his? \n\nYeah I have some special drives in stock, but they are rare in these parts. It'll cost you 5000 credits.\n\nOr maybe you do a little job for me and I'll fit you one for free. How does that sound?",
                 options: [
                     { text: "That's a lotta clams Bitz, this drive better work. [PAY]", nextNode: "leave", credits: -5000, clearFlag: "meet_bitz", completeTask: "meet_bitz", rewardItem: "Drive T3" },
-                    { text: "What's the job?", nextNode: "bitz2" }
-                ]
-            },
-            "bitz2": {
-                text: "So glad you asked! Those Locus raiders are a blight on the sector. Loopy fanatics attacking everyone on sight, including my customers! They are starting to spread to other systems now and the authorities around here won't do anything about it. What do I even pay taxes for I ask you?\n\nAnyway, take care of those scumbags and I'll give the the drive you need. Take out their leader and the rest will scatter for sure.",
-                options: [
-                    { text: "I'll do it. Prepare to witness heroics! [LEAVE]", nextNode: "leave", clearFlag: "meet_bitz", startTask: "locus_attack", completeTask: "meet_bitz" },
-                    { text: "Oooh no thanks. That's sounds a bit dangerous. I'll come back with the cash.", nextNode: "bitz3" }
-                ]
-            },
-            "bitz3": {
-                text: "Well the offer stands if you change your mind. See you around.",
-                options: [
-                    { text: "Bye. [LEAVE]", nextNode: "leave" }
+                    { text: "What's the job?", nextNode: "leave" }
                 ]
             }
         }
@@ -834,23 +814,6 @@ const interactions = {
                 text: "It's the end. You reached the edge of the map. You have completed the starting area.\n\nIf this was on Steam, an achievement would pop up right now. \n\nPat yourself on the back gamer. You did good.\n\nCome back when Hendar23 has added more stuff.",
                 options: [
                     { text: "Okay. See you around I guess [LEAVE]", nextNode: "leave" }
-                ]
-            }
-        }
-    },
-    "Scary Raider Base": {
-        image: "portrait006.png",
-        dialogue: {
-            "start": {
-                text: "You dare to disturb our holy sanctum!",
-                options: [
-                    { text: "Yeah hi. I'd like to speak to the manager please?", nextNode: "SRB1" }
-                ]
-            },
-            "SRB1": {
-                text: "You will speak only to our righteous weapons!",
-                options: [
-                    { text: "[FIGHT]", nextNode: "leave", startCombat: true, customEnemy: { name: "Locus Guard", shipHull: "Locus Raider", image: "ship_raider001.png", stats: { hull: 40, armour: 15, handling: 30, firepower: 30, accuracy: 15, piloting: 30, weapon: 30 } } }
                 ]
             }
         }
@@ -1023,7 +986,7 @@ const galaxy = [
         ],
         pois: [
             { name: "Leonton Spaceport", type: "Trade Hub", image: "port003.png", description: "Smells like starship fuel, cheap narcotics, and desperation." },
-            { name: "The Full Burn Bar", type: "Outpost", image: "bar001.png", encounters: ["Uncle Bob"], description: "Leontons go to bar for visiting spacers. Uncle bob has run it as long as anyone can remember. " },
+            { name: "The Full Burn Bar", type: "Outpost", image: "bar001.png", encounters: ["Uncle Bob", "Brother Moo"], description: "Leontons go to bar for visiting spacers. Uncle bob has run it as long as anyone can remember. " },
             { name: "Herbies Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Varlo"], description: "Herbies Taxis HQ is a cheaply refurbished outpost." },
             { name: "System Security HQ", type: "Outpost", image: "station005.png", encounters: ["Officer Vangteel"], description: "Police headquarters for the Herbie system. " },
             { name: "Barlows Starship Emporium", type: "Ship Vendor", description: "Rows of battered old spaceships line a large storage hold. A plastifab shed serves as Barlow Office.", shipInventory: ["Weescow", "Midgeito", "Keiship"] },
@@ -1082,7 +1045,7 @@ const galaxy = [
                 stats: { hull: 40, armour: 15, handling: 30, firepower: 30, accuracy: 15, piloting: 20, weapon: 20 } }
         ],
         pois: [
-            { name: "Scary Raider Base", type: "Encounter", image: "station008.png", description: "" }
+            { name: "Scary Raider Base", type: "Outpost", image: "station001.png", description: "" }
         ]
     },
     {
@@ -1246,12 +1209,6 @@ const galaxy = [
         ]
     }
 ];
-
-
-
-
-
-
 
 
 
