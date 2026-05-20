@@ -941,16 +941,19 @@ const stationTypes = {
         consumes: { "Copper Ore": "High", "Iron Ore": "High", "Platinum Ore": "High", "Gold Ore": "High", "Packaged Food": "Low", "Machine Parts": "Low" }
     },
     "Silicon Refinery": {
+	defaultImage: "station010.png",
         description: "Intense chemical processes purify raw silicates into perfect wafers.",
         produces: ["Silicon Wafers"],
         consumes: { "Silicon Ore": "High", "Packaged Food": "Low", "Machine Parts": "Low" }
     },
     "Machine Parts Factory": {
+	defaultImage: "station011.png",
         description: "Automated arms assemble components at blinding speed.",
         produces: ["Machine Parts"],
         consumes: { "Copper Bars": "Average", "Iron Bars": "High", "Platinum Bars": "Average", "Packaged Food": "Low" }
     },
     "Chip Fab": {
+	defaultImage: "station012.png",
         description: "Dust-free cleanrooms manufacture high-tech circuitry.",
         produces: ["Microchips"],
         consumes: { "Silicon Wafers": "High", "Gold Bars": "High", "Machine Parts": "Low", "Packaged Food": "Low" }
