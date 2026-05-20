@@ -150,9 +150,6 @@
          </div>
 	<div id="tab-battle" class="hidden absolute inset-0 p-4 flex-col bg-gray-200">
             <div class="relative w-full h-64 bg-black border-4 border-black shrink-0 overflow-hidden shadow-xl">
-                <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-                    <line x1="0" y1="0" x2="100%" y2="100%" stroke="#333" stroke-width="4" stroke-dasharray="10 10"/>
-                </svg>
      
                 <div class="absolute left-3 bottom-3 h-4/5 w-4 border-2 border-gray-600 flex flex-col justify-end bg-gray-900">
                     <div id="battle-adv-player" class="w-full bg-blue-500 transition-all duration-300" style="height: 0%;"></div>
@@ -1506,6 +1503,12 @@
                      showTaskPopup("BOUNTY FAILED", {title: "Target Escaped", description: "You fled the engagement."});
                      player.activeBounty = null;
                  }
+                 
+                 // If we flee an ambush on approach, abort the arrival so we don't land at the base!
+                 if (currentPoi && currentPoi.type === 'Encounter' && currentEncounterName !== currentPoi.name) {
+                     currentPoi = null;
+                 }
+
                  document.getElementById('battle-commands').classList.add('hidden');
                  const btnCont = document.getElementById('battle-continue');
                  btnCont.classList.remove('hidden');
@@ -2867,10 +2870,12 @@
             ov.style.display = 'none';
 
             if (interceptor) {
-                // Bug 3 Fix: You are pulled out of warp! Prevent 'arriving' at the POI
-                currentPoi = null; 
+                if (dest && dest.type === 'Encounter') {
+                    currentPoi = dest;
+                } else {
+                    currentPoi = null; 
+                }
                 
-                // Instantly lock scanners and start fighting if there is no dialogue!
                 if (!interceptor.encounter || interceptor.encounter === 'undefined' || interceptor.encounter === '') {
                     currentEncounterDisplayName = interceptor.name;
                     startCombat();
