@@ -1241,17 +1241,70 @@
              saveGame(); 
          }
 
-	function startCombat() {
-             // 1. Find the specific NPC you are currently talking to using the DISPLAY name!
-             const enemyIndex = spawnedNPCs.findIndex(npc => npc.name === currentEncounterDisplayName);
+         function endCombatAndResume() {
+             const wasPoiEncounter = (currentPoi && currentPoi.type === 'Encounter' && currentEncounterName === currentPoi.name);
              
-             if (enemyIndex === -1) {
-                 console.log("Failsafe triggered: Enemy not found in ambient traffic.");
-                 return; 
+             currentEnemy = null;
+             combatWinEncounter = null;
+             currentEncounterName = null;
+             currentEncounterDisplayName = null;
+             currentEncounterImage = null;
+             currentDialogueNode = null;
+             
+             localView = 'menu';
+             
+             if (wasPoiEncounter) {
+                 triggerLocalTravel(-1);
+                 return;
+             }
+             
+             const nextHostileIndex = spawnedNPCs.findIndex(npc => npc.isHostile);
+             if (nextHostileIndex !== -1) {
+                 const nextHostile = spawnedNPCs[nextHostileIndex];
+                 nextHostile.isHostile = false; 
+                 startEncounter(nextHostile.encounter, nextHostile.name, nextHostile.image); 
+                 switchTab('local');
+             } else if (currentPoi && currentPoi.type === 'Encounter') {
+                 startEncounter(currentPoi.name);
+                 switchTab('local');
+             } else {
+                 setLocalView('menu');
+                 switchTab('local');
+             }
+         }
+
+         function startCombat(winEncounter = '', customEnemy = null) {
+             combatWinEncounter = winEncounter;
+             
+             if (customEnemy) {
+                 currentEnemy = {
+                     name: customEnemy.name || "Unknown Enemy",
+                     shipType: customEnemy.shipHull || "Unknown Class",
+                     shipImage: customEnemy.image || "default.png",
+                     isHostile: true,
+                     stats: customEnemy.stats || { hull: 50, armour: 20, handling: 10, firepower: 20, accuracy: 15, piloting: 15, weapon: 20 },
+                     xpValue: 150
+                 };
+             } else {
+                 // 1. Find the specific NPC you are currently talking to using the DISPLAY name!
+                 let enemyIndex = spawnedNPCs.findIndex(npc => npc.name === currentEncounterDisplayName);
+                 
+                 if (enemyIndex === -1) {
+                     const fallbackEnemy = {
+                         name: currentEncounterDisplayName,
+                         shipType: "Station / Unknown",
+                         shipImage: currentEncounterImage || "default.png",
+                         isHostile: true,
+                         stats: { hull: 50, armour: 20, handling: 10, firepower: 20, accuracy: 15, piloting: 15, weapon: 20 },
+                         xpValue: 100
+                     };
+                     spawnedNPCs.push(fallbackEnemy);
+                     enemyIndex = spawnedNPCs.length - 1;
+                 }
+                 currentEnemy = spawnedNPCs[enemyIndex];
              }
              
              // 2. Lock them into the combat variable and give them full health
-             currentEnemy = spawnedNPCs[enemyIndex];
              currentEnemy.currentHull = currentEnemy.stats.hull;
              
              // 3. Reset the Advantage meters
