@@ -725,7 +725,7 @@
              randomizeMarket();
          generateNPCs(); 
              document.getElementById('start-screen').style.display = 'none';
-             switchTab('map'); 
+             switchTab('map', true); 
              
              setTimeout(() => {
                  centerOnSystem(currentSystem);
@@ -806,7 +806,7 @@
                      if(Object.keys(currentMarketPrices).length === 0) randomizeMarket(); 
          
                      document.getElementById('start-screen').style.display = 'none';
-                     switchTab('map');
+                     switchTab('map', true);
                      setTimeout(() => {
                          centerOnSystem(currentSystem);
                      }, 100);
@@ -820,9 +820,9 @@
              }
          }
          
-         function switchTab(tabId) {
+         function switchTab(tabId, force = false) {
              // --- Prevent escaping encounters! ---
-             if (localView === 'encounter' && tabId !== 'battle') return; 
+             if (!force && localView === 'encounter' && tabId !== 'battle') return; 
              
              activeTab = tabId;
              
@@ -1263,13 +1263,13 @@
                  const nextHostile = spawnedNPCs[nextHostileIndex];
                  nextHostile.isHostile = false; 
                  startEncounter(nextHostile.encounter, nextHostile.name, nextHostile.image); 
-                 switchTab('local');
+                 switchTab('local', true);
              } else if (currentPoi && currentPoi.type === 'Encounter') {
                  startEncounter(currentPoi.name);
-                 switchTab('local');
+                 switchTab('local', true);
              } else {
                  setLocalView('menu');
-                 switchTab('local');
+                 switchTab('local', true);
              }
          }
 
@@ -1340,7 +1340,7 @@
              document.getElementById('battle-commands').classList.remove('hidden');
              document.getElementById('battle-continue').classList.add('hidden');
              updateBattleUI();
-             switchTab('battle');
+             switchTab('battle', true);
          }
 
          function doCombatRound(playerAction) {
@@ -1539,7 +1539,7 @@
                          currentEnemy = null;
                          combatWinEncounter = null;
                          startEncounter(nextEnc);
-                         switchTab('local');
+                         switchTab('local', true);
                      } else {
                          endCombatAndResume();
                      }
@@ -2864,8 +2864,6 @@
                      ov.style.display = 'none';
                      
                      if (interceptor) {
-                         switchTab('local');
-                         
                          // Instantly lock scanners and start fighting if there is no dialogue!
                          if (!interceptor.encounter || interceptor.encounter === 'undefined' || interceptor.encounter === '') {
                              currentEncounterDisplayName = interceptor.name;
@@ -2873,11 +2871,14 @@
                          } else {
                              interceptor.isHostile = false; 
                              startEncounter(interceptor.encounter, interceptor.name, interceptor.image);
+                             switchTab('local', true);
                          }
                      } else if (currentPoi && currentPoi.type === 'Encounter') {
                          startEncounter(currentPoi.name);
+                         switchTab('local', true);
                      } else {
                          setLocalView('menu'); 
+                         switchTab('local', true);
                      }
                      
                      if (activeTab === 'map') renderMap();
