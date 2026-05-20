@@ -782,7 +782,7 @@ const interactions = {
         image: "random_alien_023.png",
         dialogue: {
             "start": {
-                text: "Welcome to Bitz and Bobs Outfitters pilot! What can we you do for you today? Need bigger cargo hold? Maybe a weapon upgrade to see off those pesky pirates? At Bitz and Bob's we have everything you need!",
+                text: "Welcome to Bitz and Bobs Outfitters pilot! What can we you do for you today?",
                 options: [
                     { text: "Actually Uncle Bob sent me. Said you might be able to help me find a long range warp drive. Something strong enough to get me out of this sector?", nextNode: "bitz1", requiresFlag: "meet_bitz" },
                     { text: "Sounds great Bitz, I'll go check your catalogue! [Leave]", nextNode: "leave" }
@@ -842,9 +842,15 @@ const interactions = {
         image: "portrait006.png",
         dialogue: {
             "start": {
-                text: "Hello",
+                text: "You dare to disturb our holy sanctum!",
                 options: [
-                    { text: "[LEAVE]", nextNode: "leave" }
+                    { text: "Yeah hi. I'd like to speak to the manager please?", nextNode: "SRB1" }
+                ]
+            },
+            "SRB1": {
+                text: "You will speak only to our righteous weapons!",
+                options: [
+                    { text: "[FIGHT]", nextNode: "leave", startCombat: true, customEnemy: { name: "Locus Guard", shipHull: "Locus Raider", image: "ship_raider001.png", stats: { hull: 40, armour: 15, handling: 30, firepower: 30, accuracy: 15, piloting: 30, weapon: 30 } } }
                 ]
             }
         }
@@ -1240,6 +1246,7 @@ const galaxy = [
         ]
     }
 ];
+
 
 
 
