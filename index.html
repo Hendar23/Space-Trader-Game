@@ -825,12 +825,6 @@
              if (!force && localView === 'encounter' && tabId !== 'battle') return; 
              
              activeTab = tabId;
-             
-             if (currentPoi && currentPoi.type === 'Encounter') {
-                 localView = 'encounter';
-             } else {
-                 localView = 'menu';
-             }
          
              ['map', 'local', 'ship', 'player', 'tasks', 'battle'].forEach(id => {
                  const el = document.getElementById(`tab-${id}`);
@@ -1233,6 +1227,9 @@
                      triggerLocalTravel(-1); 
                  } else {
                      setLocalView('menu'); 
+                     if (currentPoi === null) {
+                         switchTab('map', true);
+                     }
                  }
              } else {
                  currentDialogueNode = nextNode; 
@@ -1269,7 +1266,11 @@
                  switchTab('local', true);
              } else {
                  setLocalView('menu');
-                 switchTab('local', true);
+                 if (currentPoi === null) {
+                     switchTab('map', true);
+                 } else {
+                     switchTab('local', true);
+                 }
              }
          }
 
@@ -2806,86 +2807,103 @@
          }
          
          function triggerLocalTravel(i) {
-             const dest = i === -1 ? null : currentSystem.pois[i];
-             triggerTravel(dest, dest ? `APPROACHING ${dest.name}` : "DEPARTING STATION", 1000);
-         }
+    const dest = i === -1 ? null : currentSystem.pois[i];
+    // Pass true to `isLeavingPOI` if we are launching (i === -1)
+    triggerTravel(dest, dest ? `APPROACHING ${dest.name}` : "DEPARTING STATION", 1000, i === -1);
+}
          
-         function triggerTravel(dest, msg, dur) {
-             localEncounterMemory = {}; 
-             
-             // --- NEW: Generate NPCs FIRST so we can check for ambushes! ---
-             generateNPCs(); 
-             
-             const hostileIndex = spawnedNPCs.findIndex(npc => npc.isHostile);
-             let interceptor = null;
-             
-             const ov = document.getElementById('travel-overlay');
-             const bar = document.getElementById('progress-bar');
-             const travelText = document.getElementById('travel-text');
-             const warnBox = document.getElementById('interdiction-warning');
-             const warnImg = document.getElementById('interdiction-image');
-             const warnName = document.getElementById('interdiction-name');
-             
-             if (hostileIndex !== -1) {
-                 interceptor = spawnedNPCs[hostileIndex];
-                 msg = "INTERDICTION DETECTED!";
-                 travelText.classList.add('text-red-600');
-                 
-                 // Show the hull of the ship that is intercepting them
-                 let interceptorImage = interceptor.shipImage;
-                 if (!interceptorImage) {
-                     const hullData = shipHulls[interceptor.shipType] || {};
-                     interceptorImage = hullData.image || 'default.png';
-                 }
-                 warnImg.src = `assets/${interceptorImage}`;
-                 warnName.innerHTML = `${interceptor.name}<br><span class="text-base text-black">Class: ${interceptor.shipType}</span>`;
-		 
-		 dur = 2500               
+         function triggerTravel(dest, msg, dur, isLeavingPOI = false) {
+    localEncounterMemory = {};
 
-                 warnBox.classList.remove('hidden');
-                 warnBox.classList.add('flex');
-             } else {
-                 travelText.classList.remove('text-red-600');
-                 warnBox.classList.add('hidden');
-                 warnBox.classList.remove('flex');
-             }
-             
-             travelText.innerText = msg;
-             ov.style.display = 'flex';
-             
-             let start = Date.now();
-             let t = setInterval(() => {
-                 let pc = ((Date.now() - start) / dur) * 100;
-                 bar.style.width = pc + "%";
-                 
-                 if (pc >= 100) { 
-                     clearInterval(t); 
-                     currentPoi = dest; 
-                     ov.style.display = 'none';
-                     
-                     if (interceptor) {
-                         // Instantly lock scanners and start fighting if there is no dialogue!
-                         if (!interceptor.encounter || interceptor.encounter === 'undefined' || interceptor.encounter === '') {
-                             currentEncounterDisplayName = interceptor.name;
-                             startCombat();
-                         } else {
-                             interceptor.isHostile = false; 
-                             startEncounter(interceptor.encounter, interceptor.name, interceptor.image);
-                             switchTab('local', true);
-                         }
-                     } else if (currentPoi && currentPoi.type === 'Encounter') {
-                         startEncounter(currentPoi.name);
-                         switchTab('local', true);
-                     } else {
-                         setLocalView('menu'); 
-                         switchTab('local', true);
-                     }
-                     
-                     if (activeTab === 'map') renderMap();
-                     saveGame(); 
-                 }
-             }, 30);
-         }
+    let interceptor = null;
+    
+    // Bug 1 Fix: Do not advance time or trigger interdictions if just leaving a POI
+    if (!isLeavingPOI) {
+        generateNPCs();
+        const hostileIndex = spawnedNPCs.findIndex(npc => npc.isHostile);
+        if (hostileIndex !== -1) {
+            interceptor = spawnedNPCs[hostileIndex];
+        }
+    }
+
+    const ov = document.getElementById('travel-overlay');
+    const bar = document.getElementById('progress-bar');
+    const travelText = document.getElementById('travel-text');
+    const warnBox = document.getElementById('interdiction-warning');
+    const warnImg = document.getElementById('interdiction-image');
+    const warnName = document.getElementById('interdiction-name');
+
+    if (interceptor) {
+        msg = "INTERDICTION DETECTED!";
+        travelText.classList.add('text-red-600');
+
+        let interceptorImage = interceptor.shipImage;
+        if (!interceptorImage) {
+            const hullData = shipHulls[interceptor.shipType] || {};
+            interceptorImage = hullData.image || 'default.png';
+        }
+        warnImg.src = `assets/${interceptorImage}`;
+        warnName.innerHTML = `${interceptor.name}<br><span class="text-base text-black">Class: ${interceptor.shipType}</span>`;
+
+        dur = 2500;
+        warnBox.classList.remove('hidden');
+        warnBox.classList.add('flex');
+    } else {
+        travelText.classList.remove('text-red-600');
+        warnBox.classList.add('hidden');
+        warnBox.classList.remove('flex');
+    }
+
+    travelText.innerText = msg;
+    ov.style.display = 'flex';
+
+    let start = Date.now();
+    let t = setInterval(() => {
+        let pc = ((Date.now() - start) / dur) * 100;
+        bar.style.width = pc + "%";
+
+        if (pc >= 100) {
+            clearInterval(t);
+            ov.style.display = 'none';
+
+            if (interceptor) {
+                // Bug 3 Fix: You are pulled out of warp! Prevent 'arriving' at the POI
+                currentPoi = null; 
+                
+                // Instantly lock scanners and start fighting if there is no dialogue!
+                if (!interceptor.encounter || interceptor.encounter === 'undefined' || interceptor.encounter === '') {
+                    currentEncounterDisplayName = interceptor.name;
+                    startCombat();
+                } else {
+                    interceptor.isHostile = false;
+                    startEncounter(interceptor.encounter, interceptor.name, interceptor.image);
+                    switchTab('local', true);
+                }
+            } else if (dest && dest.type === 'Encounter') {
+                currentPoi = dest;
+                startEncounter(currentPoi.name);
+                switchTab('local', true);
+            } else {
+                currentPoi = dest;
+                setLocalView('menu');
+                
+                if (dest !== null) {
+                    switchTab('local', true);
+                } else {
+                    // Bug 2 Fix: Enforce correct tab based on travel type
+                    if (isLeavingPOI) {
+                        switchTab('local', true); // Launching drops you to local system view
+                    } else {
+                        switchTab('map', true); // System jumps keep you on map
+                    }
+                }
+            }
+
+            if (activeTab === 'map') renderMap();
+            saveGame();
+        }
+    }, 30);
+}
          
          function renderNPCButtons() {
              let html = '';
@@ -2943,34 +2961,39 @@
          }
          
          function handleUp(x, y) {
-             if (!isDragging || activeTab !== 'map') return;
-             isDragging = false;
-             
-             if (!dragThreshold) {
-                 const r = canvas.getBoundingClientRect();
-                 const wx = ((x - r.left) + camera.x) / camera.zoom;
-                 const wy = ((y - r.top) + camera.y) / camera.zoom;
-                 
-                 galaxy.forEach(s => {
-                     const d = Math.sqrt((wx - s.x * drawScale)**2 + (wy - s.y * drawScale)**2);
-                     
-                     // If we clicked on a star node
-                     if (d < 20 / camera.zoom) {
-                         if (s.id === currentSystem.id) {
-                             switchTab('local');
-                         } else {
-                             // Existing logic: If it's a different system, try to warp there
-                             if (Math.sqrt((currentSystem.x - s.x)**2 + (currentSystem.y - s.y)**2) <= jumpRange) {
-                                 currentSystem = s; 
-                                 centerOnSystem(s); 
-                                 randomizeMarket(); // Market fluctuates when jumping to a new star
-                                 triggerTravel(null, `WARPING TO ${s.name}`, 2500);
-                             }
-                         }
-                     }
-                 });
-             }
-         }
+    if (!isDragging || activeTab !== 'map') return;
+    isDragging = false;
+    
+    if (!dragThreshold) {
+        const r = canvas.getBoundingClientRect();
+        const wx = ((x - r.left) + camera.x) / camera.zoom;
+        const wy = ((y - r.top) + camera.y) / camera.zoom;
+        
+        // Find the system closest to the click rather than looping all
+        let clickedSystem = null;
+        galaxy.forEach(s => {
+            const d = Math.sqrt((wx - s.x * drawScale)**2 + (wy - s.y * drawScale)**2);
+            if (d < 20 / camera.zoom) {
+                clickedSystem = s;
+            }
+        });
+
+        if (clickedSystem) {
+            if (clickedSystem.id === currentSystem.id) {
+                switchTab('local');
+            } else {
+                if (Math.sqrt((currentSystem.x - clickedSystem.x)**2 + (currentSystem.y - clickedSystem.y)**2) <= jumpRange) {
+                    currentSystem = clickedSystem;
+                    centerOnSystem(clickedSystem);
+                    randomizeMarket(); 
+                    
+                    // Pass false to explicitly allow time advancement/interdictions
+                    triggerTravel(null, `WARPING TO ${clickedSystem.name}`, 2500, false);
+                }
+            }
+        }
+    }
+}
          
          canvas.addEventListener('wheel', e => {
              if (activeTab !== 'map') return; e.preventDefault();
