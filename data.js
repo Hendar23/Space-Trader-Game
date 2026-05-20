@@ -769,7 +769,7 @@ const interactions = {
                 text: "\"Always. Here is our current most wanted list.\"",
                 generateBountyJobs: true,
                 bountyJobCount: 3,
-                bountyMaxDistance: 75,
+                bountyMaxDistance: 90,
                 bountyShips: "Weescow, Midgeito, Keiship",
                 bountyStats: { hull: 20, armour: 10, handling: 25, firepower: 15, accuracy: 10, piloting: 20, weapon: 20 },
                 options: [
@@ -923,11 +923,13 @@ const stationTypes = {
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
     },
     "Silicon Mine": {
+	defaultImage: "mine005.png",
         description: "Silicate dust coats every surface of this extraction facility.",
         produces: ["Silicon Ore"],
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
     },
     "Gold Mine": {
+	defaultImage: "mine006.png",
         description: "An asteroid facility mining gold.",
         produces: ["Gold Ore"],
         consumes: { "Packaged Food": "Low", "Machine Parts": "Low" }
@@ -1224,6 +1226,7 @@ const galaxy = [
         ]
     }
 ];
+
 
 
 
