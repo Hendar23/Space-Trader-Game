@@ -1258,7 +1258,27 @@ const galaxy = [
     }
 ];
 
-
+// ==========================================
+// HELP DATABASE
+// ==========================================
+const helpDatabase = [
+    { 
+        title: "COMBAT MECHANICS", 
+        text: "Combat is resolved in rounds. Choosing <strong>ATTACK</strong> pits your Firepower and Weapons skill against the enemy's defenses. Choosing <strong>MANOEUVRE</strong> builds your Advantage meter, which grants massive bonuses to future rolls. If your hull reaches 0, your ship is destroyed." 
+    },
+    { 
+        title: "TRADING & COMMODITIES", 
+        text: "Different stations produce and consume specific goods. Check the local market to buy goods where they are cheap, and warp to a station that demands them to sell for a profit." 
+    },
+    { 
+        title: "MISSIONS & BOUNTIES", 
+        text: "Check local Outposts or Security HQs to pick up Taxi fares and Bounty Hunting contracts. Bounties require you to track down a specific hostile ship, while Taxi fares require you to safely transport a client between stations." 
+    },
+    { 
+        title: "SHIP OUTFITTING", 
+        text: "Visit Outfitter stations to upgrade your Warp Drive, Armour, Thrusters, Weapons, and Cargo Bays. You can also purchase entire new ship hulls at Ship Vendors." 
+    }
+];
 
 
 

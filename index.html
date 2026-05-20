@@ -68,6 +68,7 @@
          <div class="w-full max-w-sm space-y-4">
             <button class="btn !text-2xl !py-6" onclick="startNewGame()">NEW</button>
             <button id="btn-load-game" class="btn !text-2xl !py-6" onclick="loadGame()" disabled>CONTINUE</button>
+            <button class="btn !text-2xl !py-6" onclick="showHelpScreen()">HELP</button>
          </div>
       </div>
       <div class="bg-black text-white p-3 text-xl font-bold uppercase flex justify-between items-center shrink-0">
@@ -250,12 +251,10 @@
          function randomizeMarket() {
          	for (let item in commodities) {
          		const comm = commodities[item];
-         		// Creates a random volatility modifier between 85% and 115%
          		const volatility = 0.85 + (Math.random() * 0.30);
          	
          		let volatilePrice = Math.floor(comm.basePrice * volatility);
          
-         		// Clamp the price strictly within the min and max bounds
          		if (comm.min !== undefined && volatilePrice < comm.min) volatilePrice = comm.min;
          		if (comm.max !== undefined && volatilePrice > comm.max) volatilePrice = comm.max;
          
@@ -271,19 +270,16 @@
                          let finalName = spawn.name;
                          let finalImage = null;
                          
-                         // 1. Check for the "Total Random" keyword
                          if (finalName.toLowerCase() === 'random') {
                              const randomChar = generateRandomCharacter();
                              finalName = randomChar.name;
                              finalImage = randomChar.image;
                          }
                          
-                         // If the ship doesn't have a face yet, check the encounter data
                          if (!finalImage && spawn.encounter) {
                              const encData = interactions[spawn.encounter] || {};
                              let baseImg = encData.image || 'default.png';
                              
-                             // Roll the dice NOW, before the player ever clicks on them
                              if (Array.isArray(baseImg)) {
                                  finalImage = baseImg[Math.floor(Math.random() * baseImg.length)];
                              } else if (baseImg === 'random') {
@@ -293,11 +289,9 @@
                              }
                          }
                          
-                         // --- Fallback stats just in case you forget to add them in data.js ---
                          const defaultStats = { hull: 20, armour: 10, handling: 20, firepower: 10, accuracy: 0, piloting: 20, weapon: 20 };
                          
                          let finalStats = spawn.stats ? JSON.parse(JSON.stringify(spawn.stats)) : defaultStats;
-                         // Calculate an XP bounty based on their combat stats
                          let shipXp = Math.floor((finalStats.hull + finalStats.firepower + finalStats.piloting) / 2);
                          
                          spawnedNPCs.push({
@@ -314,7 +308,6 @@
                  });
              }
 
-             // --- INJECT ACTIVE BOUNTY ---
              if (player.activeBounty && currentSystem.id === player.activeBounty.targetSysId) {
                  const b = player.activeBounty;
                  const hullData = shipHulls[b.shipHull] || {};
@@ -324,7 +317,7 @@
                      shipType: b.shipHull,
                      shipImage: hullData.image || "default.png",
                      encounter: "SYSTEM_BOUNTY_TARGET",
-                     isHostile: false, // Wait for player to initiate
+                     isHostile: false, 
                      image: b.targetImage,
                      stats: b.stats,
                      xpValue: b.xpReward,
@@ -352,10 +345,8 @@
          }
          
          function getPoiDescription(poi) {
-             // 1. Check if the specific station in the galaxy array has a custom description override
              if (poi.description) return poi.description;
              
-             // 2. Otherwise, fetch the default description for this type from data.js
              const config = stationTypes[poi.type] || {};
              return config.description || `DEFAULT`;
          }
@@ -374,12 +365,10 @@
              const first = firstNames[Math.floor(Math.random() * firstNames.length)];
              const last = lastNames[Math.floor(Math.random() * lastNames.length)];
              
-             // It defaults to 0 if you haven't set the variable yet
              const maxImages = typeof TOTAL_ALIEN_PORTRAITS !== 'undefined' ? TOTAL_ALIEN_PORTRAITS : 0; 
              
              let generatedImage = "default.png";
              
-             // Only try to generate an alien image if the count is greater than 0
              if (maxImages > 0) {
                  const randomNum = Math.floor(Math.random() * maxImages) + 1;
                  const paddedNum = String(randomNum).padStart(3, '0'); 
@@ -419,7 +408,6 @@
                      if (mod.stat && base[mod.stat] !== undefined) {
                          base[mod.stat] += mod.flatBonus;
                      }
-                     // --- NEW: Add the module's weight to the total! ---
                      if (mod.weight !== undefined) {
                          base.weight += mod.weight;
                      }
@@ -451,7 +439,6 @@
              };
          }
          
-                  // --- BOUNTY SYSTEM ---
          function generateBountyJob(maxDist, shipsStr, baseStats) {
              let targetSys;
              let distToTarget = 0;
@@ -468,7 +455,6 @@
              const shipHull = ships[Math.floor(Math.random() * ships.length)] || "Weescow";
              const pilot = generateRandomCharacter();
 
-             // Randomize stats by +/- 20%
              const randomizeStat = (val) => Math.max(1, Math.floor(val * (0.8 + Math.random() * 0.4)));
              const finalStats = {
                  hull: randomizeStat(baseStats.hull || 15),
@@ -481,7 +467,7 @@
              };
 
              const statSum = Object.values(finalStats).reduce((a,b)=>a+b, 0);
-             const baseReward = Math.round(statSum * 1 + distToTarget * 0.25); // Scaled down by factor of 10
+             const baseReward = Math.round(statSum * 1 + distToTarget * 0.25); 
              const charmBonus = (player.skills && player.skills.charm !== undefined) ? player.skills.charm : 10;
              const reward = Math.round(baseReward * (1 + (charmBonus / 100)));
              const crimeList = typeof bountyCrimes !== 'undefined' ? bountyCrimes : ["Piracy", "Smuggling"];
@@ -518,43 +504,32 @@
              let distToPickup = 0, distToDropoff = 0, totalTripDist = 0;
              let attempts = 0;
              
-             // 1. Pick a pickup location within maxDist of the CURRENT SYSTEM
              do {
                  pickupSys = galaxy[Math.floor(Math.random() * galaxy.length)];
-                 
-                 // NEW: Filter out Outposts and Encounters
                  const validPois = pickupSys.pois.filter(p => p.type !== 'Outpost' && p.type !== 'Encounter');
                  if (validPois.length > 0) {
                      pickupPoi = validPois[Math.floor(Math.random() * validPois.length)];
                  } else {
-                     pickupPoi = null; // Force loop to retry if system only has invalid locations
+                     pickupPoi = null; 
                  }
-                 
                  distToPickup = Math.sqrt((currentSystem.x - pickupSys.x)**2 + (currentSystem.y - pickupSys.y)**2);
                  attempts++;
              } while ((!pickupPoi || distToPickup > maxDist) && attempts < 100);
          
-             // 2. Pick a dropoff location within maxDist of the CURRENT SYSTEM
              attempts = 0;
              do {
                  dropoffSys = galaxy[Math.floor(Math.random() * galaxy.length)];
-                 
-                 // NEW: Filter out Outposts and Encounters
                  const validPois = dropoffSys.pois.filter(p => p.type !== 'Outpost' && p.type !== 'Encounter');
                  if (validPois.length > 0) {
                      dropoffPoi = validPois[Math.floor(Math.random() * validPois.length)];
                  } else {
                      dropoffPoi = null;
                  }
-                 
                  distToDropoff = Math.sqrt((currentSystem.x - dropoffSys.x)**2 + (currentSystem.y - dropoffSys.y)**2);
-                 
-                 // Calculate the actual trip distance for the reward payout
                  totalTripDist = Math.sqrt((pickupSys.x - dropoffSys.x)**2 + (pickupSys.y - dropoffSys.y)**2);
                  attempts++;
              } while ((!dropoffPoi || (dropoffSys.id === pickupSys.id && dropoffPoi.name === pickupPoi.name) || distToDropoff > maxDist) && attempts < 100);
          
-             // Fallbacks in case the system is totally isolated
              if (!pickupPoi) { 
                  pickupSys = currentSystem; 
                  pickupPoi = currentSystem.pois.find(p => p.type !== 'Outpost' && p.type !== 'Encounter') || galaxy[0].pois[0]; 
@@ -564,14 +539,11 @@
                  dropoffPoi = currentSystem.pois.find(p => p.type !== 'Outpost' && p.type !== 'Encounter') || galaxy[0].pois[0]; 
              }
          
-             // --- UPDATED REWARD LOGIC ---
-             // Combine both the "deadhead" flight to the pickup and the actual trip distance.
-             // Reduced the base fee from 100 to 10, and the distance multiplier from 5 to 0.5 (1/10th the old payout scale).
              const totalDistance = distToPickup + totalTripDist;
              const baseReward = Math.round(10 + (totalDistance * 0.5));
              const charmBonus = (player.skills && player.skills.charm !== undefined) ? player.skills.charm : 10;
              const reward = Math.round(baseReward * (1 + (charmBonus / 100)));
-             const xpReward = Math.round(5 + (totalDistance * 0.25)); // XP scales with distance too
+             const xpReward = Math.round(5 + (totalDistance * 0.25)); 
              
              const client = generateRandomCharacter();
              
@@ -591,10 +563,8 @@
              player.activeTaxi = job; 
              player.tasks['taxi_mission'] = 'active';
          
-             // Point the mission tracker to the PICKUP location
              quests['taxi_mission'] = {
                  title: `Taxi: Pick up ${job.client.name}`,
-                 // --- UPDATED: Shortened description for Phase 1 ---
                  description: `Pick up ${job.client.name} from ${job.pickupPoiName} in the ${job.pickupSysName} system.`,
                  targetSystemId: job.pickupSysId,
                  targetPoiName: job.pickupPoiName
@@ -610,18 +580,16 @@
             currentEncounterDisplayName = player.activeTaxi.client.name;
             currentEncounterImage = player.activeTaxi.client.image;
             
-            // 1. Build the encounter text first
             interactions[currentEncounterName] = {
                 image: player.activeTaxi.client.image,
                 dialogue: {
                     "start": {
                         text: `"${player.activeTaxi.pickupText}"<br><br><span class="text-blue-600 font-bold">${player.activeTaxi.client.name} boards your ship.</span>`,
-                        options: [{ text: "Strap in. [Leave]", nextNode: "leave" }] // Removed completePickup flag
+                        options: [{ text: "Strap in. [Leave]", nextNode: "leave" }] 
                     }
                 }
             };
             
-            // 2. Instantly update the quest tracker and map marker
             completeTaxiPickup();
          
             currentDialogueNode = 'start';
@@ -629,10 +597,8 @@
          }
          
          function completeTaxiPickup() {
-             // Shift the phase to dropoff and redirect the map marker!
              player.activeTaxi.status = 'dropoff';
              quests['taxi_mission'].title = `Taxi: Deliver ${player.activeTaxi.client.name}`;
-             // --- Update the description for Phase 2 ---
              quests['taxi_mission'].description = `Deliver ${player.activeTaxi.client.name} to ${player.activeTaxi.dropoffPoiName} in the ${player.activeTaxi.dropoffSysName} system.`;
              quests['taxi_mission'].targetSystemId = player.activeTaxi.dropoffSysId;
              quests['taxi_mission'].targetPoiName = player.activeTaxi.dropoffPoiName;
@@ -644,7 +610,6 @@
             currentEncounterDisplayName = player.activeTaxi.client.name;
             currentEncounterImage = player.activeTaxi.client.image;
             
-            // 1. Build the encounter text while the passenger data still exists
             interactions[currentEncounterName] = {
                 image: player.activeTaxi.client.image,
                 dialogue: {
@@ -655,10 +620,8 @@
                 }
             };
             
-            // 2. Instantly process the payout and clear the passenger
             completeTaxiDropoff();
          
-            // 3. Draw the screen (which will instantly show the new credits in the top bar)
             currentDialogueNode = 'start';
             setLocalView('encounter');
          }
@@ -685,7 +648,6 @@
                  return alert("data.js missing or incomplete!");
              }
              
-             // --- Prevent accidental save wipes ---
              if (!force && localStorage.getItem('spaceTraderSaveV4')) {
                  document.getElementById('new-game-modal').classList.remove('hidden');
                  document.getElementById('new-game-modal').classList.add('flex');
@@ -706,7 +668,6 @@
                  ship: startingShipClone
              };
              
-             // Initialize starting tasks
              if (newGameDefaults.startingTasks) {
                  newGameDefaults.startingTasks.forEach(taskId => {
                      player.tasks[taskId] = 'active';
@@ -716,7 +677,6 @@
          const initialStats = getShipStats(player.ship);
              player.ship.currentHull = initialStats.maxHull;
              
-             // Find the system matching the starting ID, fallback to the first system if not found
              currentSystem = galaxy.find(s => s.id === newGameDefaults.startingSystemId) || galaxy[0];
              
              randomizeMarket();
@@ -730,11 +690,9 @@
          }
          
          function centerOnSystem(sys) {
-         // 1. Find out exactly how big the container is right now
          const screenWidth = canvas.parentElement.clientWidth;
          const screenHeight = canvas.parentElement.clientHeight;
          
-         // 2. Use those dimensions to perfectly center the camera
          camera.x = (sys.x * drawScale * camera.zoom) - (screenWidth / 2);
          camera.y = (sys.y * drawScale * camera.zoom) - (screenHeight / 2);
          
@@ -753,13 +711,11 @@
                  if (data && typeof galaxy !== 'undefined') {
                      player = data.player;
                      
-                     // Safety checks to ensure core player objects exist
                      player.flags = player.flags || {};
                      player.tasks = player.tasks || {};
                      player.skills = player.skills || { piloting: 10, weapon: 10, engineer: 10, charm: 10 };
                      if (player.skills.charm === undefined) player.skills.charm = 10;
          
-                     // Reconstruct active taxi mission quest data
                                           if (player.activeBounty) {
                          quests['bounty_mission'] = {
                              title: `Bounty: ${player.activeBounty.targetName}`,
@@ -768,16 +724,13 @@
                          };
                      }
                      if (player.activeTaxi) {
-                         // Failsafe: If it's an old or broken save format, wipe the passenger to prevent crashes
                          if (!player.activeTaxi.client || !player.activeTaxi.client.name || !player.activeTaxi.status) {
                              player.activeTaxi = null;
                              delete player.tasks['taxi_mission'];
                          } 
-                         // Otherwise, load the new two-phase mission properly
                          else if (player.activeTaxi.status === 'pickup') {
                              quests['taxi_mission'] = {
                                  title: `Taxi: Pick up ${player.activeTaxi.client.name}`,
-                                 // --- UPDATED ---
                                  description: `Pick up ${player.activeTaxi.client.name} from ${player.activeTaxi.pickupPoiName} in the ${player.activeTaxi.pickupSysName} system.`,
                                  targetSystemId: player.activeTaxi.pickupSysId,
                                  targetPoiName: player.activeTaxi.pickupPoiName 
@@ -785,7 +738,6 @@
                          } else {
                              quests['taxi_mission'] = {
                                  title: `Taxi: Deliver ${player.activeTaxi.client.name}`,
-                                 // --- UPDATED ---
                                  description: `Deliver ${player.activeTaxi.client.name} to ${player.activeTaxi.dropoffPoiName} in the ${player.activeTaxi.dropoffSysName} system.`,
                                  targetSystemId: player.activeTaxi.dropoffSysId,
                                  targetPoiName: player.activeTaxi.dropoffPoiName 
@@ -809,7 +761,6 @@
                      }, 100);
                  }
              } catch (err) {
-                 // If anything goes wrong, catch the error, wipe the broken save, and warn the player
                  console.error("Save file corrupted, resetting...", err);
                  localStorage.removeItem('spaceTraderSaveV4');
                  alert("Old save file was incompatible and has been cleared. Please start a New Game.");
@@ -818,7 +769,6 @@
          }
          
          function switchTab(tabId, force = false) {
-             // --- Prevent escaping encounters! ---
              if (!force && localView === 'encounter' && tabId !== 'battle') return; 
              
              activeTab = tabId;
@@ -830,7 +780,6 @@
                  if (btn) btn.classList.toggle('tab-active', id === tabId);
              });
              
-             // --- Hide the bottom nav if we are in battle! ---
              const bottomNav = document.getElementById('bottom-nav-bar');
              if (bottomNav) {
                  bottomNav.style.display = (tabId === 'battle') ? 'none' : 'flex';
@@ -845,7 +794,7 @@
              updateUI();
          }
          
-         let toastTimeout; // Keeps track of the timer so multiple popups don't glitch
+         let toastTimeout; 
          let xpToastTimeout; 
          
          function showXpPopup(xpAmount, sourceText) {
@@ -855,14 +804,12 @@
              
              descEl.innerText = `+${xpAmount} XP (${sourceText})`;
              
-             // Reset any previous drop classes
              toast.classList.remove('-translate-y-full', 'translate-y-4', 'translate-y-40');
              
-             // Check if the Task Toast is currently on screen
              if (taskToast.classList.contains('translate-y-4')) {
-                 toast.classList.add('translate-y-40'); // Drop lower to avoid collision
+                 toast.classList.add('translate-y-40'); 
              } else {
-                 toast.classList.add('translate-y-4'); // Take the standard top spot
+                 toast.classList.add('translate-y-4'); 
              }
              
              if (xpToastTimeout) clearTimeout(xpToastTimeout);
@@ -889,11 +836,9 @@
                  descEl.innerText = questData.description;
              }
          
-             // Slide the toast down into view
              toast.classList.remove('-translate-y-full');
              toast.classList.add('translate-y-4'); 
              
-             // --- NEW: If the XP toast is currently at the top, bump it down! ---
              if (xpToast.classList.contains('translate-y-4')) {
                  xpToast.classList.remove('translate-y-4');
                  xpToast.classList.add('translate-y-40');
@@ -931,7 +876,6 @@
              if (!imageCache[src]) {
                  imageCache[src] = new Image();
                  imageCache[src].src = "assets/" + src;
-                 // Force a map redraw once the image actually finishes loading
                  imageCache[src].onload = () => { if (activeTab === 'map') renderMap(); }; 
              }
              if (imageCache[src].complete && imageCache[src].naturalWidth > 0) {
@@ -950,10 +894,8 @@
              ctx.translate(-camera.x, -camera.y);
              ctx.scale(camera.zoom, camera.zoom);
              
-             // --- Draw Parallax Backgrounds First ---
              if (typeof mapBackgrounds !== 'undefined') {
                  mapBackgrounds.forEach(bg => {
-                     // Scale the coordinates and sizes up by drawScale so they match the stars perfectly!
                      drawCachedImage(ctx, bg.image, bg.x * drawScale, bg.y * drawScale, bg.width * drawScale, bg.height * drawScale, bg.alpha);
                  });
              }
@@ -962,7 +904,6 @@
              const cy = currentSystem.y * drawScale;
              ctx.beginPath();
              ctx.arc(cx, cy, jumpRange * drawScale, 0, Math.PI * 2);
-		// Removed the range circle with comments for now
              ctx.fillStyle = "rgba(0, 0, 0, 0.03)"; ctx.fill();
              ctx.strokeStyle = "#888888"; ctx.lineWidth = 2 / camera.zoom;
              ctx.setLineDash([5 / camera.zoom, 5 / camera.zoom]); ctx.stroke(); ctx.setLineDash([]);
@@ -997,7 +938,7 @@
                              const ty = targetSys.y * drawScale;
                              ctx.beginPath();
                              ctx.arc(tx, ty, 16 / camera.zoom, 0, Math.PI * 2);
-                             ctx.strokeStyle = "#2563eb"; // Changed to bright blue!
+                             ctx.strokeStyle = "#2563eb"; 
                              ctx.lineWidth = 4 / camera.zoom;
                              ctx.stroke();
                          }
@@ -1011,14 +952,12 @@
              const comm = commodities[itemName];
              const base = comm.basePrice;
              
-             // Fallbacks included just in case a commodity is missing min/max data
              const min = comm.min || (base * 0.6); 
              const max = comm.max || (base * 1.5);
          
              let arrow = "■", color = "text-gray-400";
              
              if (price > base) {
-                 // Calculate how far the price has climbed toward the maximum
                  const ratio = (price - base) / (max - base);
                  
                  if (ratio >= 0.66) { arrow = "▲▲▲"; color = view === 'buy' ? "text-red-600" : "text-green-600"; }
@@ -1026,7 +965,6 @@
                  else if (ratio > 0.05) { arrow = "▲"; color = view === 'buy' ? "text-red-600" : "text-green-600"; }
                  
              } else if (price < base) {
-                 // Calculate how far the price has dropped toward the minimum
                  const ratio = (base - price) / (base - min);
                  
                  if (ratio >= 0.66) { arrow = "▼▼▼"; color = view === 'buy' ? "text-green-600" : "text-red-600"; }
@@ -1043,32 +981,25 @@
          
             if (!config) return market;
          
-            // --- A localized price memory bank ---
             const resolvedPrices = {};
          
-            // 1. Calculate prices for items the station SELLS to the player
             if (config.produces) {
                 config.produces.forEach(itemName => {
                     const base = currentMarketPrices[itemName] || commodities[itemName].basePrice;
                     
-                    // Normal stations sell at a 20% discount. 
-                    // Trade Hubs trade at flat market value (1.0 multiplier) to prevent exploits.
                     let discountMultiplier = type === "Trade Hub" ? 1.0 : 0.8; 
                     
-                    // Calculate and store the final price so we can reference it later
                     resolvedPrices[itemName] = Math.floor(base * discountMultiplier);
                     market.selling.push({ item: itemName, price: resolvedPrices[itemName] });
                 });
             }
          
-            // 2. Calculate prices for items the station BUYS from the player
             if (config.consumes) {
                 Object.keys(config.consumes).forEach(itemName => {
                     
                     if (resolvedPrices[itemName]) {
                         market.buying.push({ item: itemName, price: resolvedPrices[itemName] });
                     } else {
-                        // Otherwise, it's an item the station only buys, so calculate demand normally
                         const base = currentMarketPrices[itemName] || commodities[itemName].basePrice;
                         const demand = config.consumes[itemName];
                         
@@ -1079,7 +1010,6 @@
          
                         let finalPrice = Math.ceil(base * multiplier);
          
-                        // --- NEW: Hard clamp the price so it never exceeds the data.js maximum ---
                         const absoluteMax = commodities[itemName].max || (commodities[itemName].basePrice * 1.5);
                         if (finalPrice > absoluteMax) {
                             finalPrice = absoluteMax;
@@ -1099,7 +1029,7 @@
                  player.credits -= price;
                  player.cargo[itemName] = (player.cargo[itemName] || 0) + 1;
                  updateUI();
-                 saveGame(); // <--- AUTOSAVE
+                 saveGame(); 
              }
          }
          
@@ -1108,7 +1038,7 @@
                  player.credits += price;
                  player.cargo[itemName] -= 1;
                  updateUI();
-                 saveGame(); // <--- AUTOSAVE
+                 saveGame(); 
              }
          }
 
@@ -1119,7 +1049,6 @@
              
              const rate = (currentPoi && currentPoi.repairCost !== undefined) ? currentPoi.repairCost : 10;
              
-             // Calculate how many hull points the player can actually afford
              const affordablePoints = Math.floor(player.credits / rate);
              const pointsToRepair = Math.min(damage, affordablePoints);
              
@@ -1172,7 +1101,7 @@
                  player.xp += xpChange;
                  showXpPopup(xpChange, "Dialogue");
              } else if (xpChange < 0) {
-                 player.xp += xpChange; // Applies deductions silently
+                 player.xp += xpChange; 
              }
              
              if (setFlag) player.flags[setFlag] = true;
@@ -1186,7 +1115,6 @@
                  const q = quests[completeTask];
                  player.tasks[completeTask] = "completed";
                  
-                 // If the quest has a defined XP reward, award it and show the popup
                  if (q && q.xpReward) {
                      player.xp += q.xpReward;
                      showXpPopup(q.xpReward, "Quest Complete");
@@ -1199,11 +1127,10 @@
                  showRewardModal(rewardItem);
              }
          
-             // --- NEW: If the dialogue option triggers a fight, go to the arena! ---
              if (initiateCombat) {
                  const customEnemy = customEnemyStr ? JSON.parse(decodeURIComponent(customEnemyStr)) : null;
                  startCombat(winEncounter, customEnemy);
-                 return; // Stop processing dialogue, we are in a dogfight now!
+                 return; 
              }
          
              if (nextNode === 'leave') {
@@ -1217,7 +1144,7 @@
                  
                  if (nextHostileIndex !== -1) {
                      const nextHostile = spawnedNPCs[nextHostileIndex];
-                     nextHostile.isHostile = false; // <--- Mark as pacified!
+                     nextHostile.isHostile = false; 
                      startEncounter(nextHostile.encounter, nextHostile.name, nextHostile.image); 
                      
                  } else if (currentPoi && currentPoi.type === 'Encounter') {
@@ -1284,7 +1211,6 @@
                      xpValue: 150
                  };
              } else {
-                 // 1. Find the specific NPC you are currently talking to using the DISPLAY name!
                  let enemyIndex = spawnedNPCs.findIndex(npc => npc.name === currentEncounterDisplayName);
                  
                  if (enemyIndex === -1) {
@@ -1302,39 +1228,32 @@
                  currentEnemy = spawnedNPCs[enemyIndex];
              }
              
-             // 2. Lock them into the combat variable and give them full health
              currentEnemy.currentHull = currentEnemy.stats.hull;
              
-             // 3. Reset the Advantage meters
              playerAdvantage = 0;
              enemyAdvantage = 0;
              document.getElementById('battle-adv-player').style.height = '0%';
              document.getElementById('battle-adv-enemy').style.height = '0%';
              
-             // 4. Inject the enemy's visual data into the arena
              let enemyImage = currentEnemy.shipImage;
              if (!enemyImage) {
                  const hullData = shipHulls[currentEnemy.shipType] || {};
                  enemyImage = hullData.image || 'default.png';
              }
              
-             // --- Scrub leftover animation classes from previous fights ---
              document.getElementById('battle-img-player').className = "w-24 h-24 object-contain filter drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]";
              document.getElementById('battle-img-enemy').className = "w-24 h-24 object-contain -scale-x-100 filter drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]";
              
              document.getElementById('battle-img-enemy').src = `assets/${enemyImage}`;
              document.getElementById('battle-name-enemy').innerText = currentEnemy.name;
              
-             // --- Update Player Image ---
              const playerHullData = shipHulls[player.ship.hull] || {};
              document.getElementById('battle-img-player').src = `assets/${playerHullData.image || 'default.png'}`;
              
-             // 5. Clear the combat log and write the intro
              document.getElementById('battle-log').innerHTML = `
                 <div class="text-red-400">> ENGAGING: ${currentEnemy.name.toUpperCase()} (${currentEnemy.shipType.toUpperCase()})</div>
              `;
              
-             // 6. Update the hull numbers and flip the screen!
              document.getElementById('battle-commands').classList.remove('hidden');
              document.getElementById('battle-continue').classList.add('hidden');
              updateBattleUI();
@@ -1345,7 +1264,6 @@
              if (!currentEnemy) return;
              const log = document.getElementById('battle-log');
              
-             // 1. Enemy AI Choice (Simple 50/50 split)
              const enemyAction = Math.random() > 0.5 ? 'attack' : 'manoeuvre';
              
              log.innerHTML = `
@@ -1355,11 +1273,9 @@
                 </div>
              `;
              
-             // 3. Fetch Core Stats
              const pStats = getShipStats(player.ship);
              const eStats = currentEnemy.stats;
              
-             // 4. Determine Active Stats (Skill + Hardware + Advantage)
              const pBaseStat = playerAction === 'attack' 
                  ? (player.skills.weapon + pStats.accuracy) 
                  : (player.skills.piloting + pStats.handling);
@@ -1371,7 +1287,6 @@
              const pActiveStat = pBaseStat + (playerAdvantage * 10);
              const eActiveStat = eBaseStat + (enemyAdvantage * 10);
              
-             // 5. THE ROLL ENGINE (With Tens Unit Math & Silent Tie-Breaker Rerolls)
              let winner = null;
              let pSuccesses = 0, eSuccesses = 0;
              let pRoll = 0, eRoll = 0;
@@ -1381,7 +1296,6 @@
                  pRoll = Math.floor(Math.random() * 100) + 1;
                  eRoll = Math.floor(Math.random() * 100) + 1;
                  
-                 // Calculate Successes: (Stat Tens Digit) - (Roll Tens Digit)
                  pSuccesses = Math.floor(pActiveStat / 10) - Math.floor(pRoll / 10);
                  eSuccesses = Math.floor(eActiveStat / 10) - Math.floor(eRoll / 10);
                  
@@ -1390,21 +1304,18 @@
                  } else if (eSuccesses > pSuccesses) {
                      winner = 'enemy';
                  } else {
-                     // TIE BREAKER: Who rolled equal to or under their stat?
                      const pUnder = pRoll <= pActiveStat;
                      const eUnder = eRoll <= eActiveStat;
                      
                      if (pUnder && !eUnder) winner = 'player';
                      else if (!pUnder && eUnder) winner = 'enemy';
                      else {
-                         // Both under or both over = Reroll!
                          safetyNet++;
-                         if (safetyNet > 100) { winner = 'player'; break; } // Failsafe
+                         if (safetyNet > 100) { winner = 'player'; break; } 
                      }
                  }
              }
              
-             // ---Print the Telemetry to the Combat Log ---
              log.innerHTML += `
                 <div class="text-white my-1 bg-gray-800 p-2 rounded">
                     <div>[SYS] Player Target: ${pActiveStat} | Rolled: ${pRoll} | Successes: ${pSuccesses}</div>
@@ -1412,7 +1323,6 @@
                 </div>
              `;
              
-             // 6. RESOLVE MATRIX & CALCULATE DAMAGE
              let damageToEnemy = 0;
              let damageToPlayer = 0;
              const successMargin = Math.abs(pSuccesses - eSuccesses);
@@ -1420,13 +1330,11 @@
              let escaped = false;
 
              if (winner === 'player') {
-                 enemyAdvantage = 0; // The loser always loses their positional advantage
+                 enemyAdvantage = 0; 
                  
                  if (playerAction === 'attack') {
-                     // Winning an Attack deals damage and RETAINS advantage, but does not grant a new point
                      log.innerHTML += `<div class="text-green-400">> YOU WON THE EXCHANGE! (Advantage Retained)</div>`;
                      
-                     // Damage = Firepower + (WeaponSkill / 10) + Margin - Enemy Armour
                      const grossDamage = pStats.firepower + Math.floor(player.skills.weapon / 10) + successMargin;
                      damageToEnemy = Math.max(1, Math.ceil(grossDamage - eStats.armour));
                      log.innerHTML += `<div class="text-blue-400">> DIRECT HIT! Dealt ${damageToEnemy} damage.</div>`;
@@ -1435,7 +1343,6 @@
                      log.innerHTML += `<div class="text-yellow-400 mt-2">> ESCAPE VELOCITY REACHED. JUMPING CLEAR!</div>`;
                      escaped = true;
                  } else {
-                     // Winning a Manoeuvre builds your positional advantage (Cap at 3)
                      playerAdvantage = Math.min(3, playerAdvantage + 1);
                      log.innerHTML += `<div class="text-green-400">> YOU WON THE EXCHANGE! (+Advantage)</div>`;
                      if (playerAction === 'flee') {
@@ -1445,13 +1352,11 @@
                      }
                  }
              } else {
-                 playerAdvantage = 0; // The loser always loses their positional advantage
+                 playerAdvantage = 0; 
                  
                  if (enemyAction === 'attack') {
-                     // Enemy wins an Attack (retains advantage, deals damage)
                      log.innerHTML += `<div class="text-red-400">> ENEMY WON THE EXCHANGE! (Lost Advantage)</div>`;
                      
-                     // Damage = Firepower + (WeaponSkill / 10) + Margin - Player Armour
                      const grossDamage = eStats.firepower + Math.floor(eStats.weapon / 10) + successMargin;
                      damageToPlayer = Math.max(1, Math.ceil(grossDamage - pStats.armour));
                      if (playerAction === 'flee') {
@@ -1460,7 +1365,6 @@
                          log.innerHTML += `<div class="text-red-500 font-bold bg-red-900 bg-opacity-30">> WARNING: HULL HIT! Took ${damageToPlayer} damage.</div>`;
                      }
                  } else {
-                     // Enemy wins a Manoeuvre (+1 Advantage)
                      enemyAdvantage = Math.min(3, enemyAdvantage + 1);
                      log.innerHTML += `<div class="text-red-400">> ENEMY WON THE EXCHANGE! (Lost Advantage)</div>`;
                      if (playerAction === 'flee') {
@@ -1471,32 +1375,28 @@
                  }
              }
              
-             // 7. Apply Damage & Update UI
              currentEnemy.currentHull -= damageToEnemy;
              player.ship.currentHull -= damageToPlayer;
              
-             // --- Trigger Shake Animations if hit ---
              if (damageToEnemy > 0) {
                  const enemyImg = document.getElementById('battle-img-enemy');
-                 enemyImg.classList.remove('shake-animation'); // reset if already shaking
-                 void enemyImg.offsetWidth; // trigger reflow to restart animation seamlessly
+                 enemyImg.classList.remove('shake-animation'); 
+                 void enemyImg.offsetWidth; 
                  enemyImg.classList.add('shake-animation');
              }
              if (damageToPlayer > 0) {
                  const playerImg = document.getElementById('battle-img-player');
-                 playerImg.classList.remove('shake-animation'); // reset if already shaking
-                 void playerImg.offsetWidth; // trigger reflow to restart animation seamlessly
+                 playerImg.classList.remove('shake-animation'); 
+                 void playerImg.offsetWidth; 
                  playerImg.classList.add('shake-animation');
              }
              
-             // Visually grow the Advantage bars (3 points = 100%)
              document.getElementById('battle-adv-player').style.height = Math.min(100, playerAdvantage * 33.33) + '%';
              document.getElementById('battle-adv-enemy').style.height = Math.min(100, enemyAdvantage * 33.33) + '%';
              
              updateBattleUI();
              log.scrollTop = log.scrollHeight;
              
-             /// 8. Check for Destruction
              if (escaped) {
                  if (currentEnemy.isBountyTarget) {
                      player.tasks['bounty_mission'] = 'failed';
@@ -1504,7 +1404,6 @@
                      player.activeBounty = null;
                  }
                  
-                 // If we flee an ambush on approach, abort the arrival so we don't land at the base!
                  if (currentPoi && currentPoi.type === 'Encounter' && currentEncounterName !== currentPoi.name) {
                      currentPoi = null;
                  }
@@ -1515,14 +1414,12 @@
                  btnCont.innerText = "ESCAPE TO SAFETY";
                  btnCont.onclick = endCombatAndResume;
              } else if (currentEnemy.currentHull <= 0) {
-                 // --- Show Kaboom ---
                  document.getElementById('battle-img-enemy').src = 'assets/kaboom.png';
                  
-                 player.xp += currentEnemy.xpValue; // Award the XP
+                 player.xp += currentEnemy.xpValue; 
                  showXpPopup(currentEnemy.xpValue, "Enemy Destroyed");
                  log.innerHTML += `<div class="text-yellow-400 font-bold text-xl mt-2">> TARGET DESTROYED. [+${currentEnemy.xpValue} XP]</div>`;
                  
-                 // --- BOUNTY REWARD LOGIC ---
                  if (currentEnemy.isBountyTarget && player.activeBounty) {
                      player.credits += player.activeBounty.reward;
                      player.tasks['bounty_mission'] = 'completed';
@@ -1550,7 +1447,6 @@
                  };
                  
              } else if (player.ship.currentHull <= 0) {
-                 // --- Show Kaboom ---
                  document.getElementById('battle-img-player').src = 'assets/kaboom.png';
                  
                  log.innerHTML += `<div class="text-red-600 font-bold text-2xl mt-2 bg-black p-2">> CRITICAL HULL FAILURE. SHIP DESTROYED.</div>`;
@@ -1560,7 +1456,6 @@
                  btnCont.classList.remove('hidden');
                  btnCont.innerText = "GAME OVER";
                  btnCont.onclick = () => {
-                     // --- Wipe the save file before reloading! ---
                      localStorage.removeItem('spaceTraderSaveV4'); 
                      location.reload(); 
                  };
@@ -1579,19 +1474,15 @@
          }
          
          function updateUI() {
-            // Calculate current ship stats
             const stats = getShipStats(player.ship);
             jumpRange = stats.jumpRange; 
             player.cargoMax = stats.cargoMax;
             
-            // --- NEW: Ensure health exists before drawing the Top Bar ---
             if (player.ship.currentHull === undefined) player.ship.currentHull = stats.maxHull;
             
-            // 1. Update persistent top-bar stats
             const totalCargo = Object.values(player.cargo).reduce((a, b) => a + b, 0);
             document.getElementById('status-credits').innerText = player.credits.toLocaleString(); 
             
-            // --- NEW: Feed health to the Top Bar ---
             document.getElementById('status-hull').innerText = player.ship.currentHull;
             document.getElementById('status-hull-max').innerText = stats.maxHull;
             
@@ -1601,32 +1492,27 @@
             
             const localTab = document.getElementById('tab-local');
             
-            // --- Save scroll positions before redrawing the UI ---
             const localScroll = localTab.scrollTop;
             const marketContainer = document.getElementById('market-container');
             const marketScroll = marketContainer ? marketContainer.scrollTop : 0;
          
             if (!currentSystem) return;
          
-            // 2. Delegate rendering based on current state
             if (localView === 'encounter') {
                 let html = '';
-                // If they are at a POI, draw the header. If they are in deep space, skip it!
                 if (currentPoi) html += renderPoiHeader();
                 html += renderEncounter();
                 localTab.innerHTML = html;
                 
             } else if (!currentPoi) {
-                // If we aren't in an encounter and aren't at a POI, draw the system view
                 localTab.innerHTML = renderPoiList();
                 
             } else {
-                 // Otherwise, draw the standard station menus
                  let html = renderPoiHeader();
                  if (localView === 'menu') {
                      html += renderStationMenu();
                  } else if (localView === 'outfitter') {
-                     html += renderOutfitter(); // Route to the new interface!
+                     html += renderOutfitter(); 
                  } else if (localView === 'shipyard') {
                      html += renderShipyard(totalCargo);
                  } else {
@@ -1635,17 +1521,14 @@
                  localTab.innerHTML = html;
              }
             
-            // --- Restore the scroll positions immediately after redrawing ---
             localTab.scrollTop = localScroll;
             const newMarketContainer = document.getElementById('market-container');
             if (newMarketContainer) newMarketContainer.scrollTop = marketScroll;
          
-            // 3. Update Ship and Player Tabs
             updateShipTabUI(totalCargo);
             renderPlayerTab();
             updateTasksUI();
          
-             // --- Visually disable navigation during encounters ---
              const inEncounter = (localView === 'encounter');
              ['btn-map', 'btn-local', 'btn-ship', 'btn-player', 'btn-tasks'].forEach(id => {
                  const btn = document.getElementById(id);
@@ -1662,12 +1545,10 @@
          }
          
          function renderPoiList() {
-             // Fetch system data for image and description
              const systemData = galaxy.find(s => s.id === currentSystem.id);
              const sysImagePath = systemData.image ? `assets/${systemData.image}` : 'assets/star_system_default.png';
              const sysDescription = systemData.description ? systemData.description : "";
          
-             // Build the side-by-side header
              let html = `
              <div class="flex items-center gap-6 mb-6 border-b-2 border-black pb-4">
                  <div class="w-24 h-24 shrink-0 border-2 border-black bg-black flex items-center justify-center overflow-hidden">
@@ -1679,19 +1560,15 @@
                  </div>
              </div>`;
          
-             // Your exact original POI rendering loop
              currentSystem.pois.forEach((p, i) => {
                  
-                 // Check flags before rendering the POI
                  if (p.requiresFlag && !player.flags[p.requiresFlag]) return;
                  if (p.hidesOnFlag && player.flags[p.hidesOnFlag]) return;
          
-                 // --- Check if this POI is a quest target ---
                  let isTarget = false;
                  Object.keys(player.tasks).forEach(taskId => {
                      if (player.tasks[taskId] === "active") {
                          const q = quests[taskId];
-                         // If the active quest points to this exact System and POI
                          if (q && q.targetSystemId === currentSystem.id && q.targetPoiName === p.name) {
                              isTarget = true;
                          }
@@ -1702,7 +1579,6 @@
                  const imageFile = p.image || stationConfig.defaultImage || 'default.png';
                  const imagePath = `assets/${imageFile}`;
          
-                 // --- Apply blue border and background glow if it is a target ---
                  const targetClasses = isTarget ? "!border-blue-600 !bg-blue-50 shadow-[0_0_15px_rgba(37,99,235,0.3)]" : "";
                  const textHighlight = isTarget ? "text-blue-700" : "";
          
@@ -1747,7 +1623,6 @@
          function renderStationMenu() {
              let html = `<p class="text-xl mb-8 italic border-l-4 border-black pl-4 py-2 bg-gray-50">${getPoiDescription(currentPoi)}</p>`;
          
-             // Check if the station actually has a market
              const config = stationTypes[currentPoi.type] || {};
              const hasMarket = (config.produces && config.produces.length > 0) || (config.consumes && Object.keys(config.consumes).length > 0);
          
@@ -1763,11 +1638,9 @@
                  const damage = stats.maxHull - player.ship.currentHull;
                  const rate = currentPoi.repairCost !== undefined ? currentPoi.repairCost : 10;
                  
-                 // Check if they can afford at least 1 point of repair
                  const canAffordSomething = player.credits >= rate;
                  const isDamaged = damage > 0;
                  
-                 // Show the rate on the button no matter what
                  let btnText = isDamaged ? `REPAIR SHIP [${rate} CR/PT]` : `HULL AT MAX [${rate} CR/PT]`;
                  
                  html += `<div class="space-y-4 max-w-md mx-auto mt-4">
@@ -1777,7 +1650,6 @@
                  </div>`;
              }
 
-             // --- NEW: Outfitter Button ---
              if (config.hasOutfitter || currentPoi.type === "Outfitter") {
                  html += `<div class="space-y-4 max-w-md mx-auto mt-4">
                      <button class="btn" onclick="setLocalView('outfitter')">
@@ -1785,7 +1657,6 @@
                      </button>
                  </div>`;
              }
-             // --- NEW: Shipyard Button ---
              if (config.hasShipyard || currentPoi.type === "Ship Vendor") {
                  html += `<div class="space-y-4 max-w-md mx-auto mt-4">
                      <button class="btn" onclick="setLocalView('shipyard')">
@@ -1831,18 +1702,15 @@
                      </button>`;
                  });
                  
-                 // Only draw the container if there are visible encounters
                  if (encounterHtml !== '') {
                      const mtClass = hasMarket ? "mt-8" : ""; 
                      html += `<div class="space-y-4 max-w-md mx-auto ${mtClass}">${encounterHtml}</div>`;
                  }
              } 
          
-         // --- TAXI ENCOUNTERS ---
              if (player.activeTaxi) {
                  const passenger = player.activeTaxi.client;
                  
-                 // PHASE 1: PICKUP
                  if (player.activeTaxi.status === 'pickup' && currentSystem.id === player.activeTaxi.pickupSysId && currentPoi.name === player.activeTaxi.pickupPoiName) {
                      html += `
                      <div class="space-y-4 max-w-md mx-auto mt-4">
@@ -1860,7 +1728,6 @@
                      </div>`;
                  }
          
-                 // PHASE 2: DROPOFF
                  if (player.activeTaxi.status === 'dropoff' && currentSystem.id === player.activeTaxi.dropoffSysId && currentPoi.name === player.activeTaxi.dropoffPoiName) {
                      html += `
                      <div class="space-y-4 max-w-md mx-auto mt-4">
@@ -1894,7 +1761,7 @@
             const encImagePath = `assets/${currentEncounterImage}`;
             
             let displayText = node.text.replace(/\b(\d+)(?=\s*(?:credits|cr)\b)/gi, match => parseInt(match).toLocaleString());
-            displayText = displayText.replace(/\n/g, '<br>'); // Enable newline rendering
+            displayText = displayText.replace(/\n/g, '<br>'); 
          
             html += `
                  <div class="flex flex-col h-full min-h-[50vh]">
@@ -2025,7 +1892,6 @@
             const marketData = getStationMarket(currentPoi.type);
             const activeMarket = localView === 'buy' ? marketData.selling : marketData.buying;
              
-             // --- UPDATED: Removed the "Avg" header ---
              html += `<div class="market-list-header"><span>Item</span><span class="text-center">Price</span><span class="text-center">Hold</span><span class="text-center">Action</span></div>`;
              
              if (activeMarket.length === 0) {
@@ -2123,7 +1989,6 @@
 
              const currentShipSize = shipHulls[player.ship.hull].size;
              
-             // 1. STORAGE SECTION
              if (player.storage && player.storage.length > 0) {
                  html += `<div><h4 class="text-2xl font-bold uppercase bg-black text-white p-2 mb-2">Your Storage</h4><div class="space-y-2">`;
                  player.storage.forEach((itemName, index) => {
@@ -2143,7 +2008,6 @@
                  html += `</div></div>`;
              }
 
-             // 2. MARKET SECTION
              html += `<div><h4 class="text-2xl font-bold uppercase bg-black text-white p-2 mb-2">Available Equipment</h4>`;
              
              const categories = [
@@ -2158,18 +2022,15 @@
              categories.forEach(cat => {
                  let itemsHtml = '';
                  for (const [itemName, itemData] of Object.entries(equipment[cat.id])) {
-                     // --- Specific Inventory Check ---
                      if (currentPoi && currentPoi.inventory && currentPoi.inventory.length > 0) {
                          if (!currentPoi.inventory.includes(itemName)) continue;
                      }
-                     // Check if player already has this equipped
                      const isCoreEquipped = player.ship.core[cat.id] === itemName;
                      const isModEquipped = cat.id === 'modules' && player.ship.modules.includes(itemName);
                      const isEquipped = isCoreEquipped || isModEquipped;
                      
                      const price = itemData.price || 1000;
                      
-                     // --- Smart Affordability Check (Accounts for Trade-in) ---
                      let effectiveCost = price;
                      if (cat.id !== 'modules' && player.ship.core[cat.id]) {
                          const oldItem = equipment[cat.id][player.ship.core[cat.id]];
@@ -2240,7 +2101,6 @@
                  const hullData = shipHulls[player.ship.hull];
                  const maxModules = hullData.modularSlots;
                  
-                 // Find an empty slot if one exists
                  let emptySlotIndex = -1;
                  for(let i = 0; i < maxModules; i++) {
                      if (!player.ship.modules[i]) {
@@ -2250,15 +2110,12 @@
                  }
                  
                  if (emptySlotIndex !== -1) {
-                     // We have an empty slot, install immediately!
                      pendingEquip.slotIndex = emptySlotIndex;
                      executeEquipmentChange(); 
                  } else {
-                     // All slots full, ask user which to replace
                      showModuleSwapModal();
                  }
              } else {
-                 // It's a Core component, check if we are replacing something
                  const oldItem = player.ship.core[category];
                  if (oldItem) {
                      pendingEquip.oldItem = oldItem;
@@ -2289,7 +2146,6 @@
          }
 
          function selectModuleToReplace(index, oldModName) {
-             // Hide the modal visually without triggering the cancel/wipe logic
              document.getElementById('module-swap-modal').classList.add('hidden');
              document.getElementById('module-swap-modal').classList.remove('flex');
              
@@ -2330,7 +2186,6 @@
          }
 
          function finalizeEquipmentChange(action) {
-             // Hide the modal visually without triggering the cancel/wipe logic
              document.getElementById('trade-in-modal').classList.add('hidden');
              document.getElementById('trade-in-modal').classList.remove('flex');
              
@@ -2344,21 +2199,18 @@
          }
 
          function executeEquipmentChange() {
-             // Deduct cost and remove from storage if applicable
              if (pendingEquip.fromStorage) {
                  player.storage.splice(pendingEquip.storageIndex, 1);
              } else {
                  player.credits -= pendingEquip.price;
              }
              
-             // Install the item
              if (pendingEquip.category === 'module') {
                  player.ship.modules[pendingEquip.slotIndex] = pendingEquip.itemName;
              } else {
                  player.ship.core[pendingEquip.category] = pendingEquip.itemName;
              }
              
-             // Ensure ship hull doesn't exceed new max hull if armour changed
              const newStats = getShipStats(player.ship);
              if (player.ship.currentHull > newStats.maxHull) {
                  player.ship.currentHull = newStats.maxHull;
@@ -2500,7 +2352,6 @@
                      if (Math.abs(diff) > 0.01) {
                          let color = diff > 0 ? 'text-green-600' : 'text-red-600';
                          let sign = diff > 0 ? '+' : '';
-                         // Format to 1 decimal place to keep it clean (e.g. +0.2x)
                          diffs.push(`<span class="${color} font-bold">${sign}${(Math.round(diff * 10) / 10).toFixed(1)}x ${c.label}</span>`);
                      }
                  });
@@ -2548,13 +2399,10 @@
              let descriptionText = "All equipment moved to storage.";
 
              if (isSameSize) {
-                 // Transfer Core: Keep old core, put new ship's standard core in storage
                  Object.values(shipData.standardLoadout.core).forEach(item => {
                      if (item) player.storage.push(item);
                  });
-                 // Keep player.ship.core as is
 
-                 // Transfer Modules: Keep up to max slots, store the rest
                  const maxModules = shipData.modularSlots;
                  const oldModules = [...(player.ship.modules || [])];
                  player.ship.modules = [];
@@ -2570,7 +2418,6 @@
                  });
                  descriptionText = "Compatible equipment transferred. Surplus moved to storage.";
              } else {
-                 // Different size: Old equipment goes to storage, get standard loadout
                  Object.values(player.ship.core).forEach(item => {
                      if (item) player.storage.push(item);
                  });
@@ -2600,18 +2447,13 @@
             const stats = getShipStats(player.ship);
             const hullData = shipHulls[player.ship.hull];
             
-            // --- Update the image source ---
             const imageFile = hullData.image || 'default.png';
             document.getElementById('ui-ship-image-container').innerHTML = `<img src="assets/${imageFile}" alt="Ship" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='assets/default.png';">`;
             
-            // --- Update basic ship info ---
             document.getElementById('ui-ship-name').innerText = hullData.name;
             document.getElementById('ui-ship-desc').innerText = hullData.description;
             document.getElementById('ui-stat-size').innerText = hullData.size;
             
-            // --- Update ship stats ---
-            
-            // Safety fallback just in case currentHull isn't set yet
             if (player.ship.currentHull === undefined) player.ship.currentHull = stats.maxHull;
          
             document.getElementById('ui-stat-hull').innerText = `${player.ship.currentHull} / ${stats.maxHull}`;
@@ -2622,7 +2464,6 @@
             document.getElementById('ui-stat-firepower').innerText = stats.firepower;
             document.getElementById('ui-stat-accuracy').innerText = stats.accuracy;
             
-            // --- Inject the weights ---
             document.getElementById('ui-stat-weight-total').innerText = stats.chassisWeight + stats.equipmentWeight;
             
             document.getElementById('ship-cargo-current').innerText = totalCargo;
@@ -2630,7 +2471,6 @@
             
             document.getElementById('ship-cargo-total').innerText = stats.cargoMax;
             
-            // --- Render Core Slots ---
             let coreHtml = '';
             const coreTypes = { warpDrive: "Warp", armour: "Armor", cargoBay: "Cargo", thrusters: "Engines", weapons: "Weapons" };
             
@@ -2657,7 +2497,6 @@
             }
             document.getElementById('ui-core-slots').innerHTML = coreHtml;
 
-            // --- Render Modular Slots ---
             let modHtml = '';
             for (let i = 0; i < hullData.modularSlots; i++) {
                 const itemName = player.ship.modules[i];
@@ -2676,7 +2515,6 @@
             }
             document.getElementById('ui-mod-slots').innerHTML = modHtml || '<p class="text-gray-500 italic">No modular slots available.</p>';
             
-            // --- Render Cargo Manifest ---
             let cl = '';
             for (const [itemName, q] of Object.entries(player.cargo)) {
                 if (q > 0) cl += `<div class="flex justify-between border-b border-gray-300 py-1"><span>${itemName}</span><span>${q}</span></div>`;
@@ -2687,11 +2525,9 @@
          function calculateNetWorth() {
              let total = player.credits || 0;
 
-             // 1. Ship Hull Value
              const hullData = shipHulls[player.ship.hull];
              if (hullData) total += (hullData.price || 1000); 
 
-             // 2. Core Equipment Value
              const coreTypes = { warpDrive: "warpDrive", armour: "armour", cargoBay: "cargoBay", thrusters: "thrusters", weapons: "weapons" };
              for (const [key, cat] of Object.entries(coreTypes)) {
                  const itemName = player.ship.core[key];
@@ -2700,7 +2536,6 @@
                  }
              }
 
-             // 3. Modular Equipment Value
              if (player.ship.modules) {
                  player.ship.modules.forEach(modName => {
                      if (modName && equipment.modules && equipment.modules[modName]) {
@@ -2709,7 +2544,6 @@
                  });
              }
 
-             // 4. Cargo Value (Using baseline commodity prices)
              for (const [itemName, qty] of Object.entries(player.cargo)) {
                  if (qty > 0 && commodities[itemName]) {
                      total += (commodities[itemName].basePrice * qty);
@@ -2722,10 +2556,8 @@
 	function renderPlayerTab() {
              const netWorth = calculateNetWorth();
              
-             // Calculate costs dynamically based on the 0-10, 11-20, 21-30 tiers
              const getCost = (skill) => Math.pow(2, Math.floor(skill / 10));
              
-             // Failsafe for older saves
              if (player.skills.charm === undefined) player.skills.charm = 10;
              
              const pilCost = getCost(player.skills.piloting);
@@ -2733,10 +2565,8 @@
              const engCost = getCost(player.skills.engineer);
              const chmCost = getCost(player.skills.charm);
              
-             // Ensure player.xp is treated as a number to prevent NaN errors, fallback to 0
              const currentXp = player.xp || 0;
 
-             // Disable the button if they don't have enough XP
              const pilDisabled = currentXp < pilCost ? "disabled" : "";
              const wepDisabled = currentXp < wepCost ? "disabled" : "";
              const engDisabled = currentXp < engCost ? "disabled" : "";
@@ -2811,7 +2641,6 @@
          
          function triggerLocalTravel(i) {
     const dest = i === -1 ? null : currentSystem.pois[i];
-    // Pass true to `isLeavingPOI` if we are launching (i === -1)
     triggerTravel(dest, dest ? `APPROACHING ${dest.name}` : "DEPARTING STATION", 1000, i === -1);
 }
          
@@ -2820,7 +2649,6 @@
 
     let interceptor = null;
     
-    // Bug 1 Fix: Do not advance time or trigger interdictions if just leaving a POI
     if (!isLeavingPOI) {
         generateNPCs();
         const hostileIndex = spawnedNPCs.findIndex(npc => npc.isHostile);
@@ -2895,11 +2723,10 @@
                 if (dest !== null) {
                     switchTab('local', true);
                 } else {
-                    // Bug 2 Fix: Enforce correct tab based on travel type
                     if (isLeavingPOI) {
-                        switchTab('local', true); // Launching drops you to local system view
+                        switchTab('local', true); 
                     } else {
-                        switchTab('map', true); // System jumps keep you on map
+                        switchTab('map', true); 
                     }
                 }
             }
@@ -2924,15 +2751,12 @@
                  let onClickAction = "";
                  let disabledState = "";
 
-                 // If hostile and no dialogue, go to combat
                  if (npc.isHostile && !hasEncounter) {
                      onClickAction = `onclick="currentEncounterDisplayName = '${npc.name.replace(/'/g, "\\'")}'; startCombat();"`;
                  } 
-                 // If they have dialogue, open the comms menu
                  else if (hasEncounter) {
                      onClickAction = `onclick="startEncounter('${npc.encounter}', '${npc.name.replace(/'/g, "\\'")}', '${npc.image || ''}')"`;
                  } 
-                 // If they are peaceful but have NO dialogue, disable the button
                  else {
                      disabledState = "disabled";
                  }
@@ -2974,7 +2798,6 @@
         const wx = ((x - r.left) + camera.x) / camera.zoom;
         const wy = ((y - r.top) + camera.y) / camera.zoom;
         
-        // Find the system closest to the click rather than looping all
         let clickedSystem = null;
         galaxy.forEach(s => {
             const d = Math.sqrt((wx - s.x * drawScale)**2 + (wy - s.y * drawScale)**2);
@@ -2992,7 +2815,6 @@
                     centerOnSystem(clickedSystem);
                     randomizeMarket(); 
                     
-                    // Pass false to explicitly allow time advancement/interdictions
                     triggerTravel(null, `WARPING TO ${clickedSystem.name}`, 2500, false);
                 }
             }
@@ -3012,7 +2834,7 @@
          window.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
          window.addEventListener('mouseup', e => handleUp(e.clientX, e.clientY));
          canvas.addEventListener('touchstart', e => {
-             e.preventDefault(); // Cancels the ghost click
+             e.preventDefault(); 
              if (e.touches.length === 2) initialPinchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
              else handleDown(e.touches[0].clientX, e.touches[0].clientY);
          }, { passive: false });
@@ -3030,7 +2852,7 @@
          }, { passive: false });
          
          canvas.addEventListener('touchend', e => { 
-             e.preventDefault(); // Cancels the ghost click
+             e.preventDefault(); 
              initialPinchDistance = null; 
              if (e.changedTouches.length) handleUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY); 
          }, { passive: false });
@@ -3139,6 +2961,24 @@
              modal.classList.remove('flex');
          }
 
+         function showHelpScreen() {
+             const helpContainer = document.getElementById('help-content-container');
+             if (helpContainer && typeof helpDatabase !== 'undefined') {
+                 let helpHtml = '';
+                 helpDatabase.forEach(item => {
+                     helpHtml += `<p><strong>${item.title}:</strong><br>${item.text}</p>`;
+                 });
+                 helpContainer.innerHTML = helpHtml;
+             }
+             document.getElementById('help-modal').classList.remove('hidden');
+             document.getElementById('help-modal').classList.add('flex');
+         }
+
+         function closeHelpScreen() {
+             document.getElementById('help-modal').classList.add('hidden');
+             document.getElementById('help-modal').classList.remove('flex');
+         }
+
          window.addEventListener('resize', renderMap);
          checkExistingSave();
       </script> 
@@ -3198,6 +3038,17 @@
                <button class="btn !bg-red-100 !border-red-600 !text-red-800" onclick="startNewGame(true)">YES, OVERWRITE SAVE</button>
                <button class="btn !bg-gray-300" onclick="closeNewGameModal()">CANCEL</button>
             </div>
+         </div>
+      </div>
+
+      <div id="help-modal" class="fixed inset-0 bg-white/90 z-[200] hidden flex-col justify-center items-center p-4">
+         <div class="bg-gray-50 border-4 border-black p-6 max-w-2xl w-full shadow-2xl overflow-y-auto max-h-[80vh]">
+            <h3 class="text-3xl font-bold uppercase mb-4 border-b-4 border-black pb-2">Actinic Light - Help Database</h3>
+            
+            <div id="help-content-container" class="space-y-4 text-lg">
+                </div>
+            
+            <button class="btn !bg-gray-300 mt-6" onclick="closeHelpScreen()">CLOSE</button>
          </div>
       </div>
    </body>
