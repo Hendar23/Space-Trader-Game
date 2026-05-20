@@ -242,6 +242,7 @@
          let spawnedNPCs = []; 
          let localEncounterMemory = {};
          let currentEnemy = null;
+         let combatWinEncounter = null;
 	 let pendingEquip = null;
          let playerAdvantage = 0;
          let enemyAdvantage = 0;
@@ -1140,6 +1141,12 @@
          }
          
          function startEncounter(name, displayName = null, displayImage = null) {
+             if (!interactions[name]) {
+                 interactions[name] = {
+                     image: "default.png",
+                     dialogue: { "start": { text: `<i>[SYSTEM ERROR: Encounter node "${name}" not found. Please create it in the Encounter Editor tab.]</i>`, options: [{ text: "Acknowledge [LEAVE]", nextNode: "leave" }] } }
+                 };
+             }
              currentEncounterName = name;
              currentEncounterDisplayName = displayName || name; 
              
@@ -1167,7 +1174,7 @@
              setLocalView('encounter');
          }
          
-         function selectDialogue(nextNode, creditChange = 0, xpChange = 0, setFlag = '', clearFlag = '', startTask = '', completeTask = '', initiateCombat = false, rewardItem = '') {
+         function selectDialogue(nextNode, creditChange = 0, xpChange = 0, setFlag = '', clearFlag = '', startTask = '', completeTask = '', initiateCombat = false, rewardItem = '', winEncounter = '', customEnemyStr = '') {
              player.credits += creditChange;
              
              if (xpChange > 0) {
@@ -1203,7 +1210,8 @@
          
              // --- NEW: If the dialogue option triggers a fight, go to the arena! ---
              if (initiateCombat) {
-                 startCombat();
+                 const customEnemy = customEnemyStr ? JSON.parse(decodeURIComponent(customEnemyStr)) : null;
+                 startCombat(winEncounter, customEnemy);
                  return; // Stop processing dialogue, we are in a dogfight now!
              }
          
@@ -1448,10 +1456,7 @@
                  const btnCont = document.getElementById('battle-continue');
                  btnCont.classList.remove('hidden');
                  btnCont.innerText = "ESCAPE TO SAFETY";
-                 btnCont.onclick = () => {
-                     currentEnemy = null;
-                     switchTab('local');
-                 };
+                 btnCont.onclick = endCombatAndResume;
              } else if (currentEnemy.currentHull <= 0) {
                  // --- Show Kaboom ---
                  document.getElementById('battle-img-enemy').src = 'assets/kaboom.png';
@@ -1476,8 +1481,15 @@
                  btnCont.classList.remove('hidden');
                  btnCont.innerText = "CONTINUE";
                  btnCont.onclick = () => {
-                     currentEnemy = null;
-                     switchTab('local');
+                     if (combatWinEncounter) {
+                         const nextEnc = combatWinEncounter;
+                         currentEnemy = null;
+                         combatWinEncounter = null;
+                         startEncounter(nextEnc);
+                         switchTab('local');
+                     } else {
+                         endCombatAndResume();
+                     }
                  };
                  
              } else if (player.ship.currentHull <= 0) {
@@ -1938,7 +1950,7 @@
                 const pickupAction = opt.completePickup ? "completeTaxiPickup();" : "";
                 const taxiAction = opt.completeTaxi ? "completeTaxiDropoff();" : "";
          
-                html += `<button class="btn" onclick="${pickupAction} ${taxiAction} selectDialogue('${opt.nextNode}', ${actualCredits}, ${opt.xp || 0}, '${opt.setFlag || ''}', '${opt.clearFlag || ''}', '${opt.startTask || ''}', '${opt.completeTask || ''}', ${opt.startCombat ? 'true' : 'false'}, '${opt.rewardItem || ''}')" ${disabledAttr}>
+                html += `<button class="btn" onclick="${pickupAction} ${taxiAction} selectDialogue('${opt.nextNode}', ${actualCredits}, ${opt.xp || 0}, '${opt.setFlag || ''}', '${opt.clearFlag || ''}', '${opt.startTask || ''}', '${opt.completeTask || ''}', ${opt.startCombat ? 'true' : 'false'}, '${opt.rewardItem || ''}', '${opt.winEncounter || ''}', '${opt.customEnemy ? encodeURIComponent(JSON.stringify(opt.customEnemy)) : ''}')" ${disabledAttr}>
                     <span>${opt.text}${creditTag}${xpTag}${itemTag}</span>
                 </button>`;
             });

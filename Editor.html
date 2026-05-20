@@ -823,7 +823,33 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3 bg-yellow-50 p-2 border border-yellow-300"><div><label class="block text-[10px] font-bold uppercase">Start Task ID</label><input type="text" class="text-xs" value="${escapeHTML(opt.startTask)}" oninput="updateOpt(${i}, 'startTask', this.value)"></div><div><label class="block text-[10px] font-bold uppercase">Complete Task ID</label><input type="text" class="text-xs" value="${escapeHTML(opt.completeTask)}" oninput="updateOpt(${i}, 'completeTask', this.value)"></div></div>
                     <div class="grid grid-cols-1 gap-3 bg-green-50 p-2 border border-green-300 mt-3"><div><label class="block text-[10px] font-bold uppercase">Reward Item ID</label><input type="text" class="text-xs" placeholder="e.g. Drive T3" value="${escapeHTML(opt.rewardItem)}" oninput="updateOpt(${i}, 'rewardItem', this.value)"></div></div>
-                    <div class="grid grid-cols-3 gap-3 bg-blue-50 p-2 border border-blue-300 mt-3"><div class="flex items-center gap-2"><input type="checkbox" ${opt.completePickup?'checked':''} onchange="updateOpt(${i}, 'completePickup', this.checked)"><label class="text-[10px] font-bold uppercase mb-0">Completes Taxi Pickup</label></div><div class="flex items-center gap-2"><input type="checkbox" ${opt.completeTaxi?'checked':''} onchange="updateOpt(${i}, 'completeTaxi', this.checked)"><label class="text-[10px] font-bold uppercase mb-0">Completes Dropoff</label></div><div class="flex items-center gap-2"><input type="checkbox" ${opt.startCombat?'checked':''} onchange="updateOpt(${i}, 'startCombat', this.checked)"><label class="text-[10px] font-bold uppercase text-red-600 mb-0">Starts Combat</label></div></div></div>`;
+                    <div class="grid grid-cols-2 gap-3 bg-blue-50 p-2 border border-blue-300 mt-3"><div class="flex items-center gap-2"><input type="checkbox" ${opt.completePickup?'checked':''} onchange="updateOpt(${i}, 'completePickup', this.checked)"><label class="text-[10px] font-bold uppercase mb-0">Completes Taxi Pickup</label></div><div class="flex items-center gap-2"><input type="checkbox" ${opt.completeTaxi?'checked':''} onchange="updateOpt(${i}, 'completeTaxi', this.checked)"><label class="text-[10px] font-bold uppercase mb-0">Completes Dropoff</label></div></div>
+                    <div class="bg-red-50 p-2 border border-red-300 mt-3">
+                        <div class="grid grid-cols-2 gap-3 mb-2">
+                            <div class="flex items-center gap-2"><input type="checkbox" ${opt.startCombat?'checked':''} onchange="updateOpt(${i}, 'startCombat', this.checked)"><label class="text-[10px] font-bold uppercase text-red-600 mb-0">Starts Combat</label></div>
+                            <div><label class="block text-[10px] font-bold uppercase text-red-800 mb-1">Next Encounter on Win (Optional)</label><input type="text" class="text-xs" value="${escapeHTML(opt.winEncounter)}" oninput="updateOpt(${i}, 'winEncounter', this.value)"></div>
+                        </div>
+                        ${opt.startCombat ? `
+                        <div class="bg-red-100 p-2 border border-red-400 mt-2">
+                            <div class="flex items-center gap-2 mb-2"><input type="checkbox" ${opt.customEnemy?'checked':''} onchange="updateOpt(${i}, 'toggleCustomEnemy', this.checked)"><label class="text-[10px] font-bold uppercase text-red-800 mb-0">Use Custom Enemy</label></div>
+                            ${opt.customEnemy ? `
+                            <div class="grid grid-cols-3 gap-2 mb-2">
+                                <div><label class="text-[9px] uppercase">Name</label><input type="text" class="text-xs w-full" value="${escapeHTML(opt.customEnemy.name)}" oninput="updateOpt(${i}, 'ce_name', this.value)"></div>
+                                <div><label class="text-[9px] uppercase">Ship Hull</label><input type="text" class="text-xs w-full" value="${escapeHTML(opt.customEnemy.shipHull)}" oninput="updateOpt(${i}, 'ce_shipHull', this.value)"></div>
+                                <div><label class="text-[9px] uppercase">Image</label><input type="text" class="text-xs w-full" value="${escapeHTML(opt.customEnemy.image)}" oninput="updateOpt(${i}, 'ce_image', this.value)"></div>
+                            </div>
+                            <label class="text-[9px] font-bold uppercase text-red-800">Custom Enemy Stats</label>
+                            <div class="grid grid-cols-7 gap-1 mt-1">
+                                <div><label class="text-[8px] uppercase">Hull</label><input type="number" class="text-xs p-1 w-full" value="${opt.customEnemy.stats?.hull||50}" oninput="updateOpt(${i}, 'ce_hull', this.value)"></div>
+                                <div><label class="text-[8px] uppercase">Arm</label><input type="number" class="text-xs p-1 w-full" value="${opt.customEnemy.stats?.armour||20}" oninput="updateOpt(${i}, 'ce_armour', this.value)"></div>
+                                <div><label class="text-[8px] uppercase">Hndl</label><input type="number" class="text-xs p-1 w-full" value="${opt.customEnemy.stats?.handling||20}" oninput="updateOpt(${i}, 'ce_handling', this.value)"></div>
+                                <div><label class="text-[8px] uppercase">Fire</label><input type="number" class="text-xs p-1 w-full" value="${opt.customEnemy.stats?.firepower||20}" oninput="updateOpt(${i}, 'ce_firepower', this.value)"></div>
+                                <div><label class="text-[8px] uppercase">Acc</label><input type="number" class="text-xs p-1 w-full" value="${opt.customEnemy.stats?.accuracy||15}" oninput="updateOpt(${i}, 'ce_accuracy', this.value)"></div>
+                                <div><label class="text-[8px] uppercase">Pilot</label><input type="number" class="text-xs p-1 w-full" value="${opt.customEnemy.stats?.piloting||20}" oninput="updateOpt(${i}, 'ce_piloting', this.value)"></div>
+                                <div><label class="text-[8px] uppercase">Weap</label><input type="number" class="text-xs p-1 w-full" value="${opt.customEnemy.stats?.weapon||20}" oninput="updateOpt(${i}, 'ce_weapon', this.value)"></div>
+                            </div>` : ''}
+                        </div>` : ''}
+                    </div></div>`;
             });
             panel.innerHTML = html + `</div>`;
         }
@@ -850,7 +876,24 @@
         }
         function addOption() { interactions[selEnc].dialogue[selNode].options.push({text:"New Option",nextNode:"leave"}); renderEncEditor(); }
         function deleteOption(i) { interactions[selEnc].dialogue[selNode].options.splice(i,1); renderEncEditor(); }
-        function updateOpt(i, k, v) { if(k==='credits' || k==='xp') v=parseInt(v)||0; if(v===''||v===0||v===false) delete interactions[selEnc].dialogue[selNode].options[i][k]; else interactions[selEnc].dialogue[selNode].options[i][k]=v; }        function moveOptionUp(i) { if (i <= 0) return; const opts = interactions[selEnc].dialogue[selNode].options; [opts[i - 1], opts[i]] = [opts[i], opts[i - 1]]; renderEncEditor(); }
+        function updateOpt(i, k, v) { 
+        if(k==='credits' || k==='xp') v=parseInt(v)||0; 
+        if(k==='toggleCustomEnemy') { 
+            if(v) interactions[selEnc].dialogue[selNode].options[i].customEnemy = {name:'Boss', shipHull:'Station / Unknown', image:'default.png', stats:{hull:50,armour:20,handling:20,firepower:20,accuracy:15,piloting:20,weapon:20}}; 
+            else delete interactions[selEnc].dialogue[selNode].options[i].customEnemy; 
+            renderEncEditor(); return;
+        }
+        if(k.startsWith('ce_')) {
+            let prop = k.split('_')[1];
+            if(['hull','armour','handling','firepower','accuracy','piloting','weapon'].includes(prop)) interactions[selEnc].dialogue[selNode].options[i].customEnemy.stats[prop] = parseInt(v)||0;
+            else interactions[selEnc].dialogue[selNode].options[i].customEnemy[prop] = v;
+            return;
+        }
+        if(k==='startCombat') { interactions[selEnc].dialogue[selNode].options[i][k]=v; renderEncEditor(); return; }
+        
+        if(v===''||v===0||v===false) delete interactions[selEnc].dialogue[selNode].options[i][k]; 
+        else interactions[selEnc].dialogue[selNode].options[i][k]=v; 
+    }        function moveOptionUp(i) { if (i <= 0) return; const opts = interactions[selEnc].dialogue[selNode].options; [opts[i - 1], opts[i]] = [opts[i], opts[i - 1]]; renderEncEditor(); }
         function moveOptionDown(i) { const opts = interactions[selEnc].dialogue[selNode].options; if (i >= opts.length - 1) return; [opts[i + 1], opts[i]] = [opts[i], opts[i + 1]]; renderEncEditor(); }
         function stringifyInteractions() {
             let out = "const interactions = {\n";
@@ -884,6 +927,8 @@
                         if(opt.completePickup) os += `, completePickup: true`;
                         if(opt.completeTaxi) os += `, completeTaxi: true`;
                         if(opt.startCombat) os += `, startCombat: true`;
+                        if(opt.winEncounter) os += `, winEncounter: "${escapeJS(opt.winEncounter).trim()}"`;
+                        if(opt.customEnemy) os += `, customEnemy: { name: "${escapeJS(opt.customEnemy.name)}", shipHull: "${escapeJS(opt.customEnemy.shipHull)}", image: "${escapeJS(opt.customEnemy.image)}", stats: { hull: ${opt.customEnemy.stats.hull||50}, armour: ${opt.customEnemy.stats.armour||20}, handling: ${opt.customEnemy.stats.handling||20}, firepower: ${opt.customEnemy.stats.firepower||20}, accuracy: ${opt.customEnemy.stats.accuracy||15}, piloting: ${opt.customEnemy.stats.piloting||20}, weapon: ${opt.customEnemy.stats.weapon||20} } }`;
                         if(opt.rewardItem) os += `, rewardItem: "${escapeJS(opt.rewardItem).trim()}"`;
                         out += os + ` }` + (oIdx < n.options.length-1 ? ',' : '') + `\n`;
                     });

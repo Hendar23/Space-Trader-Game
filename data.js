@@ -2,13 +2,13 @@
 // NEW GAME DEFAULTS
 // ==========================================
 const newGameDefaults = {
-    startingCredits: 10,
+    startingCredits: 1000,
     startingSystemId: 0,
     startingSkills: {
-        piloting: 10,
-        weapon: 10,
-        engineer: 10,
-        charm: 10
+        piloting: 1000,
+        weapon: 1000,
+        engineer: 1000,
+        charm: 1000
     },
     storage: [],
     startingTasks: ["meet_bob"],
@@ -837,6 +837,17 @@ const interactions = {
                 ]
             }
         }
+    },
+    "Scary Raider Base": {
+        image: "portrait006.png",
+        dialogue: {
+            "start": {
+                text: "Hello",
+                options: [
+                    { text: "[LEAVE]", nextNode: "leave" }
+                ]
+            }
+        }
     }
 };
 
@@ -1229,6 +1240,7 @@ const galaxy = [
         ]
     }
 ];
+
 
 
 
