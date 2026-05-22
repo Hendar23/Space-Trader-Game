@@ -24,13 +24,13 @@ const helpDatabase = [
 // NEW GAME DEFAULTS
 // ==========================================
 const newGameDefaults = {
-    startingCredits: 1000,
+    startingCredits: 10,
     startingSystemId: 0,
     startingSkills: {
-        piloting: 100,
-        weapon: 100,
-        engineer: 100,
-        charm: 100
+        piloting: 10,
+        weapon: 10,
+        engineer: 10,
+        charm: 10
     },
     storage: [],
     startingTasks: ["meet_bob"],
