@@ -515,7 +515,14 @@ const quests = {
         description: "Fly to Barron Locus and destroy the cult leader  ",
         targetSystemId: 7, 
         targetPoiName: "Scary Raider Base",
-        xpReward: 200
+        xpReward: 100
+    },
+    "locus_done": {
+        title: "Report back to Bitz",
+        description: "Report your success to Bitz and claim your reward.",
+        targetSystemId: 8, 
+        targetPoiName: "Bitz and Bobs Outfitters",
+        xpReward: 100
     }
 };
 
@@ -784,6 +791,7 @@ const interactions = {
             "start": {
                 text: "Welcome to Bitz and Bobs Outfitters pilot! What can we you do for you today?",
                 options: [
+                    { text: "It is done. The High Locus is dead.", nextNode: "killed_high_locus2", requiresFlag: "killed_locus" },
                     { text: "Actually Uncle Bob sent me. Said you might be able to help me find a long range warp drive. Something strong enough to get me out of this sector?", nextNode: "bitz1", requiresFlag: "meet_bitz" },
                     { text: "Sounds great Bitz, I'll go check your catalogue! [Leave]", nextNode: "leave" }
                 ]
@@ -807,6 +815,12 @@ const interactions = {
                 options: [
                     { text: "Bye. [LEAVE]", nextNode: "leave" }
                 ]
+            },
+            "killed_high_locus2": {
+                text: "Incredible! That'll show the bastards!\n\nHere's the drive. You earned it.\n\n",
+                options: [
+                    { text: "Thanks Bitz. Nice doing business with you. [LEAVE]", nextNode: "leave", clearFlag: "killed_locus", rewardItem: "Drive T3" }
+                ]
             }
         }
     },
@@ -816,7 +830,7 @@ const interactions = {
             "start": {
                 text: "Speak to Bitz. He deals with all the business stuff.",
                 options: [
-                    { text: "Okay will do.[LEAVE]", nextNode: "leave" }
+                    { text: "Okay will do.[LEAVE]", nextNode: "leave", requiresFlag: "locus_done", completeTask: "locus_done" }
                 ]
             }
         }
@@ -859,9 +873,20 @@ const interactions = {
         image: "portrait002.png",
         dialogue: {
             "start": {
-                text: "Hello",
+                text: "I got a good thing going on here! I'm not gonna let you ruin everything you do-gooding twerp!",
                 options: [
-                    { text: "[LEAVE]", nextNode: "leave" }
+                    { text: "A grifter. Why am I not surprised?[FIGHT]", nextNode: "leave", startCombat: true, winEncounter: "killed_locus", customEnemy: { name: "High Locus", shipHull: "Locus Raider", image: "ship_raider001.png", stats: { hull: 40, armour: 15, handling: 30, firepower: 30, accuracy: 15, piloting: 40, weapon: 40 } } }
+                ]
+            }
+        }
+    },
+    "killed_locus": {
+        image: "portrait006.png",
+        dialogue: {
+            "start": {
+                text: "No! The great one is dead! We are lost without him!",
+                options: [
+                    { text: "He was using you chumps. I did you all a favour. [LEAVE]", nextNode: "leave", setFlag: "killed_locus", startTask: "locus_done", completeTask: "locus_attack" }
                 ]
             }
         }
@@ -1093,7 +1118,7 @@ const galaxy = [
                 stats: { hull: 40, armour: 15, handling: 30, firepower: 30, accuracy: 15, piloting: 20, weapon: 20 } }
         ],
         pois: [
-            { name: "Scary Raider Base", type: "Encounter", image: "station001.png", description: "" }
+            { name: "Scary Raider Base", type: "Encounter", image: "station001.png", hidesOnFlag: "killed_locus", description: "Hard to tell what the station was for before the raiders took over." }
         ]
     },
     {
@@ -1258,27 +1283,8 @@ const galaxy = [
     }
 ];
 
-// ==========================================
-// HELP DATABASE
-// ==========================================
-const helpDatabase = [
-    { 
-        title: "COMBAT MECHANICS", 
-        text: "Combat is resolved in rounds. Choosing <strong>ATTACK</strong> pits your Firepower and Weapons skill against the enemy's defenses. Choosing <strong>MANOEUVRE</strong> builds your Advantage meter, which grants massive bonuses to future rolls. If your hull reaches 0, your ship is destroyed." 
-    },
-    { 
-        title: "TRADING & COMMODITIES", 
-        text: "Different stations produce and consume specific goods. Check the local market to buy goods where they are cheap, and warp to a station that demands them to sell for a profit." 
-    },
-    { 
-        title: "MISSIONS & BOUNTIES", 
-        text: "Check local Outposts or Security HQs to pick up Taxi fares and Bounty Hunting contracts. Bounties require you to track down a specific hostile ship, while Taxi fares require you to safely transport a client between stations." 
-    },
-    { 
-        title: "SHIP OUTFITTING", 
-        text: "Visit Outfitter stations to upgrade your Warp Drive, Armour, Thrusters, Weapons, and Cargo Bays. You can also purchase entire new ship hulls at Ship Vendors." 
-    }
-];
+
+
 
 
 
