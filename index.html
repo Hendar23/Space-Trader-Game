@@ -235,7 +235,9 @@
          let currentEncounterName = null;
          let currentEncounterDisplayName = null;
          let currentEncounterImage = null;
-         let currentDialogueNode = null; 
+         let baselineEncounterDisplayName = null;
+         let baselineEncounterImage = null;
+         let currentDialogueNode = null;
          let currentMarketPrices = {}; 
          let spawnedNPCs = []; 
          let localEncounterMemory = {};
@@ -579,6 +581,8 @@
             currentEncounterName = player.activeTaxi.client.name; 
             currentEncounterDisplayName = player.activeTaxi.client.name;
             currentEncounterImage = player.activeTaxi.client.image;
+            baselineEncounterDisplayName = currentEncounterDisplayName;
+            baselineEncounterImage = currentEncounterImage;
             
             interactions[currentEncounterName] = {
                 image: player.activeTaxi.client.image,
@@ -609,6 +613,8 @@
             currentEncounterName = player.activeTaxi.client.name;
             currentEncounterDisplayName = player.activeTaxi.client.name;
             currentEncounterImage = player.activeTaxi.client.image;
+            baselineEncounterDisplayName = currentEncounterDisplayName;
+            baselineEncounterImage = currentEncounterImage;
             
             interactions[currentEncounterName] = {
                 image: player.activeTaxi.client.image,
@@ -1090,6 +1096,17 @@
                  currentEncounterDisplayName = generateRandomCharacter().name;
              }
              
+             // Save Baselines
+             baselineEncounterDisplayName = currentEncounterDisplayName;
+             baselineEncounterImage = currentEncounterImage;
+             
+             // Check for overrides on the starting node
+             const startNode = interactions[currentEncounterName].dialogue['start'];
+             if (startNode) {
+                 if (startNode.nodeName) currentEncounterDisplayName = startNode.nodeName;
+                 if (startNode.nodeImage) currentEncounterImage = startNode.nodeImage;
+             }
+             
              currentDialogueNode = 'start'; 
              setLocalView('encounter');
          }
@@ -1157,6 +1174,14 @@
                  }
              } else {
                  currentDialogueNode = nextNode; 
+                 
+                 // Apply node overrides or restore to baseline
+                 const nextNodeData = interactions[currentEncounterName].dialogue[nextNode];
+                 if (nextNodeData) {
+                     currentEncounterDisplayName = nextNodeData.nodeName || baselineEncounterDisplayName;
+                     currentEncounterImage = nextNodeData.nodeImage || baselineEncounterImage;
+                 }
+                 
                  updateUI();
              }
              saveGame(); 
@@ -1170,6 +1195,8 @@
              currentEncounterName = null;
              currentEncounterDisplayName = null;
              currentEncounterImage = null;
+             baselineEncounterDisplayName = null;
+             baselineEncounterImage = null;
              currentDialogueNode = null;
              
              localView = 'menu';
@@ -1868,7 +1895,7 @@
                 
                 let itemTag = '';
                 if (opt.rewardItem) {
-                    itemTag = ` [+${opt.rewardItem}]`;
+                    itemTag = ` [+ITEM]`;
                 }
          
                 const pickupAction = opt.completePickup ? "completeTaxiPickup();" : "";

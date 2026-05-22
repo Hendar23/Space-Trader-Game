@@ -1,4 +1,26 @@
 // ==========================================
+// HELP DATABASE
+// ==========================================
+const helpDatabase = [
+    { 
+        title: "COMBAT MECHANICS", 
+        text: "Combat is resolved in rounds. Choosing <strong>ATTACK</strong> pits your Firepower and Weapons skill against the enemy's defenses. Choosing <strong>MANOEUVRE</strong> uses you ships handling and piloting skill instead, and success builds your Advantage meter, which grants massive bonuses to future rolls. If your hull reaches 0, your ship is destroyed." 
+    },
+    { 
+        title: "TRADING & COMMODITIES", 
+        text: "Different stations produce and consume specific goods. Check the local market to buy goods where they are cheap, and warp to a station that demands them to sell for a profit." 
+    },
+    { 
+        title: "MISSIONS & BOUNTIES", 
+        text: "Check local Outposts or Security HQs to pick up Taxi fares and Bounty Hunting contracts. Bounties require you to track down a specific hostile ship, while Taxi fares require you to safely transport a client between stations." 
+    },
+    { 
+        title: "SHIP OUTFITTING", 
+        text: "Visit Outfitter stations to upgrade your Warp Drive, Armour, Thrusters, Weapons, and Cargo Bays. You can also purchase entire new ship hulls at Ship Vendors." 
+    }
+];
+
+// ==========================================
 // NEW GAME DEFAULTS
 // ==========================================
 const newGameDefaults = {
@@ -523,6 +545,13 @@ const quests = {
         targetSystemId: 8, 
         targetPoiName: "Bitz and Bobs Outfitters",
         xpReward: 100
+    },
+    "moving_on": {
+        title: "Warp to Depratz ",
+        description: "Fly to Depratz at explore the wider galaxy.",
+        targetSystemId: 13, 
+        targetPoiName: "Abandoned outpost",
+        xpReward: 50
     }
 };
 
@@ -806,7 +835,7 @@ const interactions = {
             "bitz2": {
                 text: "So glad you asked! Those Locus raiders are a blight on the sector. Loopy fanatics attacking everyone on sight, including my customers! They are starting to spread to other systems now and the authorities around here won't do anything about it. What do I even pay taxes for I ask you?\n\nAnyway, take care of those scumbags and I'll give the the drive you need. Take out their leader and the rest will scatter for sure.",
                 options: [
-                    { text: "I'll do it. Prepare to witness heroics! [LEAVE]", nextNode: "leave", clearFlag: "meet_bitz", startTask: "locus_attack", completeTask: "meet_bitz" },
+                    { text: "I'll do it. Prepare to witness heroics! [LEAVE]", nextNode: "leave", setFlag: "show_locus_base", clearFlag: "meet_bitz", startTask: "locus_attack", completeTask: "meet_bitz" },
                     { text: "Oooh no thanks. That's sounds a bit dangerous. I'll come back with the cash.", nextNode: "bitz3" }
                 ]
             },
@@ -819,7 +848,7 @@ const interactions = {
             "killed_high_locus2": {
                 text: "Incredible! That'll show the bastards!\n\nHere's the drive. You earned it.\n\n",
                 options: [
-                    { text: "Thanks Bitz. Nice doing business with you. [LEAVE]", nextNode: "leave", clearFlag: "killed_locus", rewardItem: "Drive T3" }
+                    { text: "Thanks Bitz. Nice doing business with you. [LEAVE]", nextNode: "leave", clearFlag: "killed_locus", startTask: "moving_on", completeTask: "locus_done", rewardItem: "Drive T3" }
                 ]
             }
         }
@@ -830,13 +859,13 @@ const interactions = {
             "start": {
                 text: "Speak to Bitz. He deals with all the business stuff.",
                 options: [
-                    { text: "Okay will do.[LEAVE]", nextNode: "leave", requiresFlag: "locus_done", completeTask: "locus_done" }
+                    { text: "Okay will do.[LEAVE]", nextNode: "leave" }
                 ]
             }
         }
     },
     "Mysterious Janitor": {
-        image: "portrait002.png",
+        image: "portrait001.png",
         dialogue: {
             "start": {
                 text: "Oh hi. Didn't see you there. We don't get many visitors here.",
@@ -845,9 +874,9 @@ const interactions = {
                 ]
             },
             "myst1": {
-                text: "It's the end. You reached the edge of the map. You have completed the starting area.\n\nIf this was on Steam, an achievement would pop up right now. \n\nPat yourself on the back gamer. You did good.\n\nCome back when Hendar23 has added more stuff.",
+                text: "It's the end. You reached the edge of the demo.\n\nIf this was on Steam, an achievement would pop up right now. \n\nPat yourself on the back gamer. You did good.\n\nCome back when Hendar23 has added more stuff.",
                 options: [
-                    { text: "Okay. See you around I guess [LEAVE]", nextNode: "leave" }
+                    { text: "Okay. See you around I guess [LEAVE]", nextNode: "leave", completeTask: "moving_on" }
                 ]
             }
         }
@@ -856,7 +885,7 @@ const interactions = {
         image: "portrait006.png",
         dialogue: {
             "start": {
-                text: "You dare to disturb our holy sanctum!",
+                text: "You dare to disturb our holy sanctum?",
                 options: [
                     { text: "Yeah hi. I'd like to speak to the manager please?", nextNode: "SRB1" }
                 ]
@@ -885,8 +914,9 @@ const interactions = {
         dialogue: {
             "start": {
                 text: "No! The great one is dead! We are lost without him!",
+                nodeName: "Scary Raider Base",
                 options: [
-                    { text: "He was using you chumps. I did you all a favour. [LEAVE]", nextNode: "leave", setFlag: "killed_locus", startTask: "locus_done", completeTask: "locus_attack" }
+                    { text: "He was using you chumps. I did you all a favour. [LEAVE]", nextNode: "leave", setFlag: "killed_locus", clearFlag: "show_locus_base", startTask: "locus_done", completeTask: "locus_attack" }
                 ]
             }
         }
@@ -1118,7 +1148,7 @@ const galaxy = [
                 stats: { hull: 40, armour: 15, handling: 30, firepower: 30, accuracy: 15, piloting: 20, weapon: 20 } }
         ],
         pois: [
-            { name: "Scary Raider Base", type: "Encounter", image: "station001.png", hidesOnFlag: "killed_locus", description: "Hard to tell what the station was for before the raiders took over." }
+            { name: "Scary Raider Base", type: "Encounter", image: "station001.png", requiresFlag: "show_locus_base", hidesOnFlag: "killed_locus", description: "Hard to tell what the station was for before the raiders took over." }
         ]
     },
     {
@@ -1282,6 +1312,7 @@ const galaxy = [
         ]
     }
 ];
+
 
 
 

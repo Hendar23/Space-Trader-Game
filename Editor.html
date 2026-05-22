@@ -763,13 +763,26 @@
             const node = interactions[selEnc].dialogue[selNode];
             
             let html = `<h2 class="font-bold text-2xl uppercase border-b-2 border-black pb-2 mb-4">Node: ${selNode}</h2>
+                <div class="flex gap-4 mb-4 bg-gray-100 p-2 border border-gray-300">
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-bold uppercase text-purple-800 mb-1">Speaker Name Override</label>
+                        <input type="text" class="text-xs w-full" placeholder="Defaults to Encounter Name" value="${escapeHTML(node.nodeName || '')}" oninput="updateNodeProp('nodeName', this.value)">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-bold uppercase text-purple-800 mb-1">Speaker Image Override</label>
+                        <div class="flex">
+                            <input type="text" id="node-image-input" class="text-xs flex-grow" placeholder="Defaults to Encounter Image" value="${escapeHTML(node.nodeImage || '')}" oninput="updateNodeProp('nodeImage', this.value)">
+                            ${availableImages.length > 0 ? `<select class="text-xs w-1/3 border-l-0 bg-gray-100" onchange="document.getElementById('node-image-input').value=this.value; updateNodeProp('nodeImage', this.value); this.selectedIndex=0;"><option value="" disabled selected>+ Pick Image</option><option value="">[ DEFAULT ]</option>${availableImages.map(img => `<option value="${img}">${img}</option>`).join('')}</select>` : ''}
+                        </div>
+                    </div>
+                </div>
                 <div class="flex items-center gap-2 mb-2 bg-gray-200 p-2 border border-gray-400">
                     <input type="checkbox" id="node-taxi" ${node.generateTaxiJobs ? 'checked' : ''} onchange="toggleTaxiJobs(this.checked)">
                     <label for="node-taxi" class="text-xs font-bold uppercase text-blue-800 flex-grow">Generate Taxi Job Board</label>
                     <input type="checkbox" id="node-bounty" ${node.generateBountyJobs ? 'checked' : ''} onchange="toggleBountyJobs(this.checked)">
-                    <label for="node-bounty" class="text-xs font-bold uppercase text-red-800">Generate Bounty Board</label>
-                </div>
-                ${node.generateTaxiJobs ? `<div class="flex gap-4 mb-4 p-3 bg-blue-50 border-2 border-blue-200"><div><label class="block text-[10px] font-bold uppercase">Max Dist (LY)</label><input type="number" value="${node.taxiMaxDistance||150}" oninput="updateNodeProp('taxiMaxDistance', parseInt(this.value)||0)"></div><div><label class="block text-[10px] font-bold uppercase">Number of Jobs</label><input type="number" value="${node.taxiJobCount||3}" oninput="updateNodeProp('taxiJobCount', parseInt(this.value)||0)"></div></div>` : ''}
+                <label for="node-bounty" class="text-xs font-bold uppercase text-red-800">Generate Bounty Board</label>
+            </div>
+            ${node.generateTaxiJobs ? `<div class="flex gap-4 mb-4 p-3 bg-blue-50 border-2 border-blue-200"><div><label class="block text-[10px] font-bold uppercase">Max Dist (LY)</label><input type="number" value="${node.taxiMaxDistance||150}" oninput="updateNodeProp('taxiMaxDistance', parseInt(this.value)||0)"></div><div><label class="block text-[10px] font-bold uppercase">Number of Jobs</label><input type="number" value="${node.taxiJobCount||3}" oninput="updateNodeProp('taxiJobCount', parseInt(this.value)||0)"></div></div>` : ''}
                 ${node.generateBountyJobs ? `<div class="mb-4 p-3 bg-red-50 border-2 border-red-200 space-y-2">
                     <div class="flex gap-4">
                         <div><label class="block text-[10px] font-bold uppercase">Max Dist (LY)</label><input type="number" value="${node.bountyMaxDistance||100}" oninput="updateNodeProp('bountyMaxDistance', parseInt(this.value)||0)"></div>
@@ -911,6 +924,8 @@
                 Object.keys(e.dialogue||{}).forEach((dk, j, dArr) => {
                     const n = e.dialogue[dk];
                     out += `            "${escapeJS(dk)}": {\n                text: "${escapeJS(n.text)}",\n`;
+                    if(n.nodeName) out += `                nodeName: "${escapeJS(n.nodeName).trim()}",\n`;
+                    if(n.nodeImage) out += `                nodeImage: "${escapeJS(n.nodeImage).trim()}",\n`;
                     if(n.generateTaxiJobs) out += `                generateTaxiJobs: true,\n                taxiJobCount: ${n.taxiJobCount||3},\n                taxiMaxDistance: ${n.taxiMaxDistance||150},\n`;
                     if(n.generateBountyJobs) out += `                generateBountyJobs: true,\n                bountyJobCount: ${n.bountyJobCount||3},\n                bountyMaxDistance: ${n.bountyMaxDistance||100},\n                bountyShips: "${escapeJS(n.bountyShips)}",\n                bountyStats: { hull: ${n.bountyStats?.hull||30}, armour: ${n.bountyStats?.armour||15}, handling: ${n.bountyStats?.handling||25}, firepower: ${n.bountyStats?.firepower||15}, accuracy: ${n.bountyStats?.accuracy||10}, piloting: ${n.bountyStats?.piloting||25}, weapon: ${n.bountyStats?.weapon||25} },\n`;
                     out += `                options: [\n`;
