@@ -893,7 +893,7 @@ const interactions = {
             "SRB1": {
                 text: "You will speak only to our righteous weapons!",
                 options: [
-                    { text: "[FIGHT]", nextNode: "leave", startCombat: true, winEncounter: "High Locus", customEnemy: { name: "Locus Guard", shipHull: "Locus Raider", image: "ship_raider001.png", stats: { hull: 40, armour: 15, handling: 30, firepower: 30, accuracy: 15, piloting: 30, weapon: 30 } } }
+                    { text: "[FIGHT]", nextNode: "leave", startCombat: true, winEncounter: "High Locus", customEnemy: { name: "Locus Guard", shipHull: "Locus Raider", image: "ship_raider001.png", stats: { hull: 40, armour: 15, handling: 30, firepower: 20, accuracy: 15, piloting: 30, weapon: 30 } } }
                 ]
             }
         }
@@ -904,7 +904,7 @@ const interactions = {
             "start": {
                 text: "I got a good thing going on here! I'm not gonna let you ruin everything you do-gooding twerp!",
                 options: [
-                    { text: "A grifter. Why am I not surprised?[FIGHT]", nextNode: "leave", startCombat: true, winEncounter: "killed_locus", customEnemy: { name: "High Locus", shipHull: "Locus Raider", image: "ship_raider001.png", stats: { hull: 40, armour: 15, handling: 30, firepower: 30, accuracy: 15, piloting: 40, weapon: 40 } } }
+                    { text: "A grifter. Why am I not surprised?[FIGHT]", nextNode: "leave", startCombat: true, winEncounter: "killed_locus", customEnemy: { name: "High Locus", shipHull: "Locus Raider", image: "ship_raider001.png", stats: { hull: 40, armour: 15, handling: 30, firepower: 20, accuracy: 15, piloting: 35, weapon: 35 } } }
                 ]
             }
         }
