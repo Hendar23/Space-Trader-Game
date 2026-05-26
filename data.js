@@ -1,5 +1,5 @@
 // ==========================================
-// HELP DATABASE
+// HELP SCREEN
 // ==========================================
 const helpDatabase = [
 {title: "AUTOSAVE", 
