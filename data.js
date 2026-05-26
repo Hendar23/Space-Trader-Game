@@ -2,17 +2,20 @@
 // HELP DATABASE
 // ==========================================
 const helpDatabase = [
-    { 
-        title: "COMBAT MECHANICS", 
-        text: "Combat is resolved in rounds. Choosing <strong>ATTACK</strong> pits your Firepower and Weapons skill against the enemy's defenses. Choosing <strong>MANOEUVRE</strong> uses you ships handling and piloting skill instead, and success builds your Advantage meter, which grants massive bonuses to future rolls. If your hull reaches 0, your ship is destroyed." 
+title: "AUTOSAVE", 
+        text: "The game will automatically save your progress." 
     },
     { 
-        title: "TRADING & COMMODITIES", 
-        text: "Different stations produce and consume specific goods. Check the local market to buy goods where they are cheap, and warp to a station that demands them to sell for a profit." 
+        title: "COMBAT", 
+        text: "Combat is resolved in rounds. Choosing <strong>ATTACK</strong> pits your Firepower and Weapons skill against the enemy's defenses. Choosing <strong>MANOEUVRE</strong> uses your ship's handling and piloting skill instead, and success builds your Advantage meter. Advantage grants large bonuses to future rolls. Agile ships should use manoeuvre to get into a better position before attacking." 
+    },
+    { 
+        title: "PILOT SKILLS", 
+        text: "<strong>PILOTING</strong> is used when manoeuvring during combat.<br><strong>WEAPONRY</strong> is used when attacking in combat.<br><strong>ENGINEERING</strong> has a small effect on attacking and manoeuvring, and gives extra hull points.<br><strong>CHARM</strong> increases the payout from missions and bounties."
     },
     { 
         title: "MISSIONS & BOUNTIES", 
-        text: "Check local Outposts or Security HQs to pick up Taxi fares and Bounty Hunting contracts. Bounties require you to track down a specific hostile ship, while Taxi fares require you to safely transport a client between stations." 
+        text: "Pick up Taxi fares and Bounty Hunting contracts from cab firms and security centres. Bounties require you to track down a specific hostile ship, while Taxi fares require you to safely transport a client between stations." 
     },
     { 
         title: "SHIP OUTFITTING", 
