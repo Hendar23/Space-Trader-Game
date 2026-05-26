@@ -2,7 +2,7 @@
 // HELP DATABASE
 // ==========================================
 const helpDatabase = [
-title: "AUTOSAVE", 
+{title: "AUTOSAVE", 
         text: "The game will automatically save your progress." 
     },
     { 
@@ -27,7 +27,7 @@ title: "AUTOSAVE",
 // NEW GAME DEFAULTS
 // ==========================================
 const newGameDefaults = {
-    startingCredits: 10,
+    startingCredits: 50,
     startingSystemId: 0,
     startingSkills: {
         piloting: 10,
@@ -337,7 +337,7 @@ const taxiPickupLines = [
     "Keep it under the speed limit leaving the dock, we don't want to draw attention.",
     "I hope your inertial dampeners are functional. My species has a very delicate digestive system.",
     "This upholstery is... adequate. Try not to rattle the hull.",
-    "Exalted One, the destination is logged. Ensure the flight is sth.",
+    "Exalted One, the destination is logged. Ensure the flight is smooth.",
     "The stars told me you would arrive. They didn't mention the smell of the cabin, though.",
     "My second stomach is feeling adventurous. Let's see what these thrusters can do!",
     "Warning: I may vibrate during transit. It is a sign of excitement, not a malfunction.",
@@ -392,7 +392,7 @@ const taxiPickupLines = [
     "Smells like ozone in here.",
     "Is your armor rated for micrometeoroids? Good.",
     "Can you dim the cabin lights? Headache.",
-    "I prefer a sth ride, if possible.",
+    "I prefer a smooth ride, if possible.",
     "Don't log this trip in the public registry.",
     "Keep the comms dark until we land.",
     "If anyone asks, you never picked me up.",
@@ -421,7 +421,7 @@ const taxiDropoffLines = [
     "<Mumbled thanks>",
     "Nice flying.",
     "Finally! I thought I'd never get out of that bucket.",
-    "Sth flying dude.",
+    "Smooth flying dude.",
     "Not the worst flight I've had. Here are your credits.",
     "Praise the stars we made it. Transferring your funds now.",
     "Wooo! That was better than the Grav-Coaster on Prantus 4! Five stars!",
@@ -435,7 +435,7 @@ const taxiDropoffLines = [
     "The vibrations were... rhythmic. I shall recommend your vessel to the Hive.",
     "My internal compass confirms we are at the correct co-ordinates. Acceptable work.",
     "You missed the shortcut through the asteroid belt, but I suppose this will do.",
-    "I've had sther rides in a cargo crate, but at least I'm not dead. Credits sent.",
+    "I've had smoother rides in a cargo crate, but at least I'm not dead. Credits sent.",
     "The anchor finds the silt. The storm has passed into a quiet harbor.",
     "The blossom of our crossing has withered, leaving only the seed of payment.",
     "The stars have aligned their gaze upon this spot. Our dance of orbits ends here.",
@@ -455,7 +455,7 @@ const taxiDropoffLines = [
     "Nice job navigating that traffic. See ya.",
     "And we're here. Thanks, spacer.",
     "Check your account, should be all cleared. Thanks.",
-    "Sth landing. Appreciate it.",
+    "Smooth landing. Appreciate it.",
     "Made it just in time.",
     "Thanks for getting me here in one piece.",
     "Alright, thanks. Catch you on the flip side.",
@@ -480,7 +480,7 @@ const taxiDropoffLines = [
     "Appreciate you bypassing that traffic jam. Take care.",
     "Good job. Try to get that rattling sound fixed, though.",
     "Thanks. Back to the grind.",
-    "Sth transit. Here is your payment.",
+    "Smooth transit. Here is your payment.",
     "Thanks for keeping the ride steady.",
     "Right on time. Thanks, pilot.",
     "Credits are in your account.",
@@ -504,7 +504,7 @@ const taxiDropoffLines = [
     "Alright, transferring the funds now. Take care.",
     "Thanks for the hustle. I actually made it.",
     "Good ride, spacer. Keep the shiny side up.",
-    "Thanks. Hope your next run goes sthly.",
+    "Thanks. Hope your next run goes smoothly.",
     "And that's my cue. Thanks for the lift.",
     "Credits sent. Watch out for the patrols on your way back.",
     "Perfectly done. Thanks, pilot."
@@ -550,8 +550,8 @@ const quests = {
         xpReward: 100
     },
     "moving_on": {
-        title: "Warp to Depratz ",
-        description: "Fly to Depratz at explore the wider galaxy.",
+        title: "Warp to Depratz",
+        description: "Fly to Depratz and explore the wider galaxy.",
         targetSystemId: 13, 
         targetPoiName: "Abandoned outpost",
         xpReward: 50
@@ -567,7 +567,7 @@ const interactions = {
         image: "random",
         dialogue: {
             "start": {
-                text: "\"Stand and deliver, spacer!\"",
+                text: "Stand and deliver, spacer!",
                 options: [
                     { text: "Never! [FIGHT]", nextNode: "leave", startCombat: true },
                     { text: "Take my money!", nextNode: "leave", credits: -100 }
@@ -579,7 +579,7 @@ const interactions = {
         image: "portrait005.png",
         dialogue: {
             "start": {
-                text: "\"We have our eye on you citizen. You had better behave.\"",
+                text: "We have our eye on you citizen. You had better behave.",
                 options: [
                     { text: "You have a lovely day now officer. [Leave]", nextNode: "leave" }
                 ]
@@ -590,7 +590,7 @@ const interactions = {
         image: "random",
         dialogue: {
             "start": {
-                text: "\"Fly safe friend!\"",
+                text: "Fly safe friend!",
                 options: [
                     { text: "You too buddy. [LEAVE]", nextNode: "leave" }
                 ]
@@ -601,7 +601,7 @@ const interactions = {
         image: "random",
         dialogue: {
             "start": {
-                text: "\"Fly safe friend!\"",
+                text: "Fly safe friend!",
                 options: [
                     { text: "You too buddy. [Leave]", nextNode: "leave" }
                 ]
@@ -650,9 +650,9 @@ const interactions = {
         image: "portrait004.png",
         dialogue: {
             "start": {
-                text: "Greetings. I exists only to assist the Dev by allowing them to , well, cheat quite frankly. Are you the Dev?",
+                text: "Greetings. I exist only to assist the Dev by allowing them to, well, cheat quite frankly. Are you the Dev?",
                 options: [
-                    { text: "I am indeed Brother Moos", nextNode: "teach_me_the_way" },
+                    { text: "I am indeed, Brother Moo.", nextNode: "teach_me_the_way" },
                     { text: "I am not Brother Moo [Leave]", nextNode: "leave" }
                 ]
             },
@@ -682,14 +682,14 @@ const interactions = {
         image: "random_alien_002.png",
         dialogue: {
             "start": {
-                text: "\"Greetings. May I be of assistance?\"",
+                text: "Greetings. May I be of assistance?",
                 options: [
                     { text: "Got any fares?", nextNode: "work" },
                     { text: "No thanks. [LEAVE]", nextNode: "leave" }
                 ]
             },
             "work": {
-                text: "\"Of course.\"",
+                text: "Of course.",
                 generateTaxiJobs: true,
                 taxiJobCount: 4,
                 taxiMaxDistance: 75,
@@ -703,14 +703,14 @@ const interactions = {
         image: "random_alien_006.png",
         dialogue: {
             "start": {
-                text: "\"Hey kid, how's it going?\"",
+                text: "Hey kid, how's it going?",
                 options: [
                     { text: "I did it Bob, I got my first ship.", nextNode: "got_ship", hidesOnFlag: "meet_bitz" },
                     { text: "Sorry Uncle Bob, I gotta go. [LEAVE]", nextNode: "leave" }
                 ]
             },
             "got_ship": {
-                text: "\"Wow you really did it. I won't ask how you got the money for it. What's your plans now?\"",
+                text: "Wow you really did it. I won't ask how you got the money for it. What's your plans now?",
                 options: [
                     { text: "I'll make a quiet living hauling cargo.", nextNode: "hauling" },
                     { text: "I think I'll sign up for some taxi work. I like meeting new people.", nextNode: "taxing" },
@@ -719,31 +719,31 @@ const interactions = {
                 ]
             },
             "fortune_glory": {
-                text: "\"Haha of course! \n\nWell, be careful out there. A lotta crazy and desperate people around these days, what with the economy and all.\"\n\nI don't have to tell you to stay away from Barron Locus. Someone aught to do something about those crazy killers. ",
+                text: "Haha of course! \n\nWell, be careful out there. A lotta crazy and desperate people around these days, what with the economy and all.\n\nI don't have to tell you to stay away from Barron Locus. Someone ought to do something about those crazy killers. ",
                 options: [
                     { text: "I'll be careful Bob, thanks.", nextNode: "bob_final" }
                 ]
             },
             "bob_final": {
-                text: "\"Oh hey, before you go. Without a long range jump drive you will be stuck in our little corner of the galaxy. Decent jump drives are hard to get around here though. \n\nSpeak to my old friend Bitz over in the Logus system when you are ready, tell him I sent you. He will sort you out with something.\"",
+                text: "Oh hey, before you go. Without a long range jump drive you will be stuck in our little corner of the galaxy. Decent jump drives are hard to get around here though. \n\nSpeak to my old friend Bitz over in the Logus system when you are ready, tell him I sent you. He will sort you out with something.",
                 options: [
                     { text: "You're the best Uncle Bob. Take care. [LEAVE]", nextNode: "leave", setFlag: "meet_bitz", startTask: "meet_bitz", completeTask: "meet_bob" }
                 ]
             },
             "hauling": {
-                text: "\"Space trucking ain't glamorous, but it's an honest job and someone has to do it. \n\nBut careful out there. A lotta crazy and desperate people around these days, what with the economy and all.\"\n\nI don't have to tell you to stay away from Barron Locus. Someone aught to do something about those crazy killers. ",
+                text: "Space trucking ain't glamorous, but it's an honest job and someone has to do it. \n\nBut careful out there. A lotta crazy and desperate people around these days, what with the economy and all.\n\nI don't have to tell you to stay away from Barron Locus. Someone ought to do something about those crazy killers. ",
                 options: [
                     { text: "I'll be careful Bob, I promise.", nextNode: "bob_final" }
                 ]
             },
             "taxing": {
-                text: "\"There's some good money to be made running a shuttle service, and you will certainly meet some interesting characters\n\nBut careful out there. A lotta crazy and desperate people around these days, what with the economy and all.\"\n\nI don't have to tell you to stay away from Barron Locus. Someone aught to do something about those crazy killers. ",
+                text: "There's some good money to be made running a shuttle service, and you will certainly meet some interesting characters\n\nBut careful out there. A lotta crazy and desperate people around these days, what with the economy and all.\n\nI don't have to tell you to stay away from Barron Locus. Someone ought to do something about those crazy killers. ",
                 options: [
                     { text: "I'll be careful Bob, I promise.", nextNode: "bob_final" }
                 ]
             },
             "bounties": {
-                text: "\"Well please make sure you fit your ship out for combat first. Bounty hunting is not as glamorous as the holo-vids make it out to be. It's a dangerous job and I'd hate for you to die before you settle your tab.\n\nSeriously kiddo, it's a dangerous galaxy out there. I don't have to tell you to stay away from Barron Locus. I don't care how badass you think you are, those zealots are dangerous!\"",
+                text: "Well please make sure you fit your ship out for combat first. Bounty hunting is not as glamorous as the holo-vids make it out to be. It's a dangerous job and I'd hate for you to die before you settle your tab.\n\nSeriously kiddo, it's a dangerous galaxy out there. I don't have to tell you to stay away from Barron Locus. I don't care how badass you think you are, those zealots are dangerous!",
                 options: [
                     { text: "Don't worry Bob, I'll be careful.", nextNode: "bob_final" }
                 ]
@@ -754,7 +754,7 @@ const interactions = {
         image: "random",
         dialogue: {
             "start": {
-                text: "\"Hand over your credits!\"",
+                text: "Hand over your credits!",
                 options: [
                     { text: "Never! [FIGHT]", nextNode: "leave", startCombat: true },
                     { text: "Take my money, just leave me alone!", nextNode: "leave", credits: -10 }
@@ -766,14 +766,14 @@ const interactions = {
         image: "random_alien_012.png",
         dialogue: {
             "start": {
-                text: "\"Yeah, what?\"",
+                text: "Yeah, what?",
                 options: [
                     { text: "Got any taxi fares?", nextNode: "work" },
                     { text: "Nothing. [Leave]", nextNode: "leave" }
                 ]
             },
             "work": {
-                text: "\"Here's what's on the board.\"",
+                text: "Here's what's on the board.",
                 generateTaxiJobs: true,
                 taxiJobCount: 4,
                 taxiMaxDistance: 75,
@@ -787,7 +787,7 @@ const interactions = {
         image: "portrait006.png",
         dialogue: {
             "start": {
-                text: "Infection. The stars will be scrubbed of your stain.",
+                text: "Unbeliever! The stars will be scrubbed of your stain.",
                 options: [
                     { text: "I guess we can't talk about this? [FIGHT]", nextNode: "leave", startCombat: true }
                 ]
@@ -798,14 +798,14 @@ const interactions = {
         image: "portrait005.png",
         dialogue: {
             "start": {
-                text: "\"What do you want citizen?\"",
+                text: "What do you want citizen?",
                 options: [
                     { text: "Any outstanding bounties?", nextNode: "bounties" },
                     { text: "Nothing, just passing through. [LEAVE]", nextNode: "leave" }
                 ]
             },
             "bounties": {
-                text: "\"Always. Here is our current most wanted list.\"",
+                text: "Always. Here is our current most wanted list.",
                 generateBountyJobs: true,
                 bountyJobCount: 3,
                 bountyMaxDistance: 90,
@@ -821,25 +821,25 @@ const interactions = {
         image: "random_alien_023.png",
         dialogue: {
             "start": {
-                text: "Welcome to Bitz and Bobs Outfitters pilot! What can we you do for you today?",
+                text: "Welcome to Bitz and Bobs! What can we do for you today?",
                 options: [
                     { text: "It is done. The High Locus is dead.", nextNode: "killed_high_locus2", requiresFlag: "killed_locus" },
                     { text: "Actually Uncle Bob sent me. Said you might be able to help me find a long range warp drive. Something strong enough to get me out of this sector?", nextNode: "bitz1", requiresFlag: "meet_bitz" },
-                    { text: "Sounds great Bitz, I'll go check your catalogue! [Leave]", nextNode: "leave" }
+                    { text: "Nothing right now, thanks Bitz [Leave]", nextNode: "leave" }
                 ]
             },
             "bitz1": {
-                text: "Bob? hah! How is the old fella? Still running that dive bar of his? \n\nYeah I have some special drives in stock, but they are rare in these parts. It'll cost you 5000 credits.\n\nOr maybe you do a little job for me and I'll fit you one for free. How does that sound?",
+                text: "Bob? hah! How is the old fella? Still running that dive bar of his? \n\nYeah I have some special drives in stock, but they are rare in these parts. It'll cost you 2000 credits.\n\nOr maybe you do a little job for me and I'll fit you one for free. How does that sound?",
                 options: [
-                    { text: "That's a lotta clams Bitz, this drive better work. [PAY]", nextNode: "leave", credits: -5000, clearFlag: "meet_bitz", completeTask: "meet_bitz", rewardItem: "Drive T3" },
+                    { text: "That's a lotta clams Bitz, this drive better work. [PAY]", nextNode: "leave", credits: -2000, clearFlag: "meet_bitz", completeTask: "meet_bitz", rewardItem: "Drive T3" },
                     { text: "What's the job?", nextNode: "bitz2" }
                 ]
             },
             "bitz2": {
-                text: "So glad you asked! Those Locus raiders are a blight on the sector. Loopy fanatics attacking everyone on sight, including my customers! They are starting to spread to other systems now and the authorities around here won't do anything about it. What do I even pay taxes for I ask you?\n\nAnyway, take care of those scumbags and I'll give the the drive you need. Take out their leader and the rest will scatter for sure.",
+                text: "So glad you asked! Those Locus raiders are a blight on the sector. Loopy fanatics attacking everyone on sight, including my customers! They are starting to spread to other systems now and the authorities around here won't do anything about it. What do I even pay taxes for?\n\nAnyway, take care of those scumbags and I'll give you the drive you need. Take out their leader and the rest will scatter for sure.",
                 options: [
                     { text: "I'll do it. Prepare to witness heroics! [LEAVE]", nextNode: "leave", setFlag: "show_locus_base", clearFlag: "meet_bitz", startTask: "locus_attack", completeTask: "meet_bitz" },
-                    { text: "Oooh no thanks. That's sounds a bit dangerous. I'll come back with the cash.", nextNode: "bitz3" }
+                    { text: "Oh no. No thanks. That sounds a bit dangerous. I'll come back with the cash.", nextNode: "bitz3" }
                 ]
             },
             "bitz3": {
@@ -862,7 +862,7 @@ const interactions = {
             "start": {
                 text: "Speak to Bitz. He deals with all the business stuff.",
                 options: [
-                    { text: "Okay will do.[LEAVE]", nextNode: "leave" }
+                    { text: "Okay, will do.[LEAVE]", nextNode: "leave" }
                 ]
             }
         }
@@ -877,9 +877,9 @@ const interactions = {
                 ]
             },
             "myst1": {
-                text: "It's the end. You reached the edge of the demo.\n\nIf this was on Steam, an achievement would pop up right now. \n\nPat yourself on the back gamer. You did good.\n\nCome back when Hendar23 has added more stuff.",
+                text: "It's the end. Looks like you completed the demo.\n\nIf this was on Steam, an achievement would pop up right now. \n\nPat yourself on the back gamer. You did good.\n\nCome back when Hendar23 has added more stuff.",
                 options: [
-                    { text: "Okay. See you around I guess [LEAVE]", nextNode: "leave", completeTask: "moving_on" }
+                    { text: "Okay. See you around I guess. [LEAVE]", nextNode: "leave", completeTask: "moving_on" }
                 ]
             }
         }
@@ -905,9 +905,9 @@ const interactions = {
         image: "portrait002.png",
         dialogue: {
             "start": {
-                text: "I got a good thing going on here! I'm not gonna let you ruin everything you do-gooding twerp!",
+                text: "I got a good thing going on here! I'm not gonna let you ruin everything you little twerp!",
                 options: [
-                    { text: "A grifter. Why am I not surprised?[FIGHT]", nextNode: "leave", startCombat: true, winEncounter: "killed_locus", customEnemy: { name: "High Locus", shipHull: "Locus Raider", image: "ship_raider001.png", stats: { hull: 40, armour: 15, handling: 30, firepower: 20, accuracy: 15, piloting: 35, weapon: 35 } } }
+                    { text: "A grifter. Why am I not surprised? [FIGHT]", nextNode: "leave", startCombat: true, winEncounter: "killed_locus", customEnemy: { name: "High Locus", shipHull: "Locus Raider", image: "ship_raider001.png", stats: { hull: 40, armour: 15, handling: 30, firepower: 20, accuracy: 15, piloting: 35, weapon: 35 } } }
                 ]
             }
         }
@@ -916,7 +916,7 @@ const interactions = {
         image: "portrait006.png",
         dialogue: {
             "start": {
-                text: "No! The great one is dead! We are lost without him!",
+                text: "You...you killed him! The great one is dead....we are lost....",
                 nodeName: "Scary Raider Base",
                 options: [
                     { text: "He was using you chumps. I did you all a favour. [LEAVE]", nextNode: "leave", setFlag: "killed_locus", clearFlag: "show_locus_base", startTask: "locus_done", completeTask: "locus_attack" }
@@ -1070,7 +1070,7 @@ const mapBackgrounds = [
 const galaxy = [
     {
         id: 0, name: "Herbies Star", x: 535, y: 552,
-        description: "The only habitable planet, Leonton is known for it's large predators, petty crime, and poverty.",
+        description: "The only habitable planet, Leonton is known for its large predators, petty crime, and poverty.",
         npcSpawns: [
             { name: "Cop", shipType: "Weescow", shipImage: "ship_keiship.png", encounter: "Police Patrol", chance: 0.05, isHostile: true },
             { name: "Taxi", shipType: "Weescow", shipImage: "ship_weescow.png", encounter: "civilian001", chance: 0.1,
@@ -1092,11 +1092,11 @@ const galaxy = [
         ],
         pois: [
             { name: "Leonton Spaceport", type: "Trade Hub", image: "port003.png", description: "Smells like starship fuel, cheap narcotics, and desperation." },
-            { name: "The Full Burn Bar", type: "Outpost", image: "bar001.png", encounters: ["Uncle Bob"], description: "Leontons go to bar for visiting spacers. Uncle bob has run it as long as anyone can remember. " },
+            { name: "The Full Burn Bar", type: "Outpost", image: "bar001.png", encounters: ["Uncle Bob"], description: "Leonton's go-to bar for visiting spacers. Uncle Bob has run it as long as anyone can remember. " },
             { name: "Herbies Taxis", type: "Outpost", image: "station001.png", encounters: ["Dispatcher Varlo"], description: "Herbies Taxis HQ is a cheaply refurbished outpost." },
             { name: "System Security HQ", type: "Outpost", image: "station005.png", encounters: ["Officer Vangteel"], description: "Police headquarters for the Herbie system. " },
-            { name: "Barlows Starship Emporium", type: "Ship Vendor", description: "Rows of battered old spaceships line a large storage hold. A plastifab shed serves as Barlow Office.", shipInventory: ["Weescow", "Midgeito", "Keiship"] },
-            { name: "Copper Extractor", type: "Copper Mine", description: "Leontons copper rich moon is the heart of the systems economy." }
+            { name: "Barlow's Starship Emporium", type: "Ship Vendor", description: "Rows of battered old spaceships line a large storage hold. A plastifab shed serves as Barlow's Office.", shipInventory: ["Weescow", "Midgeito", "Keiship"] },
+            { name: "Copper Extractor", type: "Copper Mine", description: "Leonton's copper-rich moon is the heart of the system's economy." }
         ]
     },
     {
@@ -1315,6 +1315,8 @@ const galaxy = [
         ]
     }
 ];
+
+
 
 
 
